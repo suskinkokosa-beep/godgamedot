@@ -1,5 +1,4 @@
 extends Node
-class_name GameManager
 
 # Global game manager: holds game state, language, server/client flags, boot sequence
 
@@ -11,21 +10,20 @@ var game_state := "init"
 
 func _ready():
     # load saved language or default
-    var lang_path = "res://localization/selected_lang.txt"
-    if ResourceLoader.exists(lang_path):
-        var txt = File.new()
-        if txt.file_exists(lang_path):
-            txt.open(lang_path, File.READ)
-            language = txt.get_as_text().strip()
+    var lang_path = "user://selected_lang.txt"
+    if FileAccess.file_exists(lang_path):
+        var txt = FileAccess.open(lang_path, FileAccess.READ)
+        if txt:
+            language = txt.get_as_text().strip_edges()
             txt.close()
     emit_signal("language_changed", language)
 
 func set_language(lang:String):
     language = lang
-    var txt = File.new()
-    txt.open("res://localization/selected_lang.txt", File.WRITE)
-    txt.store_string(language)
-    txt.close()
+    var txt = FileAccess.open("user://selected_lang.txt", FileAccess.WRITE)
+    if txt:
+        txt.store_string(language)
+        txt.close()
     emit_signal("language_changed", language)
 
 func get_language():
@@ -48,7 +46,7 @@ var day_length := 600.0 # seconds per full day cycle
 var time_of_day := 0.0 # 0..day_length
 
 func _process(delta):
-    time_of_day = (time_of_day + delta) % day_length
+    time_of_day = fmod(time_of_day + delta, day_length)
 
 func get_day_phase() -> float:
     # returns 0..1 where 0 = midnight, 0.5 = noon

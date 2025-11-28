@@ -1,5 +1,4 @@
 extends Node
-class_name TemperatureSystem
 
 # monitors player temperature exposure and applies debuffs
 @export var cold_threshold := 0.0
@@ -11,16 +10,16 @@ var timers := {} # player_id -> timer
 
 func _process(delta):
     # server authoritative: apply damage if extreme
-    if not get_tree().is_network_server():
+    if not multiplayer.is_server():
         return
     var players = get_tree().get_nodes_in_group("players")
     for p in players:
         if not is_instance_valid(p): continue
-        var pid = p.get("net_id") if p.has_variable("net_id") else -1
+        var pid = p.get("net_id") if "net_id" in p else -1
         var temp = _estimate_temp_for_player(p)
         if temp <= cold_threshold or temp >= hot_threshold:
             timers[pid] = timers.get(pid, 0.0) + delta
-            var interval = temp <= cold_threshold ? cold_damage_interval : hot_damage_interval
+            var interval = cold_damage_interval if temp <= cold_threshold else hot_damage_interval
             if timers[pid] >= interval:
                 timers[pid] = 0.0
                 # apply small damage or stamina drain

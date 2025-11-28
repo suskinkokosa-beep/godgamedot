@@ -1,5 +1,4 @@
 extends Node
-class_name MovementServer
 
 # Map of player_id -> last_valid_transform
 var players := {} # net_id -> {pos:Vector3, vel:Vector3, last_update_time:float}
@@ -9,11 +8,11 @@ const MAX_SPEED := 12.0 # units per second
 const MAX_TELEPORT_DIST := 10.0 # max distance allowed between updates
 
 # process client movement inputs (client sends desired velocity + timestamp)
-@rpc("any_peer")
+@rpc("any_peer", "call_remote")
 func rpc_request_move(peer_id:int, net_id:int, desired_vel:Vector3, client_time:float):
-    if not is_network_server():
+    if not multiplayer.is_server():
         return
-    var now = OS.get_unix_time_millis() / 1000.0
+    var now = Time.get_ticks_msec() / 1000.0
     # find server-side node
     var net = get_node_or_null("/root/Network")
     if not net: return

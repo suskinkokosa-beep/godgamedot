@@ -1,5 +1,4 @@
 extends Node
-class_name Inventory
 signal inventory_changed()
 signal equip_changed()
 

@@ -1,5 +1,4 @@
 extends Node
-class_name StatsSystem
 
 signal stats_changed(player_id, stats)
 

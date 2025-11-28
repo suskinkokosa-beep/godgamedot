@@ -1,5 +1,4 @@
 extends Node
-class_name LocalizationService
 
 var strings = {}
 var current_lang = "en"
@@ -11,21 +10,23 @@ func load_language(lang:String):
     current_lang = lang
     strings.clear()
     var path = "res://localization/%s.csv" % lang
-    var f = File.new()
-    if not f.file_exists(path):
+    if not FileAccess.file_exists(path):
         push_error("Localization file not found: %s" % path)
         return
-    f.open(path, File.READ)
+    var f = FileAccess.open(path, FileAccess.READ)
+    if not f:
+        push_error("Failed to open localization file: %s" % path)
+        return
     # skip header
     var header = f.get_line()
     while not f.eof_reached():
         var line = f.get_line()
-        if line.strip() == "":
+        if line.strip_edges() == "":
             continue
         var parts = line.split(",", false, 1)
         if parts.size() >= 2:
-            var key = parts[0].strip()
-            var txt = parts[1].strip()
+            var key = parts[0].strip_edges()
+            var txt = parts[1].strip_edges()
             strings[key] = txt
     f.close()
     # notify game manager or UI via signal if present

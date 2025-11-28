@@ -8,7 +8,7 @@ class_name WorldDirector
 var spawn_timer := 0.0
 
 func _process(delta):
-    if not get_tree().is_network_server():
+    if not multiplayer.is_server():
         return
     spawn_timer += delta
     if spawn_timer >= spawn_interval:

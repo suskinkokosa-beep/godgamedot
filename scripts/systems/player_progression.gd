@@ -1,6 +1,5 @@
 \
 extends Node
-class_name PlayerProgression
 
 signal player_updated(net_id)
 

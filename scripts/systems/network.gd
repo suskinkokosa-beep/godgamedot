@@ -35,14 +35,14 @@ func register_entity_server(node):
 func register_entity_client(id, node):
     client_entities[id] = node
 
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_notify_register(id, dummy):
     # clients can create mapping after they instantiate the scene; placeholder
     # actual linking should be done when spawn notification arrives
     pass
 
 # SERVER-AUTHORIZED SPAWN (client calls request, server spawns and notifies)
-@rpc("any_peer")
+@rpc("any_peer", "call_remote")
 func rpc_request_spawn(scene_path: String, tf: Transform3D):
     if not is_server:
         return
@@ -61,7 +61,7 @@ func rpc_request_spawn(scene_path: String, tf: Transform3D):
     var id = register_entity_server(inst)
     rpc_id(0, "rpc_notify_spawn", scene_path, tf, id)
 
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_notify_spawn(scene_path: String, tf: Transform3D, id:int):
     if is_server:
         return
@@ -79,7 +79,7 @@ func rpc_notify_spawn(scene_path: String, tf: Transform3D, id:int):
     register_entity_client(id, inst)
 
 # DAMAGE RPC (clients request, server applies and notifies)
-@rpc("any_peer")
+@rpc("any_peer", "call_remote")
 func rpc_request_damage(entity_id:int, amount:float, attacker_peer_id:int):
     if not is_server:
         return
@@ -89,20 +89,20 @@ func rpc_request_damage(entity_id:int, amount:float, attacker_peer_id:int):
     if node and node.has_method("apply_damage"):
         node.apply_damage(amount, attacker_peer_id)
         # notify clients about health change if node has get_health method
-        var health = node.get("health") if node.has_variable("health") else 0
+        var health = node.get("health") if "health" in node else 0
         rpc_id(0, "rpc_notify_health", entity_id, health)
 
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_notify_health(entity_id:int, health:float):
     # clients update local representation
     if client_entities.has(entity_id):
         var node = client_entities[entity_id]
-        if node and node.has_variable("health"):
+        if node and "health" in node:
             node.health = health
 
 
 # SERVER: receive attack requests and validate via combat server
-@rpc("any_peer")
+@rpc("any_peer", "call_remote")
 func rpc_request_attack(attacker_id:int, target_entity_id:int, damage:float, attacker_pos:Vector3):
     if not is_server:
         return
@@ -112,7 +112,7 @@ func rpc_request_attack(attacker_id:int, target_entity_id:int, damage:float, att
 
 
 # CLIENT -> SERVER: request to spawn player for this peer
-@rpc("any_peer")
+@rpc("any_peer", "call_remote")
 func rpc_request_player_join(scene_path: String):
     if not is_server:
         return
@@ -130,14 +130,14 @@ func rpc_request_player_join(scene_path: String):
     # set owner meta for server
     inst.set_meta("owner_peer_id", peer_id)
     inst.set_meta("owner_scene_path", scene_path)
-    inst.set_meta("owner_spawn_time", OS.get_unix_time())
+    inst.set_meta("owner_spawn_time", Time.get_unix_time_from_system())
     inst.global_transform.origin += Vector3(0,0,0) # leave spawn pos as is, could be refined
-    var id = register_entity_server(inst, peer_id)
+    var id = register_entity_server(inst)
     # notify single client about their assigned id and spawn
     rpc_id(peer_id, "rpc_notify_player_spawned", scene_path, inst.global_transform, id)
 
 # Server -> client: notify player's own client of spawn and assigned net_id
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_notify_player_spawned(scene_path: String, tf: Transform3D, id:int):
     # client will instantiate and set local ownership mapping
     var scene = ResourceLoader.load(scene_path)
@@ -158,15 +158,15 @@ func rpc_notify_player_spawned(scene_path: String, tf: Transform3D, id:int):
     register_entity_client(id, inst)
 
 
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_notify_stamina(entity_id:int, stamina_value:float):
     if client_entities.has(entity_id):
         var node = client_entities[entity_id]
-        if node and node.has_variable("stamina"):
+        if node and "stamina" in node:
             node.stamina = stamina_value
 
 
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_sync_transform(entity_id:int, pos:Vector3, vel:Vector3):
     # clients receive authoritative transform updates from server
     if is_server:

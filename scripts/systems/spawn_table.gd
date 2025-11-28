@@ -1,5 +1,4 @@
 extends Node
-class_name SpawnTable
 
 # spawn definitions per biome: biome_name -> [{scene:"res://scenes/mobs/wolf.tscn", weight:10}, ...]
 var tables = {}

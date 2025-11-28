@@ -1,5 +1,4 @@
 extends Node
-class_name WeatherSystem
 
 signal weather_changed(new_weather)
 
@@ -16,7 +15,7 @@ var change_interval := 120.0
 var timer := 0.0
 
 func _process(delta):
-    if not get_tree().is_network_server():
+    if not multiplayer.is_server():
         return
     timer += delta
     if timer >= change_interval:
@@ -43,7 +42,7 @@ func _randomize_weather():
     rpc_id(0, "rpc_notify_weather", current_weather, intensity, wind_speed, temp_delta)
     emit_signal("weather_changed", current_weather)
 
-@rpc("remote")
+@rpc("any_peer", "call_remote")
 func rpc_notify_weather(w, inten, wind, tdelta):
     current_weather = w
     intensity = inten

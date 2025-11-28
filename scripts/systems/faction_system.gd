@@ -1,5 +1,4 @@
 extends Node
-class_name FactionSystem
 
 # Simple faction manager: track friendly/enemy relations
 var factions = {} # name -> {relations: {other: relation_value}}

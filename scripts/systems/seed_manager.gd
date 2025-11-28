@@ -1,5 +1,4 @@
 extends Node
-class_name SeedManager
 
 var seed := 0
 

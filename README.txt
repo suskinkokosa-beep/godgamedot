@@ -8,3 +8,4 @@ Notes: scenes are minimal placeholders; scripts implement core logic for mobs, N
 
 
 Added: UI scenes (HUD, inventory window, craft window), materials placeholders, environment scene, and demo world that spawns a player, a mob and a crate.
+отвечай на русском языке всегда и сделай так что бы запустилось тут

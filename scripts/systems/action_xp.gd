@@ -1,6 +1,5 @@
 \
 extends Node
-class_name ActionXP
 
 # maps actions to XP values and which skill to increment
 var action_map = {

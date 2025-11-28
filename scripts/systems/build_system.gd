@@ -44,7 +44,7 @@ func confirm_build(player):
     var rot = preview_instance.global_transform.basis.get_euler()
     rpc_id(1, "server_place_build", current_part, pos, rot)
 
-@rpc("authority")
+@rpc("any_peer", "call_remote", "reliable")
 func server_place_build(item_id, pos, rot):
     var scene = ResourceLoader.load("res://scenes/building_parts/%s.tscn" % item_id)
     if not scene: return

@@ -1,5 +1,4 @@
 extends Node
-class_name CombatEngine
 
 # Central combat engine. Should run on server for authoritative checks.
 # Emits signals for events (hit, kill, crit)

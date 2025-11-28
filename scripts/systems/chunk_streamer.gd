@@ -1,5 +1,4 @@
 extends Node
-class_name ChunkStreamer
 
 @export var view_distance_chunks := 3
 

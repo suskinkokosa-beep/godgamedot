@@ -1,5 +1,4 @@
 extends Node
-class_name BiomeSystem
 
 # Very simple biome mapping by position: define circular biomes
 var biomes := [] # [{name, center:Vector3, radius, base_temp}]

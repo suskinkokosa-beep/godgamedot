@@ -1,0 +1,6 @@
+Autoload setup instructions:
+1) Add 'scripts/systems/inventory.gd' as autoload named 'Inventory'.
+2) Add 'scripts/systems/network.gd' as autoload named 'Network'.
+3) Add 'scripts/systems/world_ai.gd' as autoload named 'WorldAI' (optional).
+
+Notes: The server peer id is 1 (default). Use Network.host() on server machine, Network.join(ip) on clients.

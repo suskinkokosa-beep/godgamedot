@@ -1,0 +1,3 @@
+[application]
+config/name="EpochSettlementsAlpha"
+run/main_scene="res://scenes/world.tscn"

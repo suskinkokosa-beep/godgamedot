@@ -1,0 +1,12 @@
+key,text
+hello,Hello
+inventory,Inventory
+craft,Crafting
+health,Health
+stamina,Stamina
+language,Language
+join_server,Join Server
+host_server,Host Server
+attack,Attack
+dead,Dead
+respawn,Respawn in {secs}s

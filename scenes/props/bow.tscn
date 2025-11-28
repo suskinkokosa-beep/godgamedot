@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/tools/load_mesh_from_asset.gd" type="Script" id=1]
+
+[node name="bow" type="MeshInstance3D"]
+script = ExtResource( 1 )
+mesh_path = "res://assets/art_pack/weapons/bow.obj"

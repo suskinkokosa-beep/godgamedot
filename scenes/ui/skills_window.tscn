@@ -1,0 +1,17 @@
+\
+[gd_scene load_steps=3 format=3]
+
+[ext_resource path="res://scripts/ui/ui_skills.gd" type="Script" id=1]
+
+[node name="SkillsWindow" type="WindowDialog"]
+rect_min_size = Vector2(340, 300)
+title = "Skills"
+
+[node name="VBox" type="VBoxContainer" parent="."]
+rect_min_size = Vector2(320,260)
+
+[node name="SkillsGrid" type="GridContainer" parent="VBox"]
+columns = 2
+
+[node name="BtnClose" type="Button" parent="VBox"]
+text = "Close"

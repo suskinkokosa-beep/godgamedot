@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[node name="Crate" type="StaticBody3D"]
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource( 1 )
+
+[sub_resource type="CubeMesh" id=1]
+size = Vector3( 0.9, 0.6, 0.6 )

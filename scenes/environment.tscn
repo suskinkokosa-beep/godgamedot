@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[node name="Environment" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+light_energy = 1.0
+shadow_enabled = true
+direction = Vector3( -0.3, -1, -0.5 )
+
+[node name="Sky" type="WorldEnvironment" parent="."]
+environment = SubResource( 1 )
+
+[sub_resource type="Environment" id=1]
+background_mode = 2

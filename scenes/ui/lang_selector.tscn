@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource path="res://scripts/ui/ui_controller.gd" type="Script" id=1]
+
+[node name="LangUI" type="Control"]
+rect_min_size = Vector2(200, 80)
+
+[node name="BtnEN" type="Button" parent="."]
+text = "EN"
+rect_position = Vector2(10,10)
+
+[node name="BtnRU" type="Button" parent="."]
+text = "RU"
+rect_position = Vector2(100,10)

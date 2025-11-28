@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource path="res://scripts/ui/ui_stats.gd" type="Script" id=1]
+
+[node name="StatsWindow" type="WindowDialog"]
+rect_min_size = Vector2(300, 220)
+title = "Stats"
+
+[node name="VBox" type="VBoxContainer" parent="."]
+rect_min_size = Vector2(280, 180)
+
+[node name="LblLevel" type="Label" parent="VBox"]
+text = "Level: 1"
+
+[node name="StatsGrid" type="GridContainer" parent="VBox"]
+columns = 2
+
+[node name="BtnClose" type="Button" parent="VBox"]
+text = "Close"

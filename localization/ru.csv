@@ -1,0 +1,12 @@
+key,text
+hello,Привет
+inventory,Инвентарь
+craft,Крафт
+health,Здоровье
+stamina,Выносливость
+language,Язык
+join_server,Подключиться к серверу
+host_server,Запустить сервер
+attack,Атака
+dead,Мёртв
+respawn,Возрождение через {secs}с

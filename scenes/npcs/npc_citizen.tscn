@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource path="res://scripts/npcs/npc_citizen.gd" type="Script" id=1]
+
+[node name="NPCCitizen" type="CharacterBody3D"]
+script = ExtResource( 1 )
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource( 1 )
+
+[sub_resource type="BoxMesh" id=1]
+size = Vector3( 0.6, 1.8, 0.6 )

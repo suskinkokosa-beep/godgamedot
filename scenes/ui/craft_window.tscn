@@ -1,0 +1,13 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource path="res://scripts/ui/ui_crafting.gd" type="Script" id=1]
+
+[node name="CraftWindow" type="WindowDialog"]
+
+[node name="RecipeList" type="ItemList" parent="."]
+
+[node name="ReqPanel" type="VBoxContainer" parent="."]
+rect_min_size = Vector2( 150, 100 )
+
+[node name="CraftBtn" type="Button" parent="."]
+text = "Craft"

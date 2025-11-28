@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=2]
+
+[resource]
+damage_min = 8.0
+damage_max = 12.0
+attack_speed = 1.0
+range = 2.2
+stamina_cost = 8.0
+type = "slash"
+critical_chance = 0.06
+critical_multiplier = 1.5
+armor_penetration = 0.0

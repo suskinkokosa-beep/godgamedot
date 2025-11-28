@@ -1,0 +1,5 @@
+newmtl mat
+Ka 1.000 1.000 1.000
+Kd 1.000 1.000 1.000
+map_Kd textures/albedo_wood.png
+map_Bump textures/normal_flat.png

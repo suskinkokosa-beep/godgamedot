@@ -1,3 +1,35 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
 [application]
+
 config/name="EpochSettlementsAlpha"
-run/main_scene="res://scenes/world.tscn"
+run/main_scene="res://scenes/test_world.tscn"
+config/features=PackedStringArray("4.5")
+
+[autoload]
+
+Inventory="*res://scripts/systems/inventory.gd"
+Network="*res://scripts/systems/network.gd"
+GameManager="*res://scripts/systems/game_manager.gd"
+LocalizationService="*res://scripts/systems/localization_service.gd"
+StatsSystem="*res://scripts/systems/stats.gd"
+PlayerProgression="*res://scripts/systems/player_progression.gd"
+ActionXP="*res://scripts/systems/action_xp.gd"
+SpawnTable="*res://scripts/systems/spawn_table.gd"
+FactionSystem="*res://scripts/systems/faction_system.gd"
+WeatherSystem="*res://scripts/systems/weather_system.gd"
+BiomeSystem="*res://scripts/systems/biome_system.gd"
+TemperatureSystem="*res://scripts/systems/temperature_system.gd"
+MovementServer="*res://scripts/systems/movement_server.gd"
+MovementClient="*res://scripts/systems/movement_client.gd"
+SeedManager="*res://scripts/systems/seed_manager.gd"
+ChunkStreamer="*res://scripts/systems/chunk_streamer.gd"
+CombatEngine="*res://scripts/combat/combat_engine.gd"

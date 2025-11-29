@@ -19,6 +19,8 @@ var inventory = null
 var combat = null
 var progression = null
 var camera: Camera3D = null
+var first_person_arms = null
+var first_person_legs = null
 var net_id := 1
 var health := 100.0
 var max_health := 100.0
@@ -52,6 +54,12 @@ var crouch_transition_speed := 8.0
 
 var collision_shape: CollisionShape3D = null
 
+var is_spawning := true
+var spawn_grace_timer := 5.0
+var spawn_check_timer := 0.0
+var spawn_attempts := 0
+var max_spawn_attempts := 30
+
 func _ready():
         Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
         camera = get_node_or_null("Camera3D")
@@ -60,6 +68,10 @@ func _ready():
         combat = get_node_or_null("Combat")
         progression = get_node_or_null("/root/PlayerProgression")
         add_to_group("players")
+        
+        if camera:
+                first_person_arms = camera.get_node_or_null("FirstPersonArms")
+                first_person_legs = camera.get_node_or_null("FirstPersonLegs")
         
         if collision_shape and collision_shape.shape is CapsuleShape3D:
                 default_height = collision_shape.shape.height
@@ -80,6 +92,11 @@ func _ready():
         var ss = get_node_or_null("/root/StatsSystem")
         if ss:
                 ss.create_player(net_id)
+        
+        is_spawning = true
+        spawn_grace_timer = 5.0
+        spawn_attempts = 0
+        call_deferred("_safe_spawn")
 
 func _input(event):
         if event is InputEventMouseMotion and camera:
@@ -115,6 +132,13 @@ func _input(event):
                                 inventory.select_hotbar_slot((current + 1) % 8)
 
 func _physics_process(delta):
+        if is_spawning:
+                _handle_spawn_phase(delta)
+                return
+        
+        if spawn_grace_timer > 0:
+                spawn_grace_timer -= delta
+        
         _process_survival(delta)
         
         var input_dir = Vector3.ZERO
@@ -179,8 +203,107 @@ func _physics_process(delta):
         
         was_on_floor = is_on_floor()
         
+        var audio = get_node_or_null("/root/AudioManager")
+        if audio and is_on_floor():
+                var is_moving = velocity.length() > 0.5
+                audio.update_footsteps(delta, is_moving, is_sprinting)
+        
         if not is_sprinting:
                 stamina = min(max_stamina, stamina + 8.0 * delta)
+
+func _safe_spawn():
+        var world_gen = get_node_or_null("/root/WorldGenerator")
+        if not world_gen:
+                await get_tree().create_timer(0.5).timeout
+                if not world_gen:
+                        world_gen = get_node_or_null("/root/WorldGenerator")
+        
+        var spawn_pos := Vector3.ZERO
+        
+        if world_gen and world_gen.has_method("get_height_at"):
+                var best_height := -1000.0
+                var found_safe := false
+                
+                for attempt in range(10):
+                        var test_x = randf_range(-100, 100)
+                        var test_z = randf_range(-100, 100)
+                        var terrain_height = world_gen.get_height_at(test_x, test_z)
+                        
+                        var sea_level = world_gen.get("SEA_LEVEL")
+                        if sea_level == null:
+                                sea_level = 5.0
+                        
+                        if terrain_height > sea_level + 1 and terrain_height > best_height:
+                                best_height = terrain_height
+                                spawn_pos = Vector3(test_x, terrain_height + 3, test_z)
+                                found_safe = true
+                
+                if not found_safe:
+                        spawn_pos = Vector3(0, 50, 0)
+        else:
+                spawn_pos = Vector3(0, 50, 0)
+        
+        global_position = spawn_pos
+        velocity = Vector3.ZERO
+
+func _handle_spawn_phase(delta: float):
+        spawn_check_timer += delta
+        
+        if spawn_check_timer < 0.1:
+                return
+        
+        spawn_check_timer = 0
+        spawn_attempts += 1
+        
+        velocity.y = 0
+        
+        var safe_y := _find_safe_ground_height()
+        
+        if safe_y > -900:
+                global_position.y = safe_y + 2.0
+                velocity = Vector3.ZERO
+                is_spawning = false
+                spawn_grace_timer = 5.0
+                body_temperature = 37.0
+                print("Player spawned safely at: ", global_position)
+        elif spawn_attempts >= max_spawn_attempts:
+                var world_gen = get_node_or_null("/root/WorldGenerator")
+                if world_gen and world_gen.has_method("get_height_at"):
+                        var terrain_h = world_gen.get_height_at(global_position.x, global_position.z)
+                        var sea_level = world_gen.get("SEA_LEVEL")
+                        if sea_level == null:
+                                sea_level = 5.0
+                        global_position.y = max(terrain_h + 3, sea_level + 5)
+                else:
+                        global_position.y = 20.0
+                
+                velocity = Vector3.ZERO
+                is_spawning = false
+                spawn_grace_timer = 5.0
+                body_temperature = 37.0
+                print("Spawn timeout, fallback position: ", global_position)
+        else:
+                velocity.y = 0
+                global_position.y = max(global_position.y, 50)
+
+func _find_safe_ground_height() -> float:
+        var space = get_world_3d().direct_space_state
+        if not space:
+                return -1000.0
+        
+        var from = Vector3(global_position.x, global_position.y + 100, global_position.z)
+        var to = Vector3(global_position.x, global_position.y - 200, global_position.z)
+        
+        var query = PhysicsRayQueryParameters3D.create(from, to)
+        query.exclude = [self]
+        query.collision_mask = 1
+        
+        var result = space.intersect_ray(query)
+        
+        if result:
+                return result.position.y
+        
+        return -1000.0
 
 func _process_jump(delta: float):
         if is_on_floor():
@@ -260,6 +383,13 @@ func _attack():
                 return
         stamina -= 10
         
+        var audio = get_node_or_null("/root/AudioManager")
+        if audio:
+                audio.play_attack_sound("melee")
+        
+        if first_person_arms and first_person_arms.has_method("swing"):
+                first_person_arms.swing()
+        
         if not camera:
                 return
         
@@ -272,7 +402,13 @@ func _attack():
         
         if result:
                 var target = result.collider
-                var damage = 15.0 * get_damage_modifier()
+                var base_damage = 15.0
+                if first_person_arms and first_person_arms.has_item_equipped():
+                        var item_id = first_person_arms.get_held_item_id()
+                        if inventory:
+                                var info = inventory.get_item_info(item_id)
+                                base_damage = info.get("damage", 15.0)
+                var damage = base_damage * get_damage_modifier()
                 if target and target.has_method("apply_damage"):
                         target.apply_damage(damage, self)
                         if progression:
@@ -301,6 +437,16 @@ func apply_damage(amount: float, source):
         if source and randf() < 0.3:
                 blood -= amount * 0.5
                 blood = max(0, blood)
+        
+        var vfx = get_node_or_null("/root/VFXManager")
+        if vfx:
+                vfx.spawn_damage_numbers(global_position + Vector3(0, 2, 0), amount)
+                vfx.spawn_hit_effect(global_position + Vector3(0, 1, 0), "flesh")
+        
+        var audio = get_node_or_null("/root/AudioManager")
+        if audio:
+                audio.play_hit_sound("flesh")
+        
         if health <= 0:
                 _die()
 
@@ -347,6 +493,10 @@ func consume_water(amount: float):
 
 func heal(amount: float):
         health = min(max_health, health + amount)
+        
+        var vfx = get_node_or_null("/root/VFXManager")
+        if vfx:
+                vfx.spawn_healing_effect(global_position + Vector3(0, 1, 0))
 
 func set_mouse_sensitivity(value: float):
         mouse_sens = clamp(value, 0.01, 0.2)
@@ -368,6 +518,10 @@ func _sync_stats_from_progression():
         body_temperature = p.stats.temperature
 
 func _process_survival(delta: float):
+        if spawn_grace_timer > 0:
+                body_temperature = 37.0
+                return
+        
         var debuff_sys = get_node_or_null("/root/DebuffSystem")
         var temp_sys = get_node_or_null("/root/TemperatureSystem")
         

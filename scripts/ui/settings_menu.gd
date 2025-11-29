@@ -27,12 +27,190 @@ extends Control
 @onready var sfx_slider = $VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/SFXRow/SFXSlider
 @onready var sfx_label = $VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/SFXRow/SFXValue
 
+@onready var language_dropdown = $VBoxContainer/TabContainer/Язык/ScrollContainer/VBoxContainer/LanguageRow/LanguageDropdown
+
+@onready var keybind_buttons := {
+        "forward": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindForward/Button",
+        "back": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindBack/Button",
+        "left": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindLeft/Button",
+        "right": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindRight/Button",
+        "jump": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindJump/Button",
+        "sprint": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindSprint/Button",
+        "crouch": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindCrouch/Button",
+        "interact": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindInteract/Button",
+        "inventory": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindInventory/Button",
+        "attack": $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindAttack/Button"
+}
+
+@onready var reset_keybinds_btn = $"VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/ResetKeybinds"
+
 var settings_manager = null
+var waiting_for_key: String = ""
+var current_keybinds := {
+        "forward": KEY_W,
+        "back": KEY_S,
+        "left": KEY_A,
+        "right": KEY_D,
+        "jump": KEY_SPACE,
+        "sprint": KEY_SHIFT,
+        "crouch": KEY_CTRL,
+        "interact": KEY_E,
+        "inventory": KEY_I,
+        "attack": MOUSE_BUTTON_LEFT
+}
+
+var key_names := {
+        KEY_W: "W", KEY_A: "A", KEY_S: "S", KEY_D: "D",
+        KEY_E: "E", KEY_F: "F", KEY_G: "G", KEY_H: "H",
+        KEY_I: "I", KEY_J: "J", KEY_K: "K", KEY_L: "L",
+        KEY_M: "M", KEY_N: "N", KEY_O: "O", KEY_P: "P",
+        KEY_Q: "Q", KEY_R: "R", KEY_T: "T", KEY_U: "U",
+        KEY_V: "V", KEY_X: "X", KEY_Y: "Y", KEY_Z: "Z",
+        KEY_SPACE: "Пробел", KEY_SHIFT: "Shift", KEY_CTRL: "Ctrl",
+        KEY_ALT: "Alt", KEY_TAB: "Tab", KEY_ESCAPE: "Esc",
+        KEY_1: "1", KEY_2: "2", KEY_3: "3", KEY_4: "4",
+        KEY_5: "5", KEY_6: "6", KEY_7: "7", KEY_8: "8",
+        KEY_9: "9", KEY_0: "0",
+        MOUSE_BUTTON_LEFT: "ЛКМ", MOUSE_BUTTON_RIGHT: "ПКМ", MOUSE_BUTTON_MIDDLE: "СКМ"
+}
 
 func _ready():
         settings_manager = get_node_or_null("/root/SettingsManager")
         _setup_ui()
+        _setup_keybinds()
+        _setup_language()
         _load_current_settings()
+
+func _input(event: InputEvent):
+        if waiting_for_key == "":
+                return
+        
+        var new_key = -1
+        if event is InputEventKey and event.pressed:
+                new_key = event.keycode
+        elif event is InputEventMouseButton and event.pressed:
+                new_key = event.button_index
+        
+        if new_key != -1:
+                current_keybinds[waiting_for_key] = new_key
+                _apply_keybinds()
+                _update_keybind_buttons()
+                waiting_for_key = ""
+                get_viewport().set_input_as_handled()
+
+func _setup_keybinds():
+        for action in keybind_buttons.keys():
+                var btn = keybind_buttons[action]
+                if btn:
+                        btn.connect("pressed", _on_keybind_pressed.bind(action))
+        
+        if reset_keybinds_btn:
+                reset_keybinds_btn.connect("pressed", _on_reset_keybinds)
+        
+        _update_keybind_buttons()
+
+func _update_keybind_buttons():
+        for action in keybind_buttons.keys():
+                var btn = keybind_buttons[action]
+                if btn:
+                        var key = current_keybinds.get(action, -1)
+                        if waiting_for_key == action:
+                                btn.text = "..."
+                        elif key_names.has(key):
+                                btn.text = key_names[key]
+                        else:
+                                btn.text = "?"
+
+func _on_keybind_pressed(action: String):
+        waiting_for_key = action
+        _update_keybind_buttons()
+
+func _on_reset_keybinds():
+        current_keybinds = {
+                "forward": KEY_W,
+                "back": KEY_S,
+                "left": KEY_A,
+                "right": KEY_D,
+                "jump": KEY_SPACE,
+                "sprint": KEY_SHIFT,
+                "crouch": KEY_CTRL,
+                "interact": KEY_E,
+                "inventory": KEY_I,
+                "attack": MOUSE_BUTTON_LEFT
+        }
+        _apply_keybinds()
+        _update_keybind_buttons()
+
+func _apply_keybinds():
+        var action_map := {
+                "forward": "move_forward",
+                "back": "move_back",
+                "left": "move_left",
+                "right": "move_right",
+                "jump": "jump",
+                "sprint": "sprint",
+                "crouch": "crouch",
+                "interact": "interact",
+                "inventory": "inventory",
+                "attack": "attack"
+        }
+        
+        for keybind_name in current_keybinds.keys():
+                var action_name = action_map.get(keybind_name, keybind_name)
+                var key_code = current_keybinds[keybind_name]
+                
+                if not InputMap.has_action(action_name):
+                        continue
+                
+                InputMap.action_erase_events(action_name)
+                
+                var event: InputEvent
+                if key_code >= MOUSE_BUTTON_LEFT and key_code <= MOUSE_BUTTON_XBUTTON2:
+                        event = InputEventMouseButton.new()
+                        event.button_index = key_code
+                else:
+                        event = InputEventKey.new()
+                        event.keycode = key_code
+                
+                InputMap.action_add_event(action_name, event)
+        
+        if settings_manager:
+                settings_manager.set_setting("controls", "keybinds", current_keybinds)
+                settings_manager.save_settings()
+
+func _setup_language():
+        if language_dropdown:
+                language_dropdown.clear()
+                language_dropdown.add_item("Русский", 0)
+                language_dropdown.add_item("English", 1)
+                language_dropdown.connect("item_selected", _on_language_changed)
+                
+                var saved_lang = "ru"
+                if settings_manager and settings_manager.settings.has("game"):
+                        saved_lang = settings_manager.settings["game"].get("language", "ru")
+                
+                if saved_lang == "en":
+                        language_dropdown.select(1)
+                        TranslationServer.set_locale("en")
+                else:
+                        language_dropdown.select(0)
+                        TranslationServer.set_locale("ru")
+
+func _on_language_changed(idx: int):
+        var locales = ["ru", "en"]
+        if idx >= 0 and idx < locales.size():
+                var new_locale = locales[idx]
+                TranslationServer.set_locale(new_locale)
+                
+                var loc_service = get_node_or_null("/root/LocalizationService")
+                if loc_service and loc_service.has_method("set_language"):
+                        loc_service.set_language(new_locale)
+                
+                if settings_manager:
+                        if not settings_manager.settings.has("game"):
+                                settings_manager.settings["game"] = {}
+                        settings_manager.settings["game"]["language"] = new_locale
+                        settings_manager.save_settings()
 
 func _setup_ui():
         if quality_dropdown:

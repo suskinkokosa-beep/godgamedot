@@ -78,6 +78,33 @@ func _input(event):
         elif event.is_action_pressed("ui_cancel"):
                 if is_inventory_open:
                         close_inventory()
+        
+        if event is InputEventKey and event.pressed:
+                if event.keycode == KEY_F5:
+                        _quick_save()
+                elif event.keycode == KEY_F9:
+                        _quick_load()
+
+func _quick_save():
+        var save_mgr = get_node_or_null("/root/SaveManager")
+        if save_mgr:
+                var slot_name = "quicksave"
+                if save_mgr.save_game(slot_name):
+                        var notif = get_node_or_null("/root/NotificationSystem")
+                        if notif:
+                                notif.show_notification("Игра сохранена", "success")
+                        else:
+                                print("Игра сохранена: ", slot_name)
+
+func _quick_load():
+        var save_mgr = get_node_or_null("/root/SaveManager")
+        if save_mgr and save_mgr.has_save("quicksave"):
+                if save_mgr.load_game("quicksave"):
+                        var notif = get_node_or_null("/root/NotificationSystem")
+                        if notif:
+                                notif.show_notification("Игра загружена", "success")
+                        else:
+                                print("Игра загружена: quicksave")
 
 func toggle_inventory():
         is_inventory_open = not is_inventory_open
@@ -318,6 +345,24 @@ func _update_fps():
                 else:
                         fps_label.add_theme_color_override("font_color", Color(0.8, 0.5, 0.5, 0.7))
 
+const HOTBAR_ICONS := {
+        "wood": "🪵", "stone": "🪨", "stick": "🥢", "plant_fiber": "🌿",
+        "iron_ore": "⬛", "copper_ore": "🔶", "gold_ore": "🟡", "silver_ore": "⬜",
+        "iron_ingot": "🔩", "copper_ingot": "🟧", "steel_ingot": "⬛",
+        "hide": "🦴", "bone": "🦴", "flint": "🔺", "cloth": "🧵", "leather": "🟤",
+        "coal": "⚫", "herbs": "🌿", "mushroom": "🍄", "wheat": "🌾",
+        "fish": "🐟", "meat": "🥩", "cooked_meat": "🍖", "cooked_fish": "🍣",
+        "berries": "🫐", "stew": "🍲", "bread": "🍞", "carrot": "🥕",
+        "water_bottle": "💧", "bandage": "🩹", "medkit": "🏥", "medicine": "💊",
+        "stone_axe": "🪓", "stone_pickaxe": "⛏️", "stone_knife": "🔪",
+        "iron_axe": "🪓", "iron_pickaxe": "⛏️", "steel_axe": "🪓", "steel_pickaxe": "⛏️",
+        "hammer": "🔨", "repair_hammer": "🔧", "fishing_rod": "🎣",
+        "wooden_spear": "🗡️", "iron_sword": "⚔️", "steel_sword": "⚔️",
+        "bow": "🏹", "crossbow": "🏹", "arrow": "➡️", "bolt": "🔩",
+        "torch": "🔥", "campfire": "🔥", "sleeping_bag": "🛏️",
+        "workbench_1": "🔧", "furnace": "🔥", "storage_box": "📦"
+}
+
 func _update_hotbar():
         if not inventory or not inventory.has_method("get_hotbar"):
                 return
@@ -335,13 +380,12 @@ func _update_hotbar():
                 
                 if label:
                         if item != null and item is Dictionary and item.has("id"):
-                                var info = inventory.get_item_info(item["id"])
-                                var item_name = info.get("name", item["id"]) if info else item["id"]
-                                if item_name.length() > 4:
-                                        item_name = item_name.substr(0, 4)
-                                label.text = item_name
+                                var icon = HOTBAR_ICONS.get(item["id"], "📦")
+                                label.text = icon
+                                label.add_theme_font_size_override("font_size", 24)
                                 if item.has("count") and item["count"] > 1:
                                         label.text += "\n" + str(item["count"])
+                                        label.add_theme_font_size_override("font_size", 18)
                         else:
                                 label.text = ""
 

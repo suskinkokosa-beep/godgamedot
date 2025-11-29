@@ -11,17 +11,23 @@ var net = null
 var net_id := -1
 var ui = null
 
+func _is_local_player() -> bool:
+    var mp = multiplayer
+    if mp == null or not mp.has_multiplayer_peer():
+        return true
+    return mp.get_unique_id() == get_multiplayer_authority()
+
 func _ready():
     net = get_node_or_null("/root/Network")
     ui = get_node_or_null("/root/UI")
     add_to_group("players")
     # ensure stamina variable exists for server bookkeeping
-    if is_network_master():
+    if _is_local_player():
         stamina = max_stamina
 
 func _process(delta):
     # local stamina regen prediction
-    if not is_network_master():
+    if not _is_local_player():
         stamina = min(max_stamina, stamina + stamina_regen * delta)
     # update HUD if available
     var ui_ctrl = get_node_or_null("/root/World/UI/UI")
@@ -36,7 +42,8 @@ func light_attack(target_node):
     if stamina < 8: return
     stamina = max(0, stamina - 8)
     # find target net id if exists
-    var tid = target_node.get("net_id") if target_node.has_variable("net_id") else -1
+    var tid_val = target_node.get("net_id")
+    var tid = tid_val if tid_val != null else -1
     if net:
         rpc_id(1, "rpc_request_attack", get_tree().get_multiplayer().get_unique_id(), net_id, tid, "light", global_transform.origin)
     else:
@@ -49,7 +56,8 @@ func heavy_attack(target_node):
     if not target_node: return
     if stamina < 20: return
     stamina = max(0, stamina - 20)
-    var tid = target_node.get("net_id") if target_node.has_variable("net_id") else -1
+    var tid_val = target_node.get("net_id")
+    var tid = tid_val if tid_val != null else -1
     if net:
         rpc_id(1, "rpc_request_attack", get_tree().get_multiplayer().get_unique_id(), net_id, tid, "heavy", global_transform.origin)
     else:
@@ -90,7 +98,7 @@ func update_desired_from_input():
     desired_velocity = dir * speed
 
 func _physics_process(delta):
-    if is_network_master():
+    if _is_local_player():
         # server authoritative movement (server will apply moves itself)
         return
     # client-side prediction: apply desired_velocity locally for smoother feel
@@ -114,7 +122,7 @@ func _on_registered_as(id:int):
 func perform_attack_local(attack_type:String):
     var ac = get_node_or_null("PlayerAttackController")
     var wp = null
-    if has_variable("equipped_weapon"):
+    if get("equipped_weapon") != null:
         wp = equipped_weapon
     else:
         # fallback to default weapon resource
@@ -122,7 +130,8 @@ func perform_attack_local(attack_type:String):
     if not wp:
         return
     # local prediction: reduce stamina
-    var cost = wp.stamina_cost if wp.has("stamina_cost") else (attack_type == "heavy" ? 20 : 8)
+    var sc = wp.get("stamina_cost") if wp else null
+    var cost = sc if sc != null else (20 if attack_type == "heavy" else 8)
     stamina = max(0, stamina - cost)
     # spawn attack hit
     if ac:

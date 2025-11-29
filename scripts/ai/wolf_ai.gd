@@ -51,7 +51,7 @@ func _on_attack(delta):
         if target.has_method("apply_damage"):
             target.apply_damage(attack_damage, self)
     # if target dead, go idle
-    if target.has_variable("health") and target.health <= 0:
+    if target.get("health") != null and target.health <= 0:
         target = null
         set_state(State.PATROL)
 

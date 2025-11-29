@@ -31,5 +31,5 @@ func _on_chase(delta):
 func _on_attack(delta):
     if randf() < 0.03 and target and target.has_method("apply_damage"):
         target.apply_damage(attack_damage, self)
-    if target and target.has_variable("health") and target.health <= 0:
+    if target and target.get("health") != null and target.health <= 0:
         target = null; set_state(State.PATROL)

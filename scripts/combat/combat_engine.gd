@@ -21,7 +21,7 @@ func calculate_damage(attacker, target, weapon:Dictionary, zone:String) -> float
     if randf() < crit_chance:
         dmg *= weapon.get("critical_multiplier", 1.5)
     # armor mitigation: target expected to have "armor" dictionary with parts
-    var armor = target.get("armor", {}) if target and typeof(target) == TYPE_OBJECT == false else null
+    var armor = target.get("armor") if target else null
     # in Godot objects we'll expect target has method get_armor_value(zone) - fallback simple
     var armor_val = 0.0
     if target and target.has_method("get_armor_value"):
@@ -35,12 +35,22 @@ func calculate_damage(attacker, target, weapon:Dictionary, zone:String) -> float
 
 func register_hit(attacker_node, target_node, weapon:Dictionary, zone:String):
     # server should call calculate, apply damage and emit signals
-    var attacker_id = attacker_node.get("net_id") if attacker_node and attacker_node.has_variable("net_id") else -1
-    var target_id = target_node.get("net_id") if target_node and target_node.has_variable("net_id") else -1
+    var attacker_id = _get_prop(attacker_node, "net_id", -1)
+    var target_id = _get_prop(target_node, "net_id", -1)
     var dmg = calculate_damage(attacker_node, target_node, weapon, zone)
     if target_node and target_node.has_method("apply_damage"):
         target_node.apply_damage(dmg, attacker_node)
         emit_signal("hit_registered", attacker_id, target_id, dmg, zone)
         # check death
-        if target_node.has_variable("health") and target_node.health <= 0:
+        var health = _get_prop(target_node, "health", 100)
+        if health <= 0:
             emit_signal("actor_killed", target_id, attacker_id)
+
+func _get_prop(obj, prop: String, default = null):
+    if obj == null:
+        return default
+    if obj.has_method("get"):
+        var val = obj.get(prop)
+        if val != null:
+            return val
+    return default

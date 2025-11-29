@@ -8,7 +8,7 @@ func get_armor_value_for(actor, zone:String) -> float:
     if actor.has_method("get_armor_value"):
         return actor.get_armor_value(zone)
     # try actor.armor dictionary
-    if actor.has_variable("armor"):
-        var a = actor.armor
+    var a = actor.get("armor")
+    if a != null:
         return a.get(zone, 0.0)
     return 0.0

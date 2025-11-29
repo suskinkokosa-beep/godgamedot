@@ -20,14 +20,17 @@ func attack():
     var from = camera.global_transform.origin
     var to = from + -camera.global_transform.basis.z * 2.2
     var space = get_world_3d().direct_space_state
-    var res = space.intersect_ray(from, to, [self], 1)
+    var query = PhysicsRayQueryParameters3D.create(from, to)
+    query.exclude = [self]
+    var res = space.intersect_ray(query)
     if res:
         var target = res.collider
         if target:
             # if target has net_id use networked damage
             var nid = -1
-            if target.has_variable("net_id"):
-                nid = target.get("net_id")
+            var nid_val = target.get("net_id")
+            if nid_val != null:
+                nid = nid_val
             # request server to apply damage
             if net:
                 rpc_id(1, "rpc_request_attack", get_tree().get_multiplayer().get_unique_id(), nid, melee_damage, global_transform.origin)

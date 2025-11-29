@@ -504,7 +504,13 @@ func _on_apply_pressed():
 func _on_back_pressed():
         if settings_manager:
                 settings_manager.save_settings()
-        hide()
-        var main_menu = get_parent().get_node_or_null("MainMenu")
-        if main_menu:
-                main_menu.show()
+        
+        var main_menu_scene = get_tree().current_scene
+        if main_menu_scene and main_menu_scene.has_method("show_main_buttons"):
+                main_menu_scene.show_main_buttons()
+        elif main_menu_scene:
+                var main_buttons = main_menu_scene.get_node_or_null("VBoxContainer")
+                if main_buttons:
+                        main_buttons.visible = true
+        
+        queue_free()

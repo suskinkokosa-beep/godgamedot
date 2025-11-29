@@ -33,6 +33,14 @@ var inventory = null
 var hotbar_slots := []
 var is_inventory_open := false
 
+var compass_ui = null
+var threat_indicator = null
+var achievement_popup = null
+
+const CompassUI = preload("res://scripts/ui/compass_ui.gd")
+const ThreatIndicator = preload("res://scripts/ui/threat_indicator.gd")
+const AchievementPopup = preload("res://scripts/ui/achievement_popup.gd")
+
 func _ready():
         await get_tree().process_frame
         _find_player()
@@ -42,6 +50,7 @@ func _ready():
                 inventory.connect("hotbar_changed", Callable(self, "_update_hotbar"))
         
         _setup_hotbar_slots()
+        _setup_advanced_ui()
         
         if inventory_window:
                 inventory_window.hide()
@@ -57,6 +66,28 @@ func _ready():
         if day_night:
                 day_night.connect("time_changed", Callable(self, "_on_time_changed"))
                 _update_time_display()
+
+func _setup_advanced_ui():
+        compass_ui = Control.new()
+        compass_ui.name = "CompassUI"
+        compass_ui.set_script(CompassUI)
+        compass_ui.anchors_preset = Control.PRESET_CENTER_TOP
+        compass_ui.position = Vector2(-200, 10)
+        compass_ui.custom_minimum_size = Vector2(400, 40)
+        add_child(compass_ui)
+        
+        threat_indicator = Control.new()
+        threat_indicator.name = "ThreatIndicator"
+        threat_indicator.set_script(ThreatIndicator)
+        threat_indicator.anchors_preset = Control.PRESET_CENTER
+        threat_indicator.position = Vector2(-100, -100)
+        threat_indicator.custom_minimum_size = Vector2(200, 200)
+        add_child(threat_indicator)
+        
+        achievement_popup = Control.new()
+        achievement_popup.name = "AchievementPopup"
+        achievement_popup.set_script(AchievementPopup)
+        add_child(achievement_popup)
 
 func _on_inventory_visibility_changed():
         if inventory_window:

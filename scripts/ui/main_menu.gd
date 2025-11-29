@@ -12,12 +12,110 @@ extends Control
 
 var current_sensitivity := 0.06
 var selected_save_slot := ""
+var menu_tween: Tween
 
 func _ready():
         Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
         _setup_language_options()
         _load_settings()
         sens_slider.value_changed.connect(_on_sens_changed)
+        _apply_rust_theme()
+        _animate_menu_entrance()
+
+func _apply_rust_theme():
+        var bg = ColorRect.new()
+        bg.name = "BackgroundOverlay"
+        bg.color = Color(0.08, 0.06, 0.05, 0.95)
+        bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+        bg.z_index = -10
+        add_child(bg)
+        move_child(bg, 0)
+        
+        var title_label = get_node_or_null("VBoxContainer/TitleLabel")
+        if not title_label:
+                title_label = Label.new()
+                title_label.name = "TitleLabel"
+                title_label.text = "EPOCH SETTLEMENTS"
+                title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+                title_label.add_theme_font_size_override("font_size", 48)
+                title_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
+                title_label.add_theme_color_override("font_shadow_color", Color(0.2, 0.1, 0.05, 0.8))
+                title_label.add_theme_constant_override("shadow_offset_x", 3)
+                title_label.add_theme_constant_override("shadow_offset_y", 3)
+                main_buttons.add_child(title_label)
+                main_buttons.move_child(title_label, 0)
+        
+        var subtitle = Label.new()
+        subtitle.name = "SubtitleLabel"
+        subtitle.text = "Alpha v0.1"
+        subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+        subtitle.add_theme_font_size_override("font_size", 16)
+        subtitle.add_theme_color_override("font_color", Color(0.6, 0.5, 0.4))
+        main_buttons.add_child(subtitle)
+        main_buttons.move_child(subtitle, 1)
+        
+        var spacer = Control.new()
+        spacer.custom_minimum_size = Vector2(0, 40)
+        main_buttons.add_child(spacer)
+        main_buttons.move_child(spacer, 2)
+        
+        _style_buttons()
+
+func _style_buttons():
+        var button_style = StyleBoxFlat.new()
+        button_style.bg_color = Color(0.2, 0.15, 0.1, 0.9)
+        button_style.border_color = Color(0.5, 0.35, 0.2)
+        button_style.set_border_width_all(2)
+        button_style.set_corner_radius_all(4)
+        button_style.set_content_margin_all(12)
+        
+        var hover_style = StyleBoxFlat.new()
+        hover_style.bg_color = Color(0.3, 0.2, 0.15, 0.95)
+        hover_style.border_color = Color(0.7, 0.5, 0.3)
+        hover_style.set_border_width_all(2)
+        hover_style.set_corner_radius_all(4)
+        hover_style.set_content_margin_all(12)
+        
+        var pressed_style = StyleBoxFlat.new()
+        pressed_style.bg_color = Color(0.15, 0.1, 0.08, 0.95)
+        pressed_style.border_color = Color(0.4, 0.3, 0.2)
+        pressed_style.set_border_width_all(2)
+        pressed_style.set_corner_radius_all(4)
+        pressed_style.set_content_margin_all(12)
+        
+        for button in main_buttons.get_children():
+                if button is Button:
+                        button.add_theme_stylebox_override("normal", button_style)
+                        button.add_theme_stylebox_override("hover", hover_style)
+                        button.add_theme_stylebox_override("pressed", pressed_style)
+                        button.add_theme_color_override("font_color", Color(0.9, 0.85, 0.75))
+                        button.add_theme_color_override("font_hover_color", Color(1.0, 0.9, 0.7))
+                        button.add_theme_font_size_override("font_size", 20)
+                        button.custom_minimum_size = Vector2(250, 50)
+
+var original_positions := {}
+
+func _animate_menu_entrance():
+        if menu_tween and menu_tween.is_running():
+                menu_tween.kill()
+        
+        if original_positions.is_empty():
+                for child in main_buttons.get_children():
+                        original_positions[child.get_instance_id()] = child.position.x
+        
+        menu_tween = create_tween()
+        menu_tween.set_ease(Tween.EASE_OUT)
+        menu_tween.set_trans(Tween.TRANS_BACK)
+        
+        var delay = 0.0
+        for child in main_buttons.get_children():
+                var orig_x = original_positions.get(child.get_instance_id(), child.position.x)
+                child.modulate.a = 0.0
+                child.position.x = orig_x - 50
+                
+                menu_tween.parallel().tween_property(child, "modulate:a", 1.0, 0.4).set_delay(delay)
+                menu_tween.parallel().tween_property(child, "position:x", orig_x, 0.4).set_delay(delay)
+                delay += 0.08
 
 func _setup_language_options():
         lang_option.clear()
@@ -81,11 +179,26 @@ func _on_multiplayer_pressed():
         main_buttons.visible = false
         multiplayer_panel.visible = true
 
+var settings_instance = null
+
 func _on_settings_pressed():
-        var settings_scene = preload("res://scenes/ui/settings_menu.tscn")
-        var settings_instance = settings_scene.instantiate()
-        get_tree().current_scene.add_child(settings_instance)
-        main_buttons.visible = false
+        if settings_instance and is_instance_valid(settings_instance):
+                settings_instance.queue_free()
+        
+        var settings_scene = load("res://scenes/ui/settings_menu.tscn")
+        if settings_scene:
+                settings_instance = settings_scene.instantiate()
+                add_child(settings_instance)
+                main_buttons.visible = false
+        else:
+                settings_panel.visible = true
+                main_buttons.visible = false
+
+func show_main_buttons():
+        main_buttons.visible = true
+        if settings_instance and is_instance_valid(settings_instance):
+                settings_instance.queue_free()
+                settings_instance = null
 
 func _on_quit_pressed():
         get_tree().quit()

@@ -1,177 +1,184 @@
-# Epoch Settlements Alpha - Godot 4 Game Project
+# Эпоха Поселений (Epoch Settlements) - Godot 4.x
 
-## Overview
+## Обзор
+Мультиплеерная и одиночная 3D игра с видом от первого лица, сочетающая выживание, строительство, боевую систему, экономику и управление поселениями. Построена на Godot 4.4.1.
 
-This is a multiplayer survival/settlement game built with Godot 4. The project runs in the Replit environment with VNC display.
+## Структура проекта
 
-## Running the Game
+### Основные директории
+- **scenes/** - Сцены Godot (.tscn)
+  - `ui/` - Интерфейс (HUD, инвентарь, крафт, торговля, настройки, миникарта)
+  - `player/` - Сцена игрока
+  - `mobs/` - Сцены мобов
+  - `npcs/` - Сцены NPC
+  - `buildings/` - Строения
+  - `props/` - Пропы, оружие, животные
+  - `world/` - Генерация мира
 
-The game starts automatically via the "Run Godot Game" workflow in VNC mode.
-Game launches with Main Menu where you can:
-- Start Game - Begin single player
-- Multiplayer - Host or join server
-- Settings - Change language and sensitivity
-- Quit - Exit game
+- **scripts/** - GDScript код (.gd)
+  - `systems/` - Ядровые системы (инвентарь, сеть, бой, крафт, настройки и т.д.)
+  - `world/` - Генерация мира (WorldGenerator, ChunkGenerator, StructureGenerator, MobSpawner, WorldEvents)
+  - `ai/` - ИИ поведение (монстры, волки, NPC)
+  - `combat/` - Боевая система
+  - `ui/` - Контроллеры интерфейса (hud_controller, ui_inventory, minimap)
+  - `player/` - Скрипты игрока
 
-**In-Game Controls:**
-- **WASD** - Move
-- **Shift** - Sprint
-- **Ctrl** - Crouch
-- **Space** - Jump (double jump available)
-- **E** - Interact
-- **I** - Inventory
-- **ESC** - Return to menu
-- **Left Click** - Attack
-- **Mouse** - Look around
+- **assets/** - Игровые ассеты
+  - `art_pack/` - 3D модели, материалы, текстуры
+  - `materials/` - Ресурсы материалов (grass, rock, bark, water)
+  - `shaders/` - Шейдеры (grass_shader, water_shader)
+  - `weapons/` - Ресурсы оружия
 
-## Project Structure
+- **localization/** - Локализация (RU/EN)
 
-### Key Scenes
+## Реализованные системы
 
-- **scenes/ui/main_menu.tscn** - Main menu (startup scene)
-- **scenes/main.tscn** - Game world with player, environment, NPCs
-- **scenes/player/player.tscn** - Player character
-- **scenes/environment.tscn** - Environment (lighting, ground)
-- **scenes/npcs/npc_citizen.tscn** - NPC citizens
-- **scenes/mobs/mob_basic.tscn** - Basic enemy mobs
+### UI Интерфейс (NEW)
+- **HUD** - Полный интерфейс с:
+  - Панель статов (здоровье, стамина, голод, жажда, кровь, рассудок, температура)
+  - 8 слотов быстрого пояса (хотбар) с визуальным выделением
+  - Прицел и индикатор приседания
+  - Уведомления об опыте и уровне
+  - Индикатор прыжков
+  - FPS счётчик
+  
+- **Миникарта** - В правом верхнем углу
+  - Отображение биомов
+  - Маркер игрока с направлением
+  - Компас (С, СВ, В, ЮВ, Ю, ЮЗ, З, СЗ)
+  
+- **Инвентарь** - Открывается клавишей I
+  - Сетка предметов с названиями и количеством
+  - Отображение веса
+  - Кнопки использования предметов
+  - Начальный набор предметов при старте
 
-### Core Systems (Autoloaded Singletons)
+### Генерация мира
+- **WorldGenerator** - процедурная генерация высот и биомов на основе шума
+  - Горы, холмы, равнины, овраги
+  - Континенты и океаны
+  - Реки через специальный шум
+  - 12+ биомов: лес, тайга, тундра, пустыня, саванна, болото, горы, снежные горы, пляж, океан и др.
+  
+- **ChunkGenerator** - генерация 3D мешей террейна
+  - Высотные карты с коллизиями
+  - Цвета вершин по биомам
+  - Автоматический спавн деревьев и камней
+  - Водная поверхность для морей/рек
+  
+- **StructureGenerator** - генерация поселений
+  - Деревни (3-8 зданий + NPC)
+  - Города (с стенами, 10-30 зданий, охрана)
+  - Шахты (входы, поддержки, шахтёры)
+  - Лагеря (палатки, костры, бандиты/нейтралы)
+  
+- **WorldStreamer** - потоковая загрузка
+  - Динамическая загрузка/выгрузка чанков вокруг игрока
+  - Отдельная загрузка структур
+  
+- **MobSpawner** - динамический спавн существ
+  - 19 типов мобов (волки, медведи, кабаны, олени, пауки, змеи, львы и др.)
+  - Таблицы спавна по биомам
+  - Стайное поведение (pack_size)
+  - Автоматический деспавн далёких мобов
 
-All systems load automatically at startup:
+- **WorldEvents** - случайные события мира
+  - Налёты бандитов
+  - Волчьи стаи
+  - Миграция животных
+  - Появление монстров
+  - Торговые караваны
 
-- **Inventory** - Player inventory and equipment management
-- **Network** - Multiplayer networking system (ENet-based)
-- **GameManager** - Global game state, language settings, day/night cycle
-- **LocalizationService** - Multi-language support (English, Russian)
-- **StatsSystem** - Player stats and leveling
-- **PlayerProgression** - XP, skills, character progression
-- **SpawnTable** - Biome-based entity spawning
-- **FactionSystem** - Faction relations management
-- **WeatherSystem** - Dynamic weather (server-controlled)
-- **BiomeSystem** - Biome mapping and temperature
-- **TemperatureSystem** - Temperature damage and effects
-- **TerrainGenerator** - Procedural terrain with biome colors
-- **ChunkStreamer** - Chunk-based world streaming
-- **CombatEngine** - Combat calculations and damage system
-- **CraftSystem** - Crafting with tiered workbenches and recipes
-- **BuildSystem** - Building placement with snapping and validation
-- **SettlementSystem** - Settlement levels, population, economy, wars
-- **QuestSystem** - Quest management with objectives and rewards
+### Выживание (PlayerProgression)
+- HP, Stamina, Hunger, Thirst, Temperature, Sanity, Blood
+- Дебаффы и штрафы за смерть
+- Восстановление здоровья и статов
+- Система XP и уровней
 
-### Game World Features
+### Инвентарь (inventory.gd)
+- 40 слотов рюкзака + система веса
+- 8 слотов быстрого пояса (hotbar) с выбором клавишами 1-8
+- 8 слотов снаряжения
+- База данных предметов с русскими названиями
+- Система использования предметов (еда, питьё, медикаменты)
+- Начальный набор: каменный топор, факел, ягоды, вода, бинты, дерево, камни
 
-- **Biomes**: spawn_town, forest, plains, desert, tundra
-- **Factions**: player, town, wild, bandits
-- **NPCs**: Citizens that wander, trade, patrol
-- **Mobs**: Basic enemies that patrol and attack
-- **Terrain**: Procedural generation with collision
+### Боевая система (CombatEngine)
+- Hitbox-based урон
+- Ресурсы оружия
+- Система комбо
+- Расчёт брони
+- Поддержка снарядов
 
-## Technical Details
+### Система фракций (FactionSystem)
+- Дефолтные фракции: player, town, wild, bandits, monsters, neutral
+- Отношения между фракциями (-100 до +100)
+- Регистрация/отмена регистрации сущностей
 
-### Godot 4 Compatibility
+### Поселения (SettlementSystem)
+- Уровни: Camp → Village → Town → City → Capital
+- Население с классами (workers, guards, craftsmen, traders)
+- Ресурсы и экономика
+- Счастье населения
+- Объявление войн и союзов
 
-Project uses Godot 4.4.1 with OpenGL ES 3.2 (software rendering via Mesa llvmpipe).
+### Настройки (SettingsManager)
+- Графика: качество, разрешение, тени, свечение, туман, сглаживание
+- Управление: чувствительность мыши, FOV, инверсия Y
+- Звук: громкость (общая, музыка, эффекты)
+- Пресеты качества: низкое, среднее, высокое, ультра
 
-**Godot 4 API:**
-- `PhysicsRayQueryParameters3D` for raycasting
-- `Transform3D` instead of `Transform`
-- `@rpc("any_peer", "call_remote")` for network functions
-- `object.get("property")` for property checking
-- Ternary: `value if condition else other`
+## Управление
+- **WASD** - движение
+- **Space** - прыжок (двойной прыжок)
+- **Shift** - бег
+- **Ctrl** - присесть
+- **E** - взаимодействие
+- **I** - инвентарь
+- **1-8** - выбор слота хотбара
+- **Колёсико мыши** - переключение слотов
+- **ЛКМ** - атака
+- **ESC** - меню
 
-### Input Configuration
+## Запуск
+Игра запускается через VNC workflow в Replit. Главная сцена: `scenes/ui/main_menu.tscn`
 
-Input actions in project.godot:
-- move_forward (W), move_back (S), move_left (A), move_right (D)
-- sprint (Shift), crouch (Ctrl)
-- interact (E), inventory (I), escape (ESC)
-- attack (Left Mouse Button)
+## Технические детали
+- Движок: Godot 4.4.1
+- Рендеринг: OpenGL ES 3.2 (compatibility mode)
+- Мультиплеер: клиент-серверная архитектура
+- Генерация мира: FastNoiseLite, чанковый стриминг
+- Размер мира: 4096x4096 единиц
 
-## Localization
+## Последние изменения (2025-11-29)
+- **Система дебаффов** - Полная система дебаффов с 12+ эффектами:
+  - Голодание, обезвоживание, замерзание, перегрев
+  - Кровотечение, истощение, безумие
+  - Отравление, радиация
+  - Положительные эффекты: сытость, увлажнённость
+- **Цикл дня/ночи** - Динамическая смена времени суток:
+  - Реалистичное освещение (рассвет, день, сумерки, ночь)
+  - Изменение цвета неба и окружения
+  - Отображение времени в HUD
+- **Расширенная система крафта**:
+  - 60+ рецептов в 9 категориях
+  - Инструменты, оружие, строительство, броня, еда, медицина
+  - Верстаки 3 уровней
+- **Расширенная база предметов** - 100+ предметов с русскими названиями
+- **Улучшенная погодная система**:
+  - 8 типов погоды (ясно, облачно, дождь, ливень, снег, метель, гроза, туман)
+  - Влияние на температуру и видимость
+  - Переходы между погодными условиями
+- **Улучшенный визуальный стиль**:
+  - Реалистичное освещение с тремя источниками света
+  - Улучшенный туман и свечение
+  - Тональная коррекция в стиле Rust
 
-Supported languages:
-- English (en)
-- Russian (ru)
+## Минимальные требования
+- Процессор: Intel Core i3 или аналог
+- ОЗУ: 2 GB
+- Графика: Совместимая с OpenGL ES 3.2
 
-Change in Settings menu or via code:
-```gdscript
-GameManager.set_language("ru")
-```
-
-## Multiplayer
-
-### From Menu
-- Click "Multiplayer"
-- Host Server: Creates server on port 7777
-- Join Server: Enter IP and connect
-
-### Via Code
-```gdscript
-Network.host(7777)  # Host
-Network.join("ip", 7777)  # Join
-```
-
-## Dependencies
-
-- Godot 4.4.1 (installed via Nix: godot_4)
-- No external plugins required
-
-## Recent Changes
-
-- **2025-11-29**: Jump Mechanics and Loot System
-  - Added jump action (Space key) with double jump support
-  - Implemented coyote time (0.15s) and jump buffer (0.1s) for responsive controls
-  - Created LootSystem with loot tables for different mob types (basic, wolf, bear, bandit)
-  - Added loot tables for chests (common, rare)
-  - Updated HUD with jump indicator showing remaining jumps
-  - Added controls hint panel in HUD
-
-- **2025-11-29**: UI and AI Improvements
-  - Updated crafting UI with integration to CraftSystem (localized names, cost display)
-  - Added building UI with placement preview and resource costs
-  - Extended HUD with all survival stats (health, stamina, hunger, thirst, sanity, temperature)
-  - Added HUD debuff display with icons
-  - Added QuestSystem with tutorial quests and per-player progression
-  - Fixed QuestSystem to use per-player completed_quests storage (Dictionary instead of Array)
-  - Improved mob AI with states (idle, patrol, chase, attack, flee)
-  - Improved NPC AI with roles (farmer, guard, trader, builder) and schedules
-  - NPCs now interact with settlements and produce resources
-
-- **2025-11-29**: Survival Systems Expansion
-  - Added CraftSystem with tiered workbenches (Tier 0-3)
-  - Added BuildSystem with building placement, snapping and validation
-  - Added SettlementSystem with levels (Camp→Capital), population classes, wars
-  - Extended PlayerProgression with survival stats (hunger, thirst, blood, sanity, temperature)
-  - Added debuff system with stamina/speed/vision penalties
-  - Added death penalties (inventory loss, temporary debuffs)
-  - Added ResourceNode system with tool requirements and XP rewards
-  - Fixed autoload conflicts (removed class_name from singleton scripts)
-
-- **2025-11-29**: Replit Environment Setup
-  - Successfully imported GitHub project into Replit
-  - Installed Godot 4.4.1 via Nix package manager
-  - Configured VNC workflow for game display
-  - Added proper .gitignore for Godot projects
-  - All autoload systems loading correctly
-  - Game running successfully in VNC mode
-
-- **2025-11-29**: Major update
-  - Added Main Menu with Start/Multiplayer/Settings/Quit
-  - Added HUD with controls info and crosshair
-  - Added game world initialization (biomes, factions, spawn tables)
-  - Added NPC and mob spawning system
-  - Fixed all scripts for Godot 4 compatibility
-  - Fixed multiplayer.is_server() for single player mode
-  - Fixed has_variable to use object.get() 
-  - Added terrain generation with biome-colored chunks
-  - Added collision detection for ground and entities
-
-## Known Issues
-
-1. VNC display shows OpenGL warnings (expected for software rendering)
-2. Some prop scenes need conversion to Godot 4 format
-
-## User Preferences
-
-- Language: Russian preferred for UI
-- Development focus: Single player functionality first
+## Предпочтения пользователя
+- Язык: русский
+- Качество графики: сравнимое с Rust

@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/hud_controller.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/minimap.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/inventory_window.tscn" id="3"]
 
 [node name="HUD" type="Control"]
 layout_mode = 3
@@ -13,109 +15,149 @@ script = ExtResource("1")
 layout_mode = 1
 offset_left = 10.0
 offset_top = 10.0
-offset_right = 220.0
-offset_bottom = 180.0
+offset_right = 240.0
+offset_bottom = 220.0
 
 [node name="HealthContainer" type="HBoxContainer" parent="StatsPanel"]
 layout_mode = 2
 
 [node name="HealthIcon" type="Label" parent="StatsPanel/HealthContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "❤"
 
 [node name="HealthBar" type="ProgressBar" parent="StatsPanel/HealthContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 20)
+custom_minimum_size = Vector2(160, 22)
 layout_mode = 2
+theme_override_styles/fill = null
 value = 100.0
 show_percentage = false
 
 [node name="HealthLabel" type="Label" parent="StatsPanel/HealthContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "100"
+horizontal_alignment = 2
 
 [node name="StaminaContainer" type="HBoxContainer" parent="StatsPanel"]
 layout_mode = 2
 
 [node name="StaminaIcon" type="Label" parent="StatsPanel/StaminaContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "⚡"
 
 [node name="StaminaBar" type="ProgressBar" parent="StatsPanel/StaminaContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 20)
+custom_minimum_size = Vector2(160, 22)
 layout_mode = 2
 value = 100.0
 show_percentage = false
 
 [node name="StaminaLabel" type="Label" parent="StatsPanel/StaminaContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "100"
+horizontal_alignment = 2
 
 [node name="HungerContainer" type="HBoxContainer" parent="StatsPanel"]
 layout_mode = 2
 
 [node name="HungerIcon" type="Label" parent="StatsPanel/HungerContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "🍖"
 
 [node name="HungerBar" type="ProgressBar" parent="StatsPanel/HungerContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 20)
+custom_minimum_size = Vector2(160, 22)
 layout_mode = 2
 value = 100.0
 show_percentage = false
 
 [node name="HungerLabel" type="Label" parent="StatsPanel/HungerContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "100"
+horizontal_alignment = 2
 
 [node name="ThirstContainer" type="HBoxContainer" parent="StatsPanel"]
 layout_mode = 2
 
 [node name="ThirstIcon" type="Label" parent="StatsPanel/ThirstContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "💧"
 
 [node name="ThirstBar" type="ProgressBar" parent="StatsPanel/ThirstContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 20)
+custom_minimum_size = Vector2(160, 22)
 layout_mode = 2
 value = 100.0
 show_percentage = false
 
 [node name="ThirstLabel" type="Label" parent="StatsPanel/ThirstContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "100"
+horizontal_alignment = 2
+
+[node name="BloodContainer" type="HBoxContainer" parent="StatsPanel"]
+layout_mode = 2
+
+[node name="BloodIcon" type="Label" parent="StatsPanel/BloodContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.8, 0.1, 0.1, 1)
+text = "🩸"
+
+[node name="BloodBar" type="ProgressBar" parent="StatsPanel/BloodContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 22)
+layout_mode = 2
+value = 100.0
+show_percentage = false
+
+[node name="BloodLabel" type="Label" parent="StatsPanel/BloodContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+text = "100"
+horizontal_alignment = 2
 
 [node name="SanityContainer" type="HBoxContainer" parent="StatsPanel"]
 layout_mode = 2
 
 [node name="SanityIcon" type="Label" parent="StatsPanel/SanityContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "🧠"
 
 [node name="SanityBar" type="ProgressBar" parent="StatsPanel/SanityContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 20)
+custom_minimum_size = Vector2(160, 22)
 layout_mode = 2
 value = 100.0
 show_percentage = false
 
 [node name="SanityLabel" type="Label" parent="StatsPanel/SanityContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(40, 0)
 layout_mode = 2
 text = "100"
+horizontal_alignment = 2
 
 [node name="TempContainer" type="HBoxContainer" parent="StatsPanel"]
 layout_mode = 2
 
 [node name="TempIcon" type="Label" parent="StatsPanel/TempContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 16
 text = "🌡"
 
 [node name="TempLabel" type="Label" parent="StatsPanel/TempContainer"]
@@ -123,25 +165,202 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "36.6°C"
 
-[node name="Crosshair" type="TextureRect" parent="."]
+[node name="Crosshair" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
+offset_left = -10.0
+offset_top = -15.0
+offset_right = 10.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 24
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HotbarPanel" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -70.0
+offset_right = 220.0
+offset_bottom = -10.0
+alignment = 1
+
+[node name="Slot1" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot1"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot1"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "1"
+
+[node name="Slot2" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot2"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "2"
+
+[node name="Slot3" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot3"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot3"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "3"
+
+[node name="Slot4" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot4"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot4"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "4"
+
+[node name="Slot5" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot5"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot5"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "5"
+
+[node name="Slot6" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot6"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot6"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "6"
+
+[node name="Slot7" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot7"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot7"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "7"
+
+[node name="Slot8" type="Panel" parent="HotbarPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HotbarPanel/Slot8"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Key" type="Label" parent="HotbarPanel/Slot8"]
+layout_mode = 1
+offset_right = 15.0
+offset_bottom = 15.0
+theme_override_font_sizes/font_size = 10
+text = "8"
 
 [node name="DebuffPanel" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
 offset_left = 10.0
-offset_top = 190.0
+offset_top = 230.0
 offset_right = 300.0
-offset_bottom = 220.0
+offset_bottom = 260.0
 
 [node name="InteractPrompt" type="Label" parent="."]
 unique_name_in_owner = true
@@ -152,9 +371,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -100.0
-offset_top = -50.0
+offset_top = -100.0
 offset_right = 100.0
-offset_bottom = -20.0
+offset_bottom = -75.0
 text = "[E] Взаимодействовать"
 horizontal_alignment = 1
 visible = false
@@ -194,30 +413,61 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -30.0
-offset_top = -80.0
+offset_top = -130.0
 offset_right = 30.0
-offset_bottom = -55.0
+offset_bottom = -105.0
 text = "●●"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 20
 
-[node name="ControlsHint" type="Label" parent="."]
+[node name="CrouchIndicator" type="Label" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
+anchors_preset = 7
+anchor_left = 0.5
 anchor_top = 1.0
-anchor_right = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -200.0
-offset_top = -100.0
+offset_left = -50.0
+offset_top = -150.0
+offset_right = 50.0
+offset_bottom = -130.0
+text = "[Присел]"
+horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.8, 0.8, 0.2, 1)
+visible = false
+
+[node name="FPSLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -80.0
+offset_top = 160.0
 offset_right = -10.0
-offset_bottom = -10.0
-text = "WASD - Движение
-Shift - Бег
-Ctrl - Присесть
-Space - Прыжок
-E - Взять
-I - Инвентарь
-ЛКМ - Атака"
+offset_bottom = 180.0
+text = "FPS: 60"
 horizontal_alignment = 2
-theme_override_colors/font_color = Color(1, 1, 1, 0.5)
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.7)
+theme_override_font_sizes/font_size = 12
+
+[node name="TimeLabel" type="Label" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = 30.0
+text = "День 1  08:00 (день)"
+horizontal_alignment = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.8, 0.9)
+theme_override_font_sizes/font_size = 14
+
+[node name="Minimap" parent="." instance=ExtResource("2")]
+
+[node name="InventoryWindow" parent="." instance=ExtResource("3")]
+visible = false

@@ -1,0 +1,387 @@
+[gd_scene load_steps=2 format=3 uid="uid://djf8kq3p2mxvs"]
+
+[ext_resource type="Script" path="res://scripts/ui/settings_menu.gd" id="1_settings"]
+
+[node name="SettingsMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_settings")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.12, 0.95)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 50.0
+offset_top = 30.0
+offset_right = -50.0
+offset_bottom = -30.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "НАСТРОЙКИ"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="TabContainer" type="TabContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Графика" type="Panel" parent="VBoxContainer/TabContainer"]
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/Графика"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="QualityRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/QualityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Качество графики:"
+
+[node name="QualityDropdown" type="OptionButton" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/QualityRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="ResolutionRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ResolutionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Масштаб разрешения:"
+
+[node name="ResolutionSlider" type="HSlider" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ResolutionRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="ResolutionValue" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ResolutionRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="VsyncRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/VsyncRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Вертикальная синхронизация:"
+
+[node name="VsyncCheck" type="CheckBox" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/VsyncRow"]
+layout_mode = 2
+
+[node name="FPSRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/FPSRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Ограничение FPS:"
+
+[node name="FPSDropdown" type="OptionButton" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/FPSRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="ShadowsRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ShadowsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Тени:"
+
+[node name="ShadowsCheck" type="CheckBox" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ShadowsRow"]
+layout_mode = 2
+
+[node name="ShadowQualityRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ShadowQualityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Качество теней:"
+
+[node name="ShadowQualityDropdown" type="OptionButton" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ShadowQualityRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="BloomRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/BloomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Свечение (Bloom):"
+
+[node name="BloomCheck" type="CheckBox" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/BloomRow"]
+layout_mode = 2
+
+[node name="FogRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/FogRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Туман:"
+
+[node name="FogCheck" type="CheckBox" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/FogRow"]
+layout_mode = 2
+
+[node name="AARow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/AARow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Сглаживание:"
+
+[node name="AADropdown" type="OptionButton" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/AARow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="ViewDistanceRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ViewDistanceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Дальность видимости:"
+
+[node name="ViewDistanceSlider" type="HSlider" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ViewDistanceRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="ViewDistanceValue" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/ViewDistanceRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "100 м"
+horizontal_alignment = 2
+
+[node name="PerformanceRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/PerformanceRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Оценка производительности:"
+
+[node name="PerformanceLabel" type="Label" parent="VBoxContainer/TabContainer/Графика/ScrollContainer/VBoxContainer/PerformanceRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.8, 0.4, 1)
+text = "Хорошо для средних ПК"
+
+[node name="Управление" type="Panel" parent="VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/Управление"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="SensitivityRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/SensitivityRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Чувствительность мыши:"
+
+[node name="SensitivitySlider" type="HSlider" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/SensitivityRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="SensitivityValue" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/SensitivityRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "0.06"
+horizontal_alignment = 2
+
+[node name="FOVRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/FOVRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Поле зрения (FOV):"
+
+[node name="FOVSlider" type="HSlider" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/FOVRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="FOVValue" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/FOVRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "70°"
+horizontal_alignment = 2
+
+[node name="InvertYRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/InvertYRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Инверсия оси Y:"
+
+[node name="InvertYCheck" type="CheckBox" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/InvertYRow"]
+layout_mode = 2
+
+[node name="KeybindsLabel" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Клавиши управления:"
+
+[node name="KeybindsInfo" type="RichTextLabel" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+bbcode_enabled = true
+text = "[b]WASD[/b] - Движение
+[b]Пробел[/b] - Прыжок (двойной прыжок)
+[b]Shift[/b] - Бег
+[b]Ctrl[/b] - Присесть
+[b]E[/b] - Взаимодействие
+[b]I[/b] - Инвентарь
+[b]1-8[/b] - Выбор слота быстрого пояса
+[b]Колёсико мыши[/b] - Переключение слотов
+[b]ЛКМ[/b] - Атака
+[b]ESC[/b] - Пауза / Меню"
+
+[node name="Звук" type="Panel" parent="VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/Звук"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/Звук/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="MasterRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/MasterRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Общая громкость:"
+
+[node name="MasterSlider" type="HSlider" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/MasterRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="MasterValue" type="Label" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/MasterRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="MusicRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/MusicRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Музыка:"
+
+[node name="MusicSlider" type="HSlider" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/MusicRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="MusicValue" type="Label" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/MusicRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "70%"
+horizontal_alignment = 2
+
+[node name="SFXRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/SFXRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Звуковые эффекты:"
+
+[node name="SFXSlider" type="HSlider" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/SFXRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+
+[node name="SFXValue" type="Label" parent="VBoxContainer/TabContainer/Звук/ScrollContainer/VBoxContainer/SFXRow"]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "100%"
+horizontal_alignment = 2
+
+[node name="ButtonsContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ApplyButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(150, 40)
+layout_mode = 2
+text = "Применить"
+
+[node name="BackButton" type="Button" parent="VBoxContainer/ButtonsContainer"]
+custom_minimum_size = Vector2(150, 40)
+layout_mode = 2
+text = "Назад"
+
+[connection signal="pressed" from="VBoxContainer/ButtonsContainer/ApplyButton" to="." method="_on_apply_pressed"]
+[connection signal="pressed" from="VBoxContainer/ButtonsContainer/BackButton" to="." method="_on_back_pressed"]

@@ -113,6 +113,8 @@ func load_game(slot_name: String) -> bool:
         _deserialize_inventory(save_data.get("inventory", {}))
         _deserialize_progression(save_data.get("progression", {}))
         _deserialize_time(save_data.get("time", {}))
+        _deserialize_world(save_data.get("world", {}))
+        _deserialize_buildings(save_data.get("buildings", {}))
         
         emit_signal("load_completed", slot_name)
         print("Игра загружена: ", slot_name)
@@ -323,16 +325,105 @@ func _deserialize_progression(data: Dictionary):
                                         p[key][k] = data[key][k]
 
 func _serialize_world() -> Dictionary:
-        return {}
+        var weather_sys = get_node_or_null("/root/WeatherSystem")
+        var world_data := {}
+        
+        if weather_sys:
+                world_data["weather"] = {
+                        "current_weather": weather_sys.get("current_weather"),
+                        "temperature": weather_sys.get("temperature")
+                }
+        
+        return world_data
+
+func _deserialize_world(data: Dictionary):
+        if data.is_empty():
+                return
+        
+        var weather_sys = get_node_or_null("/root/WeatherSystem")
+        if weather_sys and data.has("weather"):
+                var w = data["weather"]
+                if w.has("current_weather"):
+                        weather_sys.set("current_weather", w["current_weather"])
+                if w.has("temperature"):
+                        weather_sys.set("temperature", w["temperature"])
 
 func _serialize_buildings() -> Dictionary:
-        var build_sys = get_node_or_null("/root/BuildingSystem")
+        var build_sys = get_node_or_null("/root/BuildSystem")
         if not build_sys:
                 return {}
         
         var buildings := []
+        var placed = build_sys.get_placed_structures()
         
-        return {"buildings": buildings}
+        for structure in placed:
+                if not is_instance_valid(structure):
+                        continue
+                
+                var structure_data := {
+                        "type": structure.get_meta("structure_type", "unknown"),
+                        "health": structure.get_meta("health", 100),
+                        "max_health": structure.get_meta("max_health", 100),
+                        "position": {
+                                "x": structure.global_position.x,
+                                "y": structure.global_position.y,
+                                "z": structure.global_position.z
+                        },
+                        "rotation": {
+                                "x": structure.global_rotation.x,
+                                "y": structure.global_rotation.y,
+                                "z": structure.global_rotation.z
+                        }
+                }
+                buildings.append(structure_data)
+        
+        return {"buildings": buildings, "count": buildings.size()}
+
+func _deserialize_buildings(data: Dictionary):
+        if data.is_empty() or not data.has("buildings"):
+                return
+        
+        var build_sys = get_node_or_null("/root/BuildSystem")
+        if not build_sys:
+                return
+        
+        var buildings_to_load = data.get("buildings", [])
+        if buildings_to_load.is_empty():
+                return
+        
+        for existing in build_sys.get_placed_structures():
+                if is_instance_valid(existing):
+                        existing.queue_free()
+        build_sys.placed_structures.clear()
+        
+        for building_data in buildings_to_load:
+                if not building_data is Dictionary:
+                        continue
+                
+                var structure_type = building_data.get("type", "")
+                if structure_type == "" or structure_type == "unknown":
+                        continue
+                
+                var pos = Vector3(
+                        building_data["position"].get("x", 0),
+                        building_data["position"].get("y", 0),
+                        building_data["position"].get("z", 0)
+                )
+                var rot = Vector3(
+                        building_data["rotation"].get("x", 0),
+                        building_data["rotation"].get("y", 0),
+                        building_data["rotation"].get("z", 0)
+                )
+                
+                build_sys._place_structure(structure_type, pos, rot)
+                
+                var placed_list = build_sys.placed_structures
+                if placed_list.size() > 0:
+                        var last_structure = placed_list[placed_list.size() - 1]
+                        if is_instance_valid(last_structure):
+                                last_structure.global_rotation = rot
+                                last_structure.set_meta("health", building_data.get("health", 100))
+                                last_structure.set_meta("max_health", building_data.get("max_health", 100))
 
 func _serialize_time() -> Dictionary:
         var day_night = get_node_or_null("/root/DayNightCycle")

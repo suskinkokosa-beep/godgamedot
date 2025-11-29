@@ -42,3 +42,8 @@ func t(key:String, params = null) -> String:
                 s = s.replace("{" + str(k) + "}", str(params[k]))
         return s
     return key
+
+func get_text(key: String, lang: String = "") -> String:
+    if lang != "" and lang != current_lang:
+        load_language(lang)
+    return t(key)

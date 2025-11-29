@@ -8,9 +8,17 @@ const MAX_SPEED := 12.0 # units per second
 const MAX_TELEPORT_DIST := 10.0 # max distance allowed between updates
 
 # process client movement inputs (client sends desired velocity + timestamp)
+func _is_server() -> bool:
+    var mp = multiplayer
+    if mp == null:
+        return true
+    if not mp.has_multiplayer_peer():
+        return true
+    return mp.is_server()
+
 @rpc("any_peer", "call_remote")
 func rpc_request_move(peer_id:int, net_id:int, desired_vel:Vector3, client_time:float):
-    if not multiplayer.is_server():
+    if not _is_server():
         return
     var now = Time.get_ticks_msec() / 1000.0
     # find server-side node

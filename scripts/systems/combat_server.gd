@@ -6,9 +6,17 @@ var cooldowns = {} # peer_id -> cooldown remaining
 var stamina_costs = {"light":8, "heavy":20, "roll":15, "ranged":12}
 var attack_range = {"light":2.2, "heavy":2.8, "ranged":25.0}
 
+func _is_server() -> bool:
+    var mp = multiplayer
+    if mp == null:
+        return true
+    if not mp.has_multiplayer_peer():
+        return true
+    return mp.is_server()
+
 # validate and apply attack request from client
 func request_attack(attacker_peer:int, attacker_id:int, target_id:int, attack_type:String, attacker_pos:Vector3):
-    if not multiplayer.is_server():
+    if not _is_server():
         return
     # cooldown check
     if cooldowns.get(attacker_peer, 0.0) > 0.0:

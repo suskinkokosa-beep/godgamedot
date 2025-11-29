@@ -8,9 +8,17 @@ extends Node
 
 var timers := {} # player_id -> timer
 
+func _is_server() -> bool:
+    var mp = multiplayer
+    if mp == null:
+        return true
+    if not mp.has_multiplayer_peer():
+        return true
+    return mp.is_server()
+
 func _process(delta):
     # server authoritative: apply damage if extreme
-    if not multiplayer.is_server():
+    if not _is_server():
         return
     var players = get_tree().get_nodes_in_group("players")
     for p in players:

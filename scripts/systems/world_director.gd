@@ -7,8 +7,16 @@ class_name WorldDirector
 @export var spawn_interval := 12.0
 var spawn_timer := 0.0
 
+func _is_server() -> bool:
+    var mp = multiplayer
+    if mp == null:
+        return true
+    if not mp.has_multiplayer_peer():
+        return true
+    return mp.is_server()
+
 func _process(delta):
-    if not multiplayer.is_server():
+    if not _is_server():
         return
     spawn_timer += delta
     if spawn_timer >= spawn_interval:
@@ -16,20 +24,6 @@ func _process(delta):
         for p in spawn_points:
             _spawn_mob(p)
 
-func _spawn_mob(pos:Vector3):
-    var scene = ResourceLoader.load("res://scenes/mobs/mob_basic.tscn")
-    if not scene:
-        return
-    var inst = scene.instantiate()
-    add_child(inst)
-    inst.global_transform.origin = pos
-    # set random faction
-    var fs = get_node_or_null("/root/FactionSystem")
-    if fs:
-        fs.create_faction("wild")
-        inst.set_meta("faction", "wild")
-
-# Use SpawnTable to pick mobs by biome
 func _spawn_mob(pos:Vector3):
     var st = get_node_or_null("/root/SpawnTable")
     var biome = "plains"

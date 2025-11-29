@@ -3,8 +3,11 @@ extends Node
 var is_server := false
 var next_entity_id := 1000
 var entities := {} # id -> node (only on server)
-# clients keep a local mapping for non-authoritative visual sync
 var client_entities := {} # id -> node (clients)
+
+func is_active() -> bool:
+    var mp = get_tree().get_multiplayer()
+    return mp and mp.has_multiplayer_peer() and mp.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED
 
 func host(port=7777):
     var peer = ENetMultiplayerPeer.new()

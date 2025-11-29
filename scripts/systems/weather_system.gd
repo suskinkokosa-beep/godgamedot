@@ -14,8 +14,16 @@ var temp_delta := 0.0
 var change_interval := 120.0
 var timer := 0.0
 
+func _is_server() -> bool:
+    var mp = multiplayer
+    if mp == null:
+        return true
+    if not mp.has_multiplayer_peer():
+        return true
+    return mp.is_server()
+
 func _process(delta):
-    if not multiplayer.is_server():
+    if not _is_server():
         return
     timer += delta
     if timer >= change_interval:

@@ -1,25 +1,21 @@
 extends Node
-class_name BiomeMap
 
-var temp_noise:OpenSimplexNoise
-var moist_noise:OpenSimplexNoise
+var temp_noise: FastNoiseLite
+var moist_noise: FastNoiseLite
 
-func setup(temp_noise_res:OpenSimplexNoise, moist_noise_res:OpenSimplexNoise):
+func setup(temp_noise_res: FastNoiseLite, moist_noise_res: FastNoiseLite):
     temp_noise = temp_noise_res
     moist_noise = moist_noise_res
 
-# returns biome name for world position (Vector3)
-func get_biome_at(pos:Vector3) -> String:
+func get_biome_at(pos: Vector3) -> String:
     if not temp_noise or not moist_noise:
         return "plains"
     var tx = pos.x * 0.01
     var tz = pos.z * 0.01
     var t = temp_noise.get_noise_2d(tx, tz)
     var m = moist_noise.get_noise_2d(tx, tz)
-    # normalize to 0..1
     t = (t + 1.0) * 0.5
     m = (m + 1.0) * 0.5
-    # simple biome rules
     if t < 0.25:
         if m < 0.3: return "tundra"
         return "taiga"

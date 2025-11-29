@@ -1,0 +1,29 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "SandMaterial"
+transparency = 0
+cull_mode = 0
+shading_mode = 1
+diffuse_mode = 2
+specular_mode = 1
+albedo_color = Color(0.85, 0.75, 0.55, 1)
+metallic = 0.0
+roughness = 0.98
+emission_enabled = false
+normal_enabled = false
+rim_enabled = true
+rim = 0.1
+rim_tint = 0.3
+clearcoat_enabled = false
+anisotropy_enabled = false
+ao_enabled = true
+ao_light_affect = 0.2
+heightmap_enabled = false
+subsurf_scatter_enabled = false
+backlight_enabled = false
+refraction_enabled = false
+detail_enabled = false
+uv1_scale = Vector3(16, 16, 16)
+uv1_triplanar = true
+vertex_color_use_as_albedo = false

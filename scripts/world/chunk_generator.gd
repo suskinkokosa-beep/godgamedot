@@ -89,6 +89,8 @@ func generate_chunk(chunk_x: int, chunk_z: int) -> Node3D:
 func _create_terrain_mesh(world_x: float, world_z: float) -> StaticBody3D:
         var terrain = StaticBody3D.new()
         terrain.name = "Terrain"
+        terrain.collision_layer = 1
+        terrain.collision_mask = 1
         
         var st = SurfaceTool.new()
         st.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -171,21 +173,27 @@ func _create_terrain_mesh(world_x: float, world_z: float) -> StaticBody3D:
         
         var material = StandardMaterial3D.new()
         material.vertex_color_use_as_albedo = true
-        material.roughness = 0.9
+        material.roughness = 0.92
+        material.metallic = 0.0
+        material.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
+        material.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+        material.ao_enabled = true
+        material.ao_light_affect = 0.3
         mesh_instance.material_override = material
         
         terrain.add_child(mesh_instance)
         
-        var shape = _create_collision_shape(heights, world_x, world_z)
+        var mesh_shape = _create_mesh_collision(mesh)
         var collision = CollisionShape3D.new()
-        collision.shape = shape
+        collision.shape = mesh_shape
         terrain.add_child(collision)
         
         return terrain
 
-func _create_collision_shape(heights: Array, world_x: float, world_z: float) -> HeightMapShape3D:
-        var shape = HeightMapShape3D.new()
+func _create_collision_shape(heights: Array, world_x: float, world_z: float) -> Shape3D:
         var size = MESH_RESOLUTION + 1
+        
+        var shape = HeightMapShape3D.new()
         shape.map_width = size
         shape.map_depth = size
         
@@ -198,6 +206,12 @@ func _create_collision_shape(heights: Array, world_x: float, world_z: float) -> 
         
         shape.map_data = map_data
         
+        return shape
+
+func _create_mesh_collision(mesh: Mesh) -> ConcavePolygonShape3D:
+        var shape = ConcavePolygonShape3D.new()
+        var faces = mesh.get_faces()
+        shape.set_faces(faces)
         return shape
 
 func _create_water_plane(world_x: float, world_z: float) -> Node3D:

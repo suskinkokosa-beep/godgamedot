@@ -43,7 +43,16 @@ var settings := {
                 "interact": "E",
                 "inventory": "I",
                 "attack": "LMB"
+        },
+        "language": {
+                "current": "ru",
+                "available": ["ru", "en"]
         }
+}
+
+var language_names := {
+        "ru": "Русский",
+        "en": "English"
 }
 
 const SETTINGS_PATH := "user://settings.cfg"
@@ -150,6 +159,7 @@ func apply_all_settings():
         apply_graphics_settings()
         apply_audio_settings()
         apply_control_settings()
+        apply_language_settings()
 
 func apply_graphics_settings():
         var gfx = settings["graphics"]
@@ -229,6 +239,26 @@ func get_graphics_info() -> Dictionary:
                 "api": RenderingServer.get_video_adapter_api_version()
         }
 
+func apply_language_settings():
+        var lang = settings["language"]["current"]
+        TranslationServer.set_locale(lang)
+
+func set_language(lang_code: String):
+        if lang_code in settings["language"]["available"]:
+                settings["language"]["current"] = lang_code
+                apply_language_settings()
+                save_settings()
+                emit_signal("settings_changed")
+
+func get_current_language() -> String:
+        return settings["language"]["current"]
+
+func get_available_languages() -> Array:
+        return settings["language"]["available"]
+
+func get_language_name(lang_code: String) -> String:
+        return language_names.get(lang_code, lang_code)
+
 func estimate_performance() -> String:
         var gfx = settings["graphics"]
         var score = 0
@@ -236,7 +266,7 @@ func estimate_performance() -> String:
         score += int(gfx["resolution_scale"] * 3)
         score += 1 if gfx["shadows_enabled"] else 0
         score += gfx["shadow_quality"]
-        score += 2 if gfx["ssao_enabled"] else 0
+        score += 2 if gfx.get("ssao_enabled", false) else 0
         score += 1 if gfx["bloom_enabled"] else 0
         score += gfx["antialiasing"]
         score += int(gfx["view_distance"] / 50)

@@ -2,9 +2,36 @@ extends Node
 
 signal relation_changed(faction_a: String, faction_b: String, new_value: int)
 signal entity_registered(entity: Node, faction: String)
+signal reputation_changed(player_id: int, faction: String, new_value: int)
 
 var factions = {}
 var faction_entities = {}
+var player_reputations := {}
+
+var faction_names := {
+        "player": "Игрок",
+        "town": "Города",
+        "wild": "Дикие животные",
+        "bandits": "Бандиты",
+        "monsters": "Монстры",
+        "neutral": "Нейтральные",
+        "traders": "Торговцы",
+        "hunters": "Охотники",
+        "miners": "Шахтёры",
+        "guards": "Стража"
+}
+
+var reputation_ranks := {
+        -100: {"name": "Враг народа", "color": Color(0.8, 0, 0)},
+        -75: {"name": "Ненавидят", "color": Color(0.9, 0.2, 0.1)},
+        -50: {"name": "Недолюбливают", "color": Color(0.9, 0.4, 0.2)},
+        -25: {"name": "Не доверяют", "color": Color(0.8, 0.6, 0.3)},
+        0: {"name": "Нейтрально", "color": Color(0.7, 0.7, 0.7)},
+        25: {"name": "Приветливы", "color": Color(0.5, 0.8, 0.4)},
+        50: {"name": "Уважают", "color": Color(0.3, 0.8, 0.3)},
+        75: {"name": "Почитают", "color": Color(0.2, 0.9, 0.5)},
+        100: {"name": "Герой", "color": Color(1.0, 0.85, 0.2)}
+}
 
 func _ready():
         _setup_default_factions()
@@ -16,6 +43,10 @@ func _setup_default_factions():
         create_faction("bandits")
         create_faction("monsters")
         create_faction("neutral")
+        create_faction("traders")
+        create_faction("hunters")
+        create_faction("miners")
+        create_faction("guards")
         
         set_relation("player", "town", 50)
         set_relation("town", "player", 50)
@@ -95,3 +126,55 @@ func modify_faction_reputation(faction: String, delta: int):
         if not factions.has(faction):
                 create_faction(faction)
         factions[faction]["reputation"] = clamp(factions[faction].get("reputation", 0) + delta, -100, 100)
+
+func ensure_player_reputation(player_id: int):
+        if not player_reputations.has(player_id):
+                player_reputations[player_id] = {}
+                for f in factions.keys():
+                        if f != "player":
+                                player_reputations[player_id][f] = 0
+
+func get_player_reputation(player_id: int, faction: String) -> int:
+        ensure_player_reputation(player_id)
+        return player_reputations[player_id].get(faction, 0)
+
+func modify_player_reputation(player_id: int, faction: String, delta: int):
+        ensure_player_reputation(player_id)
+        
+        var perk_sys = get_node_or_null("/root/PerkSystem")
+        if perk_sys:
+                delta = int(delta * perk_sys.get_perk_effect(player_id, "reputation_gain"))
+        
+        var current = player_reputations[player_id].get(faction, 0)
+        var new_value = clamp(current + delta, -100, 100)
+        player_reputations[player_id][faction] = new_value
+        emit_signal("reputation_changed", player_id, faction, new_value)
+
+func get_reputation_rank(value: int) -> Dictionary:
+        var result = reputation_ranks[0]
+        for threshold in reputation_ranks.keys():
+                if value >= threshold:
+                        result = reputation_ranks[threshold]
+        return result
+
+func get_faction_name(faction: String) -> String:
+        return faction_names.get(faction, faction)
+
+func get_all_factions() -> Array:
+        return factions.keys()
+
+func get_player_all_reputations(player_id: int) -> Dictionary:
+        ensure_player_reputation(player_id)
+        return player_reputations[player_id].duplicate()
+
+func can_trade_with(player_id: int, faction: String) -> bool:
+        var rep = get_player_reputation(player_id, faction)
+        return rep >= -25
+
+func can_enter_settlement(player_id: int, faction: String) -> bool:
+        var rep = get_player_reputation(player_id, faction)
+        return rep >= -50
+
+func get_trade_price_modifier(player_id: int, faction: String) -> float:
+        var rep = get_player_reputation(player_id, faction)
+        return 1.0 - (rep * 0.002)

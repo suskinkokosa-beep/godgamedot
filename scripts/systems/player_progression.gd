@@ -167,7 +167,46 @@ func modify_attribute(id:int, attr:String, delta:int):
         emit_signal("player_updated", id)
 
 func get_carry_capacity(id:int) -> float:
-    var p = ensure_player(id)
-    var base = p.stats.carry_capacity
-    var strength_bonus = p.attributes.strength * 5.0
-    return base + strength_bonus
+        var p = ensure_player(id)
+        var base = p.stats.carry_capacity
+        var strength_bonus = p.attributes.strength * 5.0
+        var weight_mult = 1.0
+        var perk_sys = get_node_or_null("/root/PerkSystem")
+        if perk_sys:
+                weight_mult = perk_sys.get_perk_effect(id, "resource_weight")
+        if weight_mult <= 0:
+                weight_mult = 1.0
+        return (base + strength_bonus) / weight_mult
+
+func get_perk_points(id: int) -> int:
+        var p = ensure_player(id)
+        return p.perk_points
+
+func spend_perk_points(id: int, cost: int) -> bool:
+        var p = ensure_player(id)
+        if p.perk_points < cost:
+                return false
+        p.perk_points -= cost
+        emit_signal("player_updated", id)
+        return true
+
+func get_damage_mult(id: int) -> float:
+        var mult = 1.0
+        var perk_sys = get_node_or_null("/root/PerkSystem")
+        if perk_sys:
+                mult *= perk_sys.get_perk_effect(id, "damage_mult")
+        return mult
+
+func get_speed_mult(id: int) -> float:
+        var mult = 1.0
+        var perk_sys = get_node_or_null("/root/PerkSystem")
+        if perk_sys:
+                mult *= perk_sys.get_perk_effect(id, "sprint_speed")
+        return mult
+
+func get_heal_mult(id: int) -> float:
+        var mult = 1.0
+        var perk_sys = get_node_or_null("/root/PerkSystem")
+        if perk_sys:
+                mult *= perk_sys.get_perk_effect(id, "heal_mult")
+        return mult

@@ -239,9 +239,27 @@ func _process(delta):
 
 func get_level_name(level: int) -> String:
         match level:
+                SettlementLevel.CAMP: return "Лагерь"
+                SettlementLevel.VILLAGE: return "Деревня"
+                SettlementLevel.TOWN: return "Город"
+                SettlementLevel.CITY: return "Большой город"
+                SettlementLevel.CAPITAL: return "Столица"
+        return "Неизвестно"
+
+func get_level_name_en(level: int) -> String:
+        match level:
                 SettlementLevel.CAMP: return "Camp"
                 SettlementLevel.VILLAGE: return "Village"
                 SettlementLevel.TOWN: return "Town"
                 SettlementLevel.CITY: return "City"
                 SettlementLevel.CAPITAL: return "Capital"
         return "Unknown"
+
+func get_class_name_ru(pop_class: String) -> String:
+        var names := {
+                "worker": "Рабочий",
+                "guard": "Охранник",
+                "craftsman": "Ремесленник",
+                "trader": "Торговец"
+        }
+        return names.get(pop_class, pop_class)

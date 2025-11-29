@@ -37,15 +37,34 @@ func _process(delta):
             timers[pid] = 0.0
 
 func _estimate_temp_for_player(p):
-    var gm = get_node_or_null("/root/GameManager")
-    var ws = get_node_or_null("/root/WeatherSystem")
-    var bs = get_node_or_null("/root/BiomeSystem")
-    var base = gm.get_temperature() if gm else 15.0
-    # biome influence
-    var biome = bs.get_biome_at(p.global_transform.origin) if bs else null
-    if biome and biome.has("base_temp"):
-        base = biome.base_temp
-    # weather influence
-    if ws:
-        base += ws.temp_delta
-    return base
+        var gm = get_node_or_null("/root/GameManager")
+        var ws = get_node_or_null("/root/WeatherSystem")
+        var bs = get_node_or_null("/root/BiomeSystem")
+        var base = gm.get_temperature() if gm and gm.has_method("get_temperature") else 15.0
+        if bs and bs.has_method("get_biome_at"):
+                var biome = bs.get_biome_at(p.global_transform.origin)
+                if biome and biome is Dictionary and biome.has("base_temp"):
+                        base = biome.base_temp
+        if ws:
+                base += ws.temp_delta
+        return base
+
+func calculate_body_temp(pos: Vector3, current_temp: float, delta: float) -> float:
+        var ambient = _get_ambient_temp(pos)
+        var diff = ambient - current_temp
+        var rate = 0.1 * delta
+        return current_temp + diff * rate
+
+func _get_ambient_temp(pos: Vector3) -> float:
+        var base := 20.0
+        var ws = get_node_or_null("/root/WeatherSystem")
+        var dn = get_node_or_null("/root/DayNightCycle")
+        
+        if ws and ws.get("temp_delta") != null:
+                base += ws.temp_delta
+        
+        if dn and dn.has_method("is_night"):
+                if dn.is_night():
+                        base -= 5.0
+        
+        return base

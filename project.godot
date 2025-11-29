@@ -54,6 +54,8 @@ VFXManager="*res://scripts/systems/vfx_manager.gd"
 NotificationSystem="*res://scripts/ui/notification_system.gd"
 IconManager="*res://scripts/systems/icon_manager.gd"
 SaveManager="*res://scripts/systems/save_manager.gd"
+AtmosphereSystem="*res://scripts/world/atmosphere_system.gd"
+WeatherParticles="*res://scripts/world/weather_particles.gd"
 
 [input]
 

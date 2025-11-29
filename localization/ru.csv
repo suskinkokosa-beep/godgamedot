@@ -1,12 +1,309 @@
 key,text
 hello,Привет
+goodbye,До свидания
 inventory,Инвентарь
 craft,Крафт
+crafting,Создание
 health,Здоровье
 stamina,Выносливость
+hunger,Голод
+thirst,Жажда
+temperature,Температура
+sanity,Рассудок
+blood,Кровь
 language,Язык
+settings,Настройки
+graphics,Графика
+audio,Звук
+controls,Управление
 join_server,Подключиться к серверу
 host_server,Запустить сервер
+single_player,Одиночная игра
+multiplayer,Мультиплеер
+new_game,Новая игра
+continue_game,Продолжить
+load_game,Загрузить игру
+save_game,Сохранить игру
+quit,Выход
+exit,Выход из игры
+back,Назад
+apply,Применить
+cancel,Отмена
+confirm,Подтвердить
+yes,Да
+no,Нет
+ok,ОК
 attack,Атака
 dead,Мёртв
 respawn,Возрождение через {secs}с
+level,Уровень
+experience,Опыт
+xp,Опыт
+level_up,Повышение уровня!
+new_level,Новый уровень: {level}
+skill_increased,Навык повышен: {skill}
+perk_unlocked,Перк разблокирован: {perk}
+quality_low,Низкое
+quality_medium,Среднее
+quality_high,Высокое
+quality_ultra,Ультра
+resolution_scale,Масштаб разрешения
+vsync,Вертикальная синхронизация
+fps_limit,Ограничение FPS
+fps_unlimited,Без лимита
+shadows,Тени
+shadow_quality,Качество теней
+bloom,Свечение (Bloom)
+fog,Туман
+antialiasing,Сглаживание
+aa_off,Выкл
+view_distance,Дальность видимости
+performance,Оценка производительности
+perf_excellent,Отлично для слабых ПК
+perf_good,Хорошо для средних ПК
+perf_demanding,Требует мощный ПК
+perf_very_demanding,Очень требовательно
+mouse_sensitivity,Чувствительность мыши
+fov,Поле зрения (FOV)
+invert_y,Инверсия оси Y
+keybinds,Назначение клавиш
+key_forward,Вперёд
+key_back,Назад
+key_left,Влево
+key_right,Вправо
+key_jump,Прыжок
+key_sprint,Бег
+key_crouch,Присесть
+key_interact,Взаимодействие
+key_inventory,Инвентарь
+key_attack,Атака
+reset_keybinds,Сбросить клавиши
+master_volume,Общая громкость
+music_volume,Музыка
+sfx_volume,Звуковые эффекты
+ambient_volume,Окружение
+language_info,Изменение языка применится после перезапуска игры.
+russian,Русский
+english,English
+wood,Дерево
+log,Бревно
+stick,Палка
+stone,Камень
+iron_ore,Железная руда
+copper_ore,Медная руда
+silver_ore,Серебряная руда
+gold_ore,Золотая руда
+titanium_ore,Титановая руда
+flint,Кремень
+clay,Глина
+sand,Песок
+plant_fiber,Растительное волокно
+berries,Ягоды
+herbs,Травы
+meat,Мясо
+hide,Шкура
+bone,Кость
+iron_ingot,Железный слиток
+copper_ingot,Медный слиток
+silver_ingot,Серебряный слиток
+gold_ingot,Золотой слиток
+titanium_ingot,Титановый слиток
+steel_ingot,Стальной слиток
+cloth,Ткань
+leather,Кожа
+rope,Верёвка
+nail,Гвоздь
+plank,Доска
+stone_axe,Каменный топор
+iron_axe,Железный топор
+steel_axe,Стальной топор
+stone_pickaxe,Каменная кирка
+iron_pickaxe,Железная кирка
+steel_pickaxe,Стальная кирка
+stone_knife,Каменный нож
+iron_sword,Железный меч
+steel_sword,Стальной меч
+bow,Лук
+crossbow,Арбалет
+arrow,Стрела
+torch,Факел
+campfire,Костёр
+furnace,Печь
+workbench,Верстак
+anvil,Наковальня
+chest,Сундук
+bed,Кровать
+bandage,Бинт
+medkit,Аптечка
+cooked_meat,Жареное мясо
+bread,Хлеб
+water_bottle,Бутылка воды
+potion_health,Зелье здоровья
+potion_stamina,Зелье выносливости
+helmet,Шлем
+chestplate,Нагрудник
+leggings,Поножи
+boots,Ботинки
+biome_ocean,Океан
+biome_deep_ocean,Глубокий океан
+biome_beach,Пляж
+biome_plains,Равнины
+biome_meadow,Луг
+biome_forest,Лес
+biome_dense_forest,Густой лес
+biome_birch_forest,Берёзовый лес
+biome_taiga,Тайга
+biome_tundra,Тундра
+biome_snow,Снежные пустоши
+biome_desert,Пустыня
+biome_savanna,Саванна
+biome_jungle,Джунгли
+biome_swamp,Болото
+biome_mountain,Горы
+biome_snow_mountain,Заснеженные горы
+biome_volcanic,Вулкан
+biome_canyon,Каньон
+biome_river,Река
+weather_clear,Ясно
+weather_cloudy,Облачно
+weather_rain,Дождь
+weather_heavy_rain,Сильный дождь
+weather_storm,Шторм
+weather_thunderstorm,Гроза
+weather_snow,Снег
+weather_blizzard,Метель
+weather_fog,Туман
+weather_heat_wave,Жара
+temp_freezing,Замерзаете
+temp_cold,Холодно
+temp_chilly,Прохладно
+temp_comfortable,Комфортно
+temp_warm,Тепло
+temp_overheating,Перегрев
+status_healthy,Здоров
+status_injured,Ранен
+status_bleeding,Кровотечение
+status_hungry,Голоден
+status_starving,Голодание
+status_thirsty,Жажда
+status_dehydrated,Обезвоживание
+status_tired,Устал
+status_exhausted,Истощён
+faction_player,Игрок
+faction_town,Город
+faction_wild,Дикие
+faction_bandits,Бандиты
+faction_monsters,Монстры
+faction_neutral,Нейтралы
+rep_hated,Ненавидят
+rep_hostile,Враждебны
+rep_unfriendly,Недружелюбны
+rep_neutral,Нейтральны
+rep_friendly,Дружелюбны
+rep_trusted,Доверяют
+rep_honored,Уважают
+rep_revered,Почитают
+rep_exalted,Превозносят
+settlement_camp,Лагерь
+settlement_village,Деревня
+settlement_town,Город
+settlement_city,Большой город
+settlement_capital,Столица
+attr_strength,Сила
+attr_endurance,Выносливость
+attr_agility,Ловкость
+attr_intelligence,Интеллект
+attr_perception,Восприятие
+attr_luck,Удача
+skill_melee,Ближний бой
+skill_ranged,Дальний бой
+skill_defense,Защита
+skill_crafting,Ремесло
+skill_gathering,Собирательство
+skill_mining,Добыча
+skill_hunting,Охота
+skill_cooking,Кулинария
+skill_building,Строительство
+skill_trading,Торговля
+skill_athletics,Атлетика
+slot_head,Голова
+slot_chest,Тело
+slot_legs,Ноги
+slot_feet,Ступни
+slot_hands,Руки
+slot_back,Спина
+slot_accessory1,Аксессуар 1
+slot_accessory2,Аксессуар 2
+category_tools,Инструменты
+category_weapons,Оружие
+category_armor,Броня
+category_consumables,Расходники
+category_materials,Материалы
+category_building,Строительство
+category_food,Еда
+category_medicine,Медицина
+category_misc,Разное
+tooltip_damage,Урон
+tooltip_armor,Защита
+tooltip_durability,Прочность
+tooltip_weight,Вес
+tooltip_value,Ценность
+tooltip_required,Требуется
+tooltip_ingredients,Ингредиенты
+tooltip_craft_time,Время создания
+save_slot,Слот сохранения
+save_empty,Пустой слот
+save_overwrite,Перезаписать сохранение?
+save_delete,Удалить сохранение?
+save_success,Игра сохранена
+load_success,Игра загружена
+autosave,Автосохранение
+quicksave,Быстрое сохранение
+quickload,Быстрая загрузка
+pause_menu,Пауза
+resume,Продолжить
+main_menu,Главное меню
+notification_info,Информация
+notification_success,Успех
+notification_warning,Внимание
+notification_error,Ошибка
+notification_xp,+{amount} опыта
+notification_item,+{amount} {item}
+notification_achievement,Достижение разблокировано!
+press_to_interact,Нажмите E для взаимодействия
+requires_tool,Требуется: {tool}
+inventory_full,Инвентарь полон
+not_enough_materials,Недостаточно материалов
+crafting_started,Создание начато...
+crafting_complete,Создание завершено!
+building_placed,Постройка размещена
+building_removed,Постройка удалена
+cannot_place,Нельзя разместить здесь
+time_morning,Утро
+time_day,День
+time_evening,Вечер
+time_night,Ночь
+day,День {day}
+minimap,Миникарта
+compass_n,С
+compass_s,Ю
+compass_e,В
+compass_w,З
+hotbar,Панель быстрого доступа
+equipment,Снаряжение
+stats,Статистика
+skills,Навыки
+perks,Перки
+quests,Задания
+journal,Журнал
+map,Карта
+search,Поиск
+sort_name,По названию
+sort_type,По типу
+sort_weight,По весу
+sort_value,По ценности
+use_item,Использовать
+drop_item,Выбросить
+equip_item,Надеть
+unequip_item,Снять
+split_stack,Разделить стопку

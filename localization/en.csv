@@ -1,12 +1,309 @@
 key,text
 hello,Hello
+goodbye,Goodbye
 inventory,Inventory
-craft,Crafting
+craft,Craft
+crafting,Crafting
 health,Health
 stamina,Stamina
+hunger,Hunger
+thirst,Thirst
+temperature,Temperature
+sanity,Sanity
+blood,Blood
 language,Language
+settings,Settings
+graphics,Graphics
+audio,Audio
+controls,Controls
 join_server,Join Server
 host_server,Host Server
+single_player,Single Player
+multiplayer,Multiplayer
+new_game,New Game
+continue_game,Continue
+load_game,Load Game
+save_game,Save Game
+quit,Quit
+exit,Exit Game
+back,Back
+apply,Apply
+cancel,Cancel
+confirm,Confirm
+yes,Yes
+no,No
+ok,OK
 attack,Attack
 dead,Dead
 respawn,Respawn in {secs}s
+level,Level
+experience,Experience
+xp,XP
+level_up,Level Up!
+new_level,New Level: {level}
+skill_increased,Skill Increased: {skill}
+perk_unlocked,Perk Unlocked: {perk}
+quality_low,Low
+quality_medium,Medium
+quality_high,High
+quality_ultra,Ultra
+resolution_scale,Resolution Scale
+vsync,VSync
+fps_limit,FPS Limit
+fps_unlimited,Unlimited
+shadows,Shadows
+shadow_quality,Shadow Quality
+bloom,Bloom
+fog,Fog
+antialiasing,Anti-aliasing
+aa_off,Off
+view_distance,View Distance
+performance,Performance Estimate
+perf_excellent,Excellent for low-end PCs
+perf_good,Good for mid-range PCs
+perf_demanding,Requires powerful PC
+perf_very_demanding,Very demanding
+mouse_sensitivity,Mouse Sensitivity
+fov,Field of View (FOV)
+invert_y,Invert Y Axis
+keybinds,Key Bindings
+key_forward,Forward
+key_back,Back
+key_left,Left
+key_right,Right
+key_jump,Jump
+key_sprint,Sprint
+key_crouch,Crouch
+key_interact,Interact
+key_inventory,Inventory
+key_attack,Attack
+reset_keybinds,Reset Keybinds
+master_volume,Master Volume
+music_volume,Music
+sfx_volume,Sound Effects
+ambient_volume,Ambient
+language_info,Language change will apply after restarting the game.
+russian,Russian
+english,English
+wood,Wood
+log,Log
+stick,Stick
+stone,Stone
+iron_ore,Iron Ore
+copper_ore,Copper Ore
+silver_ore,Silver Ore
+gold_ore,Gold Ore
+titanium_ore,Titanium Ore
+flint,Flint
+clay,Clay
+sand,Sand
+plant_fiber,Plant Fiber
+berries,Berries
+herbs,Herbs
+meat,Meat
+hide,Hide
+bone,Bone
+iron_ingot,Iron Ingot
+copper_ingot,Copper Ingot
+silver_ingot,Silver Ingot
+gold_ingot,Gold Ingot
+titanium_ingot,Titanium Ingot
+steel_ingot,Steel Ingot
+cloth,Cloth
+leather,Leather
+rope,Rope
+nail,Nail
+plank,Plank
+stone_axe,Stone Axe
+iron_axe,Iron Axe
+steel_axe,Steel Axe
+stone_pickaxe,Stone Pickaxe
+iron_pickaxe,Iron Pickaxe
+steel_pickaxe,Steel Pickaxe
+stone_knife,Stone Knife
+iron_sword,Iron Sword
+steel_sword,Steel Sword
+bow,Bow
+crossbow,Crossbow
+arrow,Arrow
+torch,Torch
+campfire,Campfire
+furnace,Furnace
+workbench,Workbench
+anvil,Anvil
+chest,Chest
+bed,Bed
+bandage,Bandage
+medkit,Medkit
+cooked_meat,Cooked Meat
+bread,Bread
+water_bottle,Water Bottle
+potion_health,Health Potion
+potion_stamina,Stamina Potion
+helmet,Helmet
+chestplate,Chestplate
+leggings,Leggings
+boots,Boots
+biome_ocean,Ocean
+biome_deep_ocean,Deep Ocean
+biome_beach,Beach
+biome_plains,Plains
+biome_meadow,Meadow
+biome_forest,Forest
+biome_dense_forest,Dense Forest
+biome_birch_forest,Birch Forest
+biome_taiga,Taiga
+biome_tundra,Tundra
+biome_snow,Snow Wastes
+biome_desert,Desert
+biome_savanna,Savanna
+biome_jungle,Jungle
+biome_swamp,Swamp
+biome_mountain,Mountains
+biome_snow_mountain,Snowy Mountains
+biome_volcanic,Volcano
+biome_canyon,Canyon
+biome_river,River
+weather_clear,Clear
+weather_cloudy,Cloudy
+weather_rain,Rain
+weather_heavy_rain,Heavy Rain
+weather_storm,Storm
+weather_thunderstorm,Thunderstorm
+weather_snow,Snow
+weather_blizzard,Blizzard
+weather_fog,Fog
+weather_heat_wave,Heat Wave
+temp_freezing,Freezing
+temp_cold,Cold
+temp_chilly,Chilly
+temp_comfortable,Comfortable
+temp_warm,Warm
+temp_overheating,Overheating
+status_healthy,Healthy
+status_injured,Injured
+status_bleeding,Bleeding
+status_hungry,Hungry
+status_starving,Starving
+status_thirsty,Thirsty
+status_dehydrated,Dehydrated
+status_tired,Tired
+status_exhausted,Exhausted
+faction_player,Player
+faction_town,Town
+faction_wild,Wild
+faction_bandits,Bandits
+faction_monsters,Monsters
+faction_neutral,Neutral
+rep_hated,Hated
+rep_hostile,Hostile
+rep_unfriendly,Unfriendly
+rep_neutral,Neutral
+rep_friendly,Friendly
+rep_trusted,Trusted
+rep_honored,Honored
+rep_revered,Revered
+rep_exalted,Exalted
+settlement_camp,Camp
+settlement_village,Village
+settlement_town,Town
+settlement_city,City
+settlement_capital,Capital
+attr_strength,Strength
+attr_endurance,Endurance
+attr_agility,Agility
+attr_intelligence,Intelligence
+attr_perception,Perception
+attr_luck,Luck
+skill_melee,Melee Combat
+skill_ranged,Ranged Combat
+skill_defense,Defense
+skill_crafting,Crafting
+skill_gathering,Gathering
+skill_mining,Mining
+skill_hunting,Hunting
+skill_cooking,Cooking
+skill_building,Building
+skill_trading,Trading
+skill_athletics,Athletics
+slot_head,Head
+slot_chest,Chest
+slot_legs,Legs
+slot_feet,Feet
+slot_hands,Hands
+slot_back,Back
+slot_accessory1,Accessory 1
+slot_accessory2,Accessory 2
+category_tools,Tools
+category_weapons,Weapons
+category_armor,Armor
+category_consumables,Consumables
+category_materials,Materials
+category_building,Building
+category_food,Food
+category_medicine,Medicine
+category_misc,Miscellaneous
+tooltip_damage,Damage
+tooltip_armor,Armor
+tooltip_durability,Durability
+tooltip_weight,Weight
+tooltip_value,Value
+tooltip_required,Required
+tooltip_ingredients,Ingredients
+tooltip_craft_time,Craft Time
+save_slot,Save Slot
+save_empty,Empty Slot
+save_overwrite,Overwrite save?
+save_delete,Delete save?
+save_success,Game Saved
+load_success,Game Loaded
+autosave,Autosave
+quicksave,Quick Save
+quickload,Quick Load
+pause_menu,Pause
+resume,Resume
+main_menu,Main Menu
+notification_info,Info
+notification_success,Success
+notification_warning,Warning
+notification_error,Error
+notification_xp,+{amount} XP
+notification_item,+{amount} {item}
+notification_achievement,Achievement Unlocked!
+press_to_interact,Press E to interact
+requires_tool,Required: {tool}
+inventory_full,Inventory Full
+not_enough_materials,Not enough materials
+crafting_started,Crafting started...
+crafting_complete,Crafting complete!
+building_placed,Building placed
+building_removed,Building removed
+cannot_place,Cannot place here
+time_morning,Morning
+time_day,Day
+time_evening,Evening
+time_night,Night
+day,Day {day}
+minimap,Minimap
+compass_n,N
+compass_s,S
+compass_e,E
+compass_w,W
+hotbar,Hotbar
+equipment,Equipment
+stats,Statistics
+skills,Skills
+perks,Perks
+quests,Quests
+journal,Journal
+map,Map
+search,Search
+sort_name,By Name
+sort_type,By Type
+sort_weight,By Weight
+sort_value,By Value
+use_item,Use
+drop_item,Drop
+equip_item,Equip
+unequip_item,Unequip
+split_stack,Split Stack

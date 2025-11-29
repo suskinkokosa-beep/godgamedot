@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://gt5s85c58onu"
+path="res://.godot/imported/wolf.obj-460b705f20bdab4872e08f5a5b075d52.mesh"
+
+[deps]
+
+files=["res://.godot/imported/wolf.obj-460b705f20bdab4872e08f5a5b075d52.mesh"]
+
+source_file="res://assets/art_pack/models/animals/wolf.obj"
+dest_files=["res://.godot/imported/wolf.obj-460b705f20bdab4872e08f5a5b075d52.mesh", "res://.godot/imported/wolf.obj-460b705f20bdab4872e08f5a5b075d52.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

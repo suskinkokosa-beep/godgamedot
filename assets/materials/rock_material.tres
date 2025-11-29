@@ -1,0 +1,25 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "RockMaterial"
+transparency = 0
+cull_mode = 0
+shading_mode = 1
+diffuse_mode = 0
+specular_mode = 0
+albedo_color = Color(0.45, 0.42, 0.38, 1)
+metallic = 0.0
+roughness = 0.85
+emission_enabled = false
+normal_enabled = false
+rim_enabled = false
+clearcoat_enabled = false
+anisotropy_enabled = false
+ao_enabled = true
+ao_light_affect = 0.4
+heightmap_enabled = false
+subsurf_scatter_enabled = false
+backlight_enabled = false
+refraction_enabled = false
+detail_enabled = false
+uv1_scale = Vector3(2, 2, 2)

@@ -1,0 +1,27 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "GrassMaterial"
+transparency = 0
+cull_mode = 0
+shading_mode = 1
+diffuse_mode = 0
+specular_mode = 0
+albedo_color = Color(0.25, 0.45, 0.15, 1)
+metallic = 0.0
+roughness = 0.9
+emission_enabled = false
+normal_enabled = false
+rim_enabled = false
+clearcoat_enabled = false
+anisotropy_enabled = false
+ao_enabled = false
+heightmap_enabled = false
+subsurf_scatter_enabled = true
+subsurf_scatter_strength = 0.3
+backlight_enabled = true
+backlight = Color(0.3, 0.5, 0.2, 1)
+refraction_enabled = false
+detail_enabled = false
+uv1_scale = Vector3(4, 4, 4)
+uv2_scale = Vector3(1, 1, 1)

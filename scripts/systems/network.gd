@@ -12,14 +12,14 @@ func is_active() -> bool:
 func host(port=7777):
     var peer = ENetMultiplayerPeer.new()
     peer.create_server(port)
-    get_tree().multiplayer.peer = peer
+    get_tree().get_multiplayer().multiplayer_peer = peer
     is_server = true
     print("Hosting on port", port)
 
 func join(ip, port=7777):
     var peer = ENetMultiplayerPeer.new()
     peer.create_client(ip, port)
-    get_tree().multiplayer.peer = peer
+    get_tree().get_multiplayer().multiplayer_peer = peer
     is_server = false
     print("Joining", ip)
 

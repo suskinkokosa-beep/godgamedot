@@ -2,6 +2,8 @@ extends Node
 
 signal player_updated(net_id)
 signal stat_critical(net_id, stat_name, value)
+signal xp_gained(net_id, amount)
+signal level_up(net_id, new_level)
 
 var players = {}
 
@@ -47,12 +49,14 @@ func ensure_player(id:int):
 func add_xp(id:int, amount:float):
     var p = ensure_player(id)
     p.xp += amount
+    emit_signal("xp_gained", id, amount)
     # level up threshold: 100 * level
     var threshold = 100.0 * p.level
     while p.xp >= threshold:
         p.xp -= threshold
         p.level += 1
         p.perk_points += 1
+        emit_signal("level_up", id, p.level)
         threshold = 100.0 * p.level
     emit_signal("player_updated", id)
 

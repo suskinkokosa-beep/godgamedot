@@ -1,1 +1,69 @@
-[gd_scene]
+[gd_scene load_steps=4 format=3 uid="uid://main_scene"]
+
+[ext_resource type="PackedScene" path="res://scenes/environment.tscn" id="1_environment"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/game_world.gd" id="3_game_world"]
+
+[node name="GameWorld" type="Node3D"]
+script = ExtResource("3_game_world")
+
+[node name="Environment" parent="." instance=ExtResource("1_environment")]
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="InfoPanel" type="Panel" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -100.0
+offset_right = 250.0
+offset_bottom = -10.0
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/HUD/InfoPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+
+[node name="Title" type="Label" parent="CanvasLayer/HUD/InfoPanel/VBox"]
+layout_mode = 2
+text = "Epoch Settlements Alpha"
+
+[node name="Controls" type="Label" parent="CanvasLayer/HUD/InfoPanel/VBox"]
+layout_mode = 2
+text = "WASD - Move
+Shift - Sprint
+E - Interact
+I - Inventory
+ESC - Menu"
+
+[node name="Crosshair" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -10.0
+offset_top = -10.0
+offset_right = 10.0
+offset_bottom = 10.0
+theme_override_font_sizes/font_size = 24
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1

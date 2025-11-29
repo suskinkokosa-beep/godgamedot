@@ -2,159 +2,134 @@
 
 ## Overview
 
-This is a multiplayer survival/settlement game built with Godot 4. The project was migrated from Godot 3.x to Godot 4.4.1 to run in the Replit environment.
+This is a multiplayer survival/settlement game built with Godot 4. The project runs in the Replit environment with VNC display.
+
+## Running the Game
+
+The game starts automatically via the "Run Godot Game" workflow in VNC mode.
+Game launches with Main Menu where you can:
+- Start Game - Begin single player
+- Multiplayer - Host or join server
+- Settings - Change language and sensitivity
+- Quit - Exit game
+
+**In-Game Controls:**
+- **WASD** - Move
+- **Shift** - Sprint
+- **Ctrl** - Crouch
+- **E** - Interact
+- **I** - Inventory
+- **ESC** - Return to menu
+- **Left Click** - Attack
+- **Mouse** - Look around
 
 ## Project Structure
 
+### Key Scenes
+
+- **scenes/ui/main_menu.tscn** - Main menu (startup scene)
+- **scenes/main.tscn** - Game world with player, environment, NPCs
+- **scenes/player/player.tscn** - Player character
+- **scenes/environment.tscn** - Environment (lighting, ground)
+- **scenes/npcs/npc_citizen.tscn** - NPC citizens
+- **scenes/mobs/mob_basic.tscn** - Basic enemy mobs
+
 ### Core Systems (Autoloaded Singletons)
 
-The following systems are automatically loaded at startup:
+All systems load automatically at startup:
 
 - **Inventory** - Player inventory and equipment management
 - **Network** - Multiplayer networking system (ENet-based)
-- **GameManager** - Global game state, language settings, and day/night cycle
+- **GameManager** - Global game state, language settings, day/night cycle
 - **LocalizationService** - Multi-language support (English, Russian)
 - **StatsSystem** - Player stats and leveling
-- **PlayerProgression** - XP, skills, and character progression
-- **ActionXP** - Maps actions to XP rewards
+- **PlayerProgression** - XP, skills, character progression
 - **SpawnTable** - Biome-based entity spawning
 - **FactionSystem** - Faction relations management
 - **WeatherSystem** - Dynamic weather (server-controlled)
 - **BiomeSystem** - Biome mapping and temperature
 - **TemperatureSystem** - Temperature damage and effects
-- **MovementServer/Client** - Anti-cheat movement validation
-- **SeedManager** - World generation seed management
+- **TerrainGenerator** - Procedural terrain with biome colors
 - **ChunkStreamer** - Chunk-based world streaming
 - **CombatEngine** - Combat calculations and damage system
 
-### Key Features
+### Game World Features
 
-1. **Multiplayer Networking**
-   - Host/join functionality via Network system
-   - Server-authoritative gameplay
-   - Client prediction with server reconciliation
-
-2. **Survival Mechanics**
-   - Health, stamina, hunger, thirst
-   - Temperature effects based on biome and weather
-   - Day/night cycle (600 seconds per day)
-
-3. **Combat System**
-   - Light/heavy/ranged attacks
-   - Stamina-based cooldowns
-   - Armor mitigation
-   - Hitbox zones (head, body, legs)
-
-4. **Building System**
-   - Placement preview with snapping
-   - Server-side validation
-   - Foundation, walls, doors, windows
-
-5. **Crafting & Economy**
-   - Recipe-based crafting
-   - Resource gathering
-   - Trading with NPCs
+- **Biomes**: spawn_town, forest, plains, desert, tundra
+- **Factions**: player, town, wild, bandits
+- **NPCs**: Citizens that wander, trade, patrol
+- **Mobs**: Basic enemies that patrol and attack
+- **Terrain**: Procedural generation with collision
 
 ## Technical Details
 
-### Godot 4 Migration
+### Godot 4 Compatibility
 
-This project was converted from Godot 3.x to Godot 4.4.1. Major changes include:
+Project uses Godot 4.4.1 with OpenGL ES 3.2 (software rendering via Mesa llvmpipe).
 
-- **File API**: Migrated from `File` to `FileAccess`
-- **RPC System**: Updated from `@rpc("remote")` to `@rpc("any_peer", "call_remote")`
-- **Time API**: `OS.get_unix_time()` → `Time.get_unix_time_from_system()`
-- **Network API**: `is_network_server()` → `multiplayer.is_server()`
-- **Property Check**: `has_variable()` → `"property" in object`
-- **Modulo Operator**: Float modulo now uses `fmod()` function
-- **Ternary Operator**: Changed from `? :` to `if/else` syntax
+**Godot 4 API:**
+- `PhysicsRayQueryParameters3D` for raycasting
+- `Transform3D` instead of `Transform`
+- `@rpc("any_peer", "call_remote")` for network functions
+- `object.get("property")` for property checking
+- Ternary: `value if condition else other`
 
-### Scene Files
+### Input Configuration
 
-**Note**: The original scene files were created in Godot 3.x format and require manual re-import in the Godot 4 editor to be fully functional. The current main scene (`test_world.tscn`) is a minimal placeholder to allow the engine and scripts to run.
-
-To use the full game scenes:
-1. Open the project in Godot 4 editor
-2. Re-save all `.tscn` files to convert them to Godot 4 format
-3. Update `project.godot` to set main scene back to `res://scenes/world.tscn`
-
-## Running the Game
-
-### Development Mode (Headless)
-
-The workflow "Run Godot Game" starts the game in VNC mode, which allows GUI interaction via Replit's VNC viewer.
-
-### Server Setup
-
-To host a multiplayer server:
-```gdscript
-GameManager.start_server()
-# or directly:
-Network.host(port)  # default port 7777
-```
-
-### Client Setup
-
-To join a server:
-```gdscript
-GameManager.start_client("server_ip")
-# or directly:
-Network.join("server_ip", port)
-```
-
-## Assets
-
-The project includes:
-- 3D models (characters, animals, structures, weapons, environment props)
-- PBR textures (wood, metal, stone, fabric)
-- Material resources (.tres files)
-- Weapon definitions
+Input actions in project.godot:
+- move_forward (W), move_back (S), move_left (A), move_right (D)
+- sprint (Shift), crouch (Ctrl)
+- interact (E), inventory (I), escape (ESC)
+- attack (Left Mouse Button)
 
 ## Localization
 
-Supported languages are stored in `localization/*.csv`:
-- `en.csv` - English
-- `ru.csv` - Russian
+Supported languages:
+- English (en)
+- Russian (ru)
 
-Change language with:
+Change in Settings menu or via code:
 ```gdscript
 GameManager.set_language("ru")
 ```
 
-## Development Notes
+## Multiplayer
 
-- The project uses server-authoritative architecture for security
-- Movement includes anti-cheat validation (speed checks, teleport prevention)
-- Combat damage is calculated server-side only
-- World generation uses seed-based procedural generation
-- Chunks are streamed based on player position
+### From Menu
+- Click "Multiplayer"
+- Host Server: Creates server on port 7777
+- Join Server: Enter IP and connect
+
+### Via Code
+```gdscript
+Network.host(7777)  # Host
+Network.join("ip", 7777)  # Join
+```
 
 ## Dependencies
 
-- Godot 4.4.1 (installed via Nix)
+- Godot 4.4.1 (installed via Nix: godot_4)
 - No external plugins required
 
 ## Recent Changes
 
-- **2024-11-28**: Migrated from Godot 3.x to Godot 4.4.1
-  - Fixed all API compatibility issues
-  - Removed class_name conflicts with autoloads
-  - Created minimal test scene for engine validation
-  - Configured autoload singletons
-  - Updated all RPC, Time, File, and Network APIs
+- **2024-11-29**: Major update
+  - Added Main Menu with Start/Multiplayer/Settings/Quit
+  - Added HUD with controls info and crosshair
+  - Added game world initialization (biomes, factions, spawn tables)
+  - Added NPC and mob spawning system
+  - Fixed all scripts for Godot 4 compatibility
+  - Fixed multiplayer.is_server() for single player mode
+  - Fixed has_variable to use object.get() 
+  - Added terrain generation with biome-colored chunks
+  - Added collision detection for ground and entities
 
 ## Known Issues
 
-1. Original scene files need re-import in Godot 4 editor
-2. Some scenes reference resources that may need re-linking
-3. VNC display shows graphics warnings (expected in headless environment)
+1. VNC display shows OpenGL warnings (expected for software rendering)
+2. Some prop scenes need conversion to Godot 4 format
 
-## Next Steps
+## User Preferences
 
-To fully restore the game:
-1. Open project in Godot 4 editor locally or in a GUI environment
-2. Let Godot re-import all resources and scenes
-3. Re-save all scene files
-4. Test multiplayer functionality
-5. Verify world generation and chunk streaming
-6. Test all combat and survival mechanics
+- Language: Russian preferred for UI
+- Development focus: Single player functionality first

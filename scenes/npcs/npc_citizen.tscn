@@ -1,12 +1,27 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://npc_citizen_scene"]
 
-[ext_resource path="res://scripts/npcs/npc_citizen.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://scripts/npcs/npc_citizen.gd" id="1_npc"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.3
+height = 1.8
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.3
+height = 1.8
 
 [node name="NPCCitizen" type="CharacterBody3D"]
-script = ExtResource( 1 )
+script = ExtResource("1_npc")
 
-[node name="Mesh" type="MeshInstance3D" parent="."]
-mesh = SubResource( 1 )
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_1")
 
-[sub_resource type="BoxMesh" id=1]
-size = Vector3( 0.6, 1.8, 0.6 )
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_1")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+text = "Citizen"
+font_size = 24

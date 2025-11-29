@@ -56,6 +56,10 @@ IconManager="*res://scripts/systems/icon_manager.gd"
 SaveManager="*res://scripts/systems/save_manager.gd"
 AtmosphereSystem="*res://scripts/world/atmosphere_system.gd"
 WeatherParticles="*res://scripts/world/weather_particles.gd"
+TutorialSystem="*res://scripts/ui/tutorial_system.gd"
+GameBalance="*res://scripts/systems/game_balance.gd"
+DialogueSystem="*res://scripts/npcs/dialogue_system.gd"
+LootDropSystem="*res://scripts/systems/loot_drop_system.gd"
 
 [input]
 

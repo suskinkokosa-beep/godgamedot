@@ -4,6 +4,10 @@ const CHUNK_SIZE := 32
 const MESH_RESOLUTION := 16
 const VERTEX_SPACING := CHUNK_SIZE / float(MESH_RESOLUTION)
 
+const _TerrainMaterialGenerator = preload("res://scripts/world/terrain_material_generator.gd")
+const _TreeGenerator = preload("res://scripts/world/tree_generator.gd")
+const _RockGenerator = preload("res://scripts/world/rock_generator.gd")
+
 var world_gen
 var tree_scenes := {}
 var rock_scenes := {}
@@ -83,6 +87,10 @@ func generate_chunk(chunk_x: int, chunk_z: int) -> Node3D:
         var rocks = _spawn_rocks(world_x, world_z)
         for r in rocks:
                 chunk.add_child(r)
+        
+        var ores = _spawn_ore_nodes(world_x, world_z)
+        for o in ores:
+                chunk.add_child(o)
         
         return chunk
 
@@ -171,15 +179,19 @@ func _create_terrain_mesh(world_x: float, world_z: float) -> StaticBody3D:
         var mesh_instance = MeshInstance3D.new()
         mesh_instance.mesh = mesh
         
-        var material = StandardMaterial3D.new()
-        material.vertex_color_use_as_albedo = true
-        material.roughness = 0.92
-        material.metallic = 0.0
-        material.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
-        material.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
-        material.ao_enabled = true
-        material.ao_light_affect = 0.3
-        mesh_instance.material_override = material
+        var terrain_mat = _TerrainMaterialGenerator.get_terrain_material()
+        if terrain_mat:
+                mesh_instance.material_override = terrain_mat
+        else:
+                var material = StandardMaterial3D.new()
+                material.vertex_color_use_as_albedo = true
+                material.roughness = 0.85
+                material.metallic = 0.0
+                material.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
+                material.specular_mode = BaseMaterial3D.SPECULAR_SCHLICK_GGX
+                material.ao_enabled = true
+                material.ao_light_affect = 0.3
+                mesh_instance.material_override = material
         
         terrain.add_child(mesh_instance)
         
@@ -275,7 +287,7 @@ func _spawn_vegetation(world_x: float, world_z: float) -> Array:
                                 continue
                         
                         var tree_type = world_gen.get_tree_type(biome)
-                        var tree = _create_tree(tree_type, rng)
+                        var tree = _create_harvestable_tree(tree_type, rng)
                         
                         if tree:
                                 var height = world_gen.get_height_at(wx, wz)
@@ -287,103 +299,58 @@ func _spawn_vegetation(world_x: float, world_z: float) -> Array:
         
         return result
 
-func _create_tree(tree_type: String, rng: RandomNumberGenerator) -> Node3D:
-        if tree_scenes.has(tree_type):
-                return tree_scenes[tree_type].instantiate()
-        
-        var tree = Node3D.new()
+func _create_harvestable_tree(tree_type: String, rng: RandomNumberGenerator) -> StaticBody3D:
+        var tree = StaticBody3D.new()
         tree.name = "Tree_" + tree_type
+        tree.collision_layer = 2
+        tree.collision_mask = 1
+        tree.add_to_group("resources")
+        tree.add_to_group("trees")
         
-        var trunk = MeshInstance3D.new()
-        trunk.name = "Trunk"
-        var trunk_mesh = CylinderMesh.new()
+        var resource_script = load("res://scripts/world/resource_node.gd")
+        if resource_script:
+                tree.set_script(resource_script)
+                tree.set("resource_type", "wood")
+                tree.set("resource_amount", rng.randf_range(50.0, 150.0))
+                tree.set("gather_amount", 10.0)
+                tree.set("required_tool", "axe")
+                tree.set("respawn_time", 600.0)
+                tree.set("quality", 1)
         
-        var trunk_height = rng.randf_range(2.0, 4.0)
-        var trunk_radius = rng.randf_range(0.15, 0.3)
+        var lod_level = 0
+        var tree_model = _TreeGenerator.create_tree(tree_type, lod_level)
+        if tree_model:
+                tree.add_child(tree_model)
         
+        var trunk_height = 4.0
         match tree_type:
                 "pine", "spruce":
-                        trunk_height = rng.randf_range(4.0, 7.0)
-                        trunk_radius = rng.randf_range(0.2, 0.35)
-                "willow":
-                        trunk_height = rng.randf_range(2.5, 4.0)
-                        trunk_radius = rng.randf_range(0.25, 0.4)
-                "acacia":
-                        trunk_height = rng.randf_range(2.0, 3.5)
-                        trunk_radius = rng.randf_range(0.15, 0.25)
-        
-        trunk_mesh.height = trunk_height
-        trunk_mesh.top_radius = trunk_radius * 0.7
-        trunk_mesh.bottom_radius = trunk_radius
-        trunk.mesh = trunk_mesh
-        trunk.position.y = trunk_height * 0.5
-        
-        var trunk_mat = StandardMaterial3D.new()
-        trunk_mat.albedo_color = Color(0.35, 0.25, 0.15)
-        trunk.material_override = trunk_mat
-        
-        tree.add_child(trunk)
-        
-        var leaves = MeshInstance3D.new()
-        leaves.name = "Leaves"
-        
-        var leaves_color = Color(0.2, 0.5, 0.2)
-        
-        match tree_type:
-                "pine", "spruce":
-                        var cone = CylinderMesh.new()
-                        cone.height = trunk_height * 1.2
-                        cone.top_radius = 0.1
-                        cone.bottom_radius = trunk_height * 0.4
-                        leaves.mesh = cone
-                        leaves.position.y = trunk_height + cone.height * 0.4
-                        leaves_color = Color(0.15, 0.35, 0.2)
-                "willow":
-                        var sphere = SphereMesh.new()
-                        sphere.radius = trunk_height * 0.6
-                        sphere.height = trunk_height * 0.8
-                        leaves.mesh = sphere
-                        leaves.position.y = trunk_height + sphere.height * 0.3
-                        leaves_color = Color(0.25, 0.45, 0.2)
+                        trunk_height = 8.0
                 "birch":
-                        var sphere = SphereMesh.new()
-                        sphere.radius = trunk_height * 0.5
-                        sphere.height = trunk_height * 0.7
-                        leaves.mesh = sphere
-                        leaves.position.y = trunk_height + sphere.height * 0.3
-                        leaves_color = Color(0.35, 0.55, 0.25)
-                        trunk_mat.albedo_color = Color(0.9, 0.88, 0.85)
+                        trunk_height = 6.0
+                "oak", "maple":
+                        trunk_height = 5.0
+                "willow":
+                        trunk_height = 4.5
+                "palm":
+                        trunk_height = 7.0
                 "acacia":
-                        var box = BoxMesh.new()
-                        box.size = Vector3(trunk_height * 0.8, trunk_height * 0.3, trunk_height * 0.8)
-                        leaves.mesh = box
-                        leaves.position.y = trunk_height + box.size.y * 0.5
-                        leaves_color = Color(0.3, 0.5, 0.15)
-                _:
-                        var sphere = SphereMesh.new()
-                        sphere.radius = trunk_height * 0.5
-                        sphere.height = trunk_height * 0.6
-                        leaves.mesh = sphere
-                        leaves.position.y = trunk_height + sphere.height * 0.3
+                        trunk_height = 3.5
         
-        var leaves_mat = StandardMaterial3D.new()
-        leaves_mat.albedo_color = leaves_color
-        leaves.material_override = leaves_mat
-        
-        tree.add_child(leaves)
+        var trunk_radius = 0.35
         
         var col_shape = CollisionShape3D.new()
         var capsule = CapsuleShape3D.new()
-        capsule.radius = trunk_radius * 1.5
-        capsule.height = trunk_height
+        capsule.radius = trunk_radius * 2.0
+        capsule.height = trunk_height + 1.0
         col_shape.shape = capsule
-        col_shape.position.y = trunk_height * 0.5
-        
-        var static_body = StaticBody3D.new()
-        static_body.add_child(col_shape)
-        tree.add_child(static_body)
+        col_shape.position.y = (trunk_height + 1.0) * 0.5
+        tree.add_child(col_shape)
         
         return tree
+
+func _create_tree(tree_type: String, rng: RandomNumberGenerator) -> Node3D:
+        return _create_harvestable_tree(tree_type, rng)
 
 func _spawn_rocks(world_x: float, world_z: float) -> Array:
         var result = []
@@ -402,7 +369,7 @@ func _spawn_rocks(world_x: float, world_z: float) -> Array:
                         if not world_gen.should_spawn_rock(wx, wz):
                                 continue
                         
-                        var rock = _create_rock(rng)
+                        var rock = _create_harvestable_rock(rng)
                         var height = world_gen.get_height_at(wx, wz)
                         rock.position = Vector3(wx, height, wz)
                         rock.rotation.y = rng.randf_range(0, TAU)
@@ -410,36 +377,142 @@ func _spawn_rocks(world_x: float, world_z: float) -> Array:
         
         return result
 
-func _create_rock(rng: RandomNumberGenerator) -> Node3D:
-        var idx = rng.randi() % max(1, rock_scenes.size())
-        if rock_scenes.has(idx):
-                return rock_scenes[idx].instantiate()
-        
-        var rock = Node3D.new()
+func _create_harvestable_rock(rng: RandomNumberGenerator) -> StaticBody3D:
+        var rock = StaticBody3D.new()
         rock.name = "Rock"
+        rock.collision_layer = 2
+        rock.collision_mask = 1
+        rock.add_to_group("resources")
+        rock.add_to_group("rocks")
         
-        var mesh_inst = MeshInstance3D.new()
-        var box = BoxMesh.new()
+        var resource_script = load("res://scripts/world/resource_node.gd")
+        if resource_script:
+                rock.set_script(resource_script)
+                rock.set("resource_type", "stone")
+                rock.set("resource_amount", rng.randf_range(30.0, 80.0))
+                rock.set("gather_amount", 5.0)
+                rock.set("required_tool", "pickaxe")
+                rock.set("respawn_time", 900.0)
+                rock.set("quality", 1)
+        
         var size = rng.randf_range(0.5, 2.0)
-        box.size = Vector3(size, size * 0.6, size * 0.8)
-        mesh_inst.mesh = box
-        mesh_inst.position.y = box.size.y * 0.5
-        
-        var mat = StandardMaterial3D.new()
-        mat.albedo_color = Color(0.45, 0.42, 0.4)
-        mat.roughness = 0.95
-        mesh_inst.material_override = mat
-        
-        rock.add_child(mesh_inst)
-        
-        var col = CollisionShape3D.new()
-        var col_box = BoxShape3D.new()
-        col_box.size = box.size
-        col.shape = col_box
-        col.position.y = box.size.y * 0.5
-        
-        var body = StaticBody3D.new()
-        body.add_child(col)
-        rock.add_child(body)
+        var variant = rng.randi() % 30
+        var rock_model = _RockGenerator.create_rock(variant, size)
+        if rock_model:
+                rock.add_child(rock_model)
         
         return rock
+
+func _create_rock(rng: RandomNumberGenerator) -> Node3D:
+        return _create_harvestable_rock(rng)
+
+func _spawn_ore_nodes(world_x: float, world_z: float) -> Array:
+        var result = []
+        var rng = RandomNumberGenerator.new()
+        rng.seed = hash(Vector2(world_x + 1000, world_z + 1000))
+        
+        var spacing = 16.0
+        
+        for z in range(0, CHUNK_SIZE, int(spacing)):
+                for x in range(0, CHUNK_SIZE, int(spacing)):
+                        if rng.randf() > 0.15:
+                                continue
+                        
+                        var offset_x = rng.randf_range(-spacing * 0.3, spacing * 0.3)
+                        var offset_z = rng.randf_range(-spacing * 0.3, spacing * 0.3)
+                        var wx = world_x + x + offset_x
+                        var wz = world_z + z + offset_z
+                        
+                        var height = world_gen.get_height_at(wx, wz)
+                        var biome = world_gen.get_biome_at(wx, wz)
+                        
+                        if height < 5.0 or biome in ["ocean", "deep_ocean", "beach", "river", "lake"]:
+                                continue
+                        
+                        var ore_type = _get_ore_type(biome, height, rng)
+                        if ore_type == "":
+                                continue
+                        
+                        var ore = _create_ore_node(ore_type, rng)
+                        ore.position = Vector3(wx, height, wz)
+                        ore.rotation.y = rng.randf_range(0, TAU)
+                        result.append(ore)
+        
+        return result
+
+func _get_ore_type(biome: String, height: float, rng: RandomNumberGenerator) -> String:
+        var roll = rng.randf()
+        
+        if biome in ["mountain", "snow_mountain", "volcanic"]:
+                if height > 60:
+                        if roll < 0.1:
+                                return "gold_ore"
+                        elif roll < 0.25:
+                                return "silver_ore"
+                        elif roll < 0.5:
+                                return "iron_ore"
+                        return "stone"
+                elif height > 30:
+                        if roll < 0.15:
+                                return "silver_ore"
+                        elif roll < 0.4:
+                                return "iron_ore"
+                        elif roll < 0.6:
+                                return "copper_ore"
+                        return "stone"
+        elif biome in ["canyon", "red_desert"]:
+                if roll < 0.2:
+                        return "copper_ore"
+                elif roll < 0.35:
+                        return "iron_ore"
+                return "stone"
+        elif biome == "volcanic":
+                if roll < 0.1:
+                        return "titanium_ore"
+                elif roll < 0.25:
+                        return "gold_ore"
+                return "iron_ore"
+        
+        if roll < 0.3:
+                return "iron_ore"
+        elif roll < 0.5:
+                return "copper_ore"
+        
+        return ""
+
+func _create_ore_node(ore_type: String, rng: RandomNumberGenerator) -> StaticBody3D:
+        var ore = StaticBody3D.new()
+        ore.name = "Ore_" + ore_type
+        ore.collision_layer = 2
+        ore.collision_mask = 1
+        ore.add_to_group("resources")
+        ore.add_to_group("ores")
+        
+        var resource_script = load("res://scripts/world/resource_node.gd")
+        if resource_script:
+                ore.set_script(resource_script)
+                ore.set("resource_type", ore_type)
+                ore.set("required_tool", "pickaxe")
+                ore.set("respawn_time", 1800.0)
+        
+        var ore_data = {
+                "iron_ore": {"amount": 40.0, "gather": 5.0, "quality": 1},
+                "copper_ore": {"amount": 35.0, "gather": 5.0, "quality": 1},
+                "silver_ore": {"amount": 25.0, "gather": 4.0, "quality": 2},
+                "gold_ore": {"amount": 20.0, "gather": 3.0, "quality": 3},
+                "titanium_ore": {"amount": 15.0, "gather": 2.0, "quality": 4},
+                "stone": {"amount": 60.0, "gather": 8.0, "quality": 1}
+        }
+        
+        var data = ore_data.get(ore_type, ore_data["stone"])
+        if resource_script:
+                ore.set("resource_amount", data["amount"])
+                ore.set("gather_amount", data["gather"])
+                ore.set("quality", data["quality"])
+        
+        var size = rng.randf_range(0.5, 1.2)
+        var ore_model = _RockGenerator.create_ore_node(ore_type, size)
+        if ore_model:
+                ore.add_child(ore_model)
+        
+        return ore

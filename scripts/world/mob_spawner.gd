@@ -3,6 +3,8 @@ extends Node
 signal mob_spawned(mob: Node3D, biome: String)
 signal mob_despawned(mob: Node3D)
 
+const _MobModelGenerator = preload("res://scripts/mobs/mob_model_generator.gd")
+
 @export var max_mobs := 50
 @export var spawn_radius := 80.0
 @export var despawn_radius := 120.0
@@ -233,10 +235,7 @@ func _weighted_random(table: Array, rng: RandomNumberGenerator) -> Dictionary:
 func _create_mob(mob_type: String, pos: Vector3, rng: RandomNumberGenerator) -> Node3D:
         var mob: Node3D
         
-        if mob_scenes.has(mob_type):
-                mob = mob_scenes[mob_type].instantiate()
-        else:
-                mob = _create_procedural_mob(mob_type, rng)
+        mob = _create_procedural_mob(mob_type, rng)
         
         if mob:
                 mob.position = pos
@@ -259,90 +258,68 @@ func _create_procedural_mob(mob_type: String, rng: RandomNumberGenerator) -> Nod
         
         var stats = mob_stats.get(mob_type, {"hp": 30, "damage": 5, "speed": 4.0})
         
-        var size = Vector3(0.8, 0.8, 1.2)
-        var color = Color(0.5, 0.4, 0.35)
+        var model = _MobModelGenerator.create_mob_model(mob_type)
+        if model:
+                mob.add_child(model)
         
-        match mob_type:
-                "wolf":
-                        size = Vector3(0.6, 0.7, 1.0)
-                        color = Color(0.4, 0.4, 0.45)
-                "bear":
-                        size = Vector3(1.2, 1.4, 1.8)
-                        color = Color(0.35, 0.25, 0.2)
-                "boar":
-                        size = Vector3(0.7, 0.6, 1.0)
-                        color = Color(0.4, 0.35, 0.3)
-                "deer":
-                        size = Vector3(0.5, 1.0, 1.2)
-                        color = Color(0.6, 0.45, 0.35)
-                "rabbit":
-                        size = Vector3(0.2, 0.25, 0.3)
-                        color = Color(0.7, 0.65, 0.6)
-                "spider":
-                        size = Vector3(0.6, 0.4, 0.6)
-                        color = Color(0.2, 0.2, 0.2)
-                "snake":
-                        size = Vector3(0.15, 0.15, 1.0)
-                        color = Color(0.3, 0.4, 0.3)
-                "scorpion":
-                        size = Vector3(0.4, 0.2, 0.5)
-                        color = Color(0.5, 0.4, 0.3)
-                "lion":
-                        size = Vector3(0.8, 0.9, 1.4)
-                        color = Color(0.7, 0.55, 0.35)
-                "hyena":
-                        size = Vector3(0.6, 0.7, 1.0)
-                        color = Color(0.5, 0.45, 0.4)
-                "elephant":
-                        size = Vector3(2.0, 2.5, 3.0)
-                        color = Color(0.5, 0.5, 0.5)
-                "zebra":
-                        size = Vector3(0.6, 1.2, 1.4)
-                        color = Color(0.9, 0.9, 0.9)
-                "croc":
-                        size = Vector3(0.5, 0.4, 2.0)
-                        color = Color(0.3, 0.35, 0.25)
-                "frog":
-                        size = Vector3(0.2, 0.15, 0.2)
-                        color = Color(0.3, 0.5, 0.3)
-                "goat":
-                        size = Vector3(0.5, 0.7, 0.9)
-                        color = Color(0.6, 0.55, 0.5)
-                "eagle", "vulture":
-                        size = Vector3(0.4, 0.3, 0.5)
-                        color = Color(0.35, 0.3, 0.25)
-                "bandit":
-                        size = Vector3(0.5, 1.7, 0.4)
-                        color = Color(0.5, 0.35, 0.3)
-                "zombie":
-                        size = Vector3(0.5, 1.6, 0.4)
-                        color = Color(0.4, 0.5, 0.35)
-        
-        var mesh_inst = MeshInstance3D.new()
-        var box = BoxMesh.new()
-        box.size = size
-        mesh_inst.mesh = box
-        mesh_inst.position.y = size.y * 0.5
-        
-        var mat = StandardMaterial3D.new()
-        mat.albedo_color = color
-        mesh_inst.material_override = mat
-        
-        mob.add_child(mesh_inst)
+        var size = _get_mob_collision_size(mob_type)
         
         var col = CollisionShape3D.new()
-        var col_box = BoxShape3D.new()
-        col_box.size = size
-        col.shape = col_box
+        var col_capsule = CapsuleShape3D.new()
+        col_capsule.radius = size.x * 0.5
+        col_capsule.height = size.y
+        col.shape = col_capsule
         col.position.y = size.y * 0.5
         mob.add_child(col)
         
-        var ai_script_path = "res://scripts/ai/mob_ai.gd"
+        var ai_script_path = "res://scripts/mobs/mob_ai.gd"
+        if not ResourceLoader.exists(ai_script_path):
+                ai_script_path = "res://scripts/ai/mob_ai.gd"
+        
         if ResourceLoader.exists(ai_script_path):
                 var ai_script = load(ai_script_path)
                 mob.set_script(ai_script)
         
         return mob
+
+func _get_mob_collision_size(mob_type: String) -> Vector3:
+        match mob_type:
+                "wolf":
+                        return Vector3(0.6, 0.8, 1.0)
+                "bear":
+                        return Vector3(1.2, 1.5, 1.8)
+                "boar":
+                        return Vector3(0.7, 0.7, 1.0)
+                "deer":
+                        return Vector3(0.5, 1.2, 1.2)
+                "rabbit":
+                        return Vector3(0.2, 0.3, 0.3)
+                "spider":
+                        return Vector3(0.5, 0.4, 0.5)
+                "snake":
+                        return Vector3(0.2, 0.2, 1.0)
+                "scorpion":
+                        return Vector3(0.4, 0.3, 0.5)
+                "lion":
+                        return Vector3(0.8, 1.0, 1.4)
+                "hyena":
+                        return Vector3(0.6, 0.8, 1.0)
+                "elephant":
+                        return Vector3(2.0, 2.8, 3.0)
+                "zebra":
+                        return Vector3(0.6, 1.4, 1.4)
+                "croc":
+                        return Vector3(0.5, 0.5, 2.0)
+                "frog":
+                        return Vector3(0.2, 0.2, 0.2)
+                "goat":
+                        return Vector3(0.5, 0.8, 0.9)
+                "eagle", "vulture":
+                        return Vector3(0.4, 0.4, 0.5)
+                "bandit", "zombie":
+                        return Vector3(0.5, 1.8, 0.5)
+                _:
+                        return Vector3(0.6, 0.8, 0.8)
 
 func _despawn_distant_mobs():
         if not player_ref:

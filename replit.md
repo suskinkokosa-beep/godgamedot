@@ -1,184 +1,49 @@
 # Эпоха Поселений (Epoch Settlements) - Godot 4.x
 
-## Обзор
-Мультиплеерная и одиночная 3D игра с видом от первого лица, сочетающая выживание, строительство, боевую систему, экономику и управление поселениями. Построена на Godot 4.4.1.
+## Overview
+"Эпоха Поселений" is a multiplayer and single-player 3D first-person game built on Godot 4.4.1. It combines elements of survival, building, combat, economics, and settlement management. The game aims to provide a rich, dynamic world where players can establish and grow settlements, interact with various factions, and face environmental and combat challenges.
 
-## Структура проекта
-
-### Основные директории
-- **scenes/** - Сцены Godot (.tscn)
-  - `ui/` - Интерфейс (HUD, инвентарь, крафт, торговля, настройки, миникарта)
-  - `player/` - Сцена игрока
-  - `mobs/` - Сцены мобов
-  - `npcs/` - Сцены NPC
-  - `buildings/` - Строения
-  - `props/` - Пропы, оружие, животные
-  - `world/` - Генерация мира
-
-- **scripts/** - GDScript код (.gd)
-  - `systems/` - Ядровые системы (инвентарь, сеть, бой, крафт, настройки и т.д.)
-  - `world/` - Генерация мира (WorldGenerator, ChunkGenerator, StructureGenerator, MobSpawner, WorldEvents)
-  - `ai/` - ИИ поведение (монстры, волки, NPC)
-  - `combat/` - Боевая система
-  - `ui/` - Контроллеры интерфейса (hud_controller, ui_inventory, minimap)
-  - `player/` - Скрипты игрока
-
-- **assets/** - Игровые ассеты
-  - `art_pack/` - 3D модели, материалы, текстуры
-  - `materials/` - Ресурсы материалов (grass, rock, bark, water)
-  - `shaders/` - Шейдеры (grass_shader, water_shader)
-  - `weapons/` - Ресурсы оружия
-
-- **localization/** - Локализация (RU/EN)
-
-## Реализованные системы
-
-### UI Интерфейс (NEW)
-- **HUD** - Полный интерфейс с:
-  - Панель статов (здоровье, стамина, голод, жажда, кровь, рассудок, температура)
-  - 8 слотов быстрого пояса (хотбар) с визуальным выделением
-  - Прицел и индикатор приседания
-  - Уведомления об опыте и уровне
-  - Индикатор прыжков
-  - FPS счётчик
-  
-- **Миникарта** - В правом верхнем углу
-  - Отображение биомов
-  - Маркер игрока с направлением
-  - Компас (С, СВ, В, ЮВ, Ю, ЮЗ, З, СЗ)
-  
-- **Инвентарь** - Открывается клавишей I
-  - Сетка предметов с названиями и количеством
-  - Отображение веса
-  - Кнопки использования предметов
-  - Начальный набор предметов при старте
-
-### Генерация мира
-- **WorldGenerator** - процедурная генерация высот и биомов на основе шума
-  - Горы, холмы, равнины, овраги
-  - Континенты и океаны
-  - Реки через специальный шум
-  - 12+ биомов: лес, тайга, тундра, пустыня, саванна, болото, горы, снежные горы, пляж, океан и др.
-  
-- **ChunkGenerator** - генерация 3D мешей террейна
-  - Высотные карты с коллизиями
-  - Цвета вершин по биомам
-  - Автоматический спавн деревьев и камней
-  - Водная поверхность для морей/рек
-  
-- **StructureGenerator** - генерация поселений
-  - Деревни (3-8 зданий + NPC)
-  - Города (с стенами, 10-30 зданий, охрана)
-  - Шахты (входы, поддержки, шахтёры)
-  - Лагеря (палатки, костры, бандиты/нейтралы)
-  
-- **WorldStreamer** - потоковая загрузка
-  - Динамическая загрузка/выгрузка чанков вокруг игрока
-  - Отдельная загрузка структур
-  
-- **MobSpawner** - динамический спавн существ
-  - 19 типов мобов (волки, медведи, кабаны, олени, пауки, змеи, львы и др.)
-  - Таблицы спавна по биомам
-  - Стайное поведение (pack_size)
-  - Автоматический деспавн далёких мобов
-
-- **WorldEvents** - случайные события мира
-  - Налёты бандитов
-  - Волчьи стаи
-  - Миграция животных
-  - Появление монстров
-  - Торговые караваны
-
-### Выживание (PlayerProgression)
-- HP, Stamina, Hunger, Thirst, Temperature, Sanity, Blood
-- Дебаффы и штрафы за смерть
-- Восстановление здоровья и статов
-- Система XP и уровней
-
-### Инвентарь (inventory.gd)
-- 40 слотов рюкзака + система веса
-- 8 слотов быстрого пояса (hotbar) с выбором клавишами 1-8
-- 8 слотов снаряжения
-- База данных предметов с русскими названиями
-- Система использования предметов (еда, питьё, медикаменты)
-- Начальный набор: каменный топор, факел, ягоды, вода, бинты, дерево, камни
-
-### Боевая система (CombatEngine)
-- Hitbox-based урон
-- Ресурсы оружия
-- Система комбо
-- Расчёт брони
-- Поддержка снарядов
-
-### Система фракций (FactionSystem)
-- Дефолтные фракции: player, town, wild, bandits, monsters, neutral
-- Отношения между фракциями (-100 до +100)
-- Регистрация/отмена регистрации сущностей
-
-### Поселения (SettlementSystem)
-- Уровни: Camp → Village → Town → City → Capital
-- Население с классами (workers, guards, craftsmen, traders)
-- Ресурсы и экономика
-- Счастье населения
-- Объявление войн и союзов
-
-### Настройки (SettingsManager)
-- Графика: качество, разрешение, тени, свечение, туман, сглаживание
-- Управление: чувствительность мыши, FOV, инверсия Y
-- Звук: громкость (общая, музыка, эффекты)
-- Пресеты качества: низкое, среднее, высокое, ультра
-
-## Управление
-- **WASD** - движение
-- **Space** - прыжок (двойной прыжок)
-- **Shift** - бег
-- **Ctrl** - присесть
-- **E** - взаимодействие
-- **I** - инвентарь
-- **1-8** - выбор слота хотбара
-- **Колёсико мыши** - переключение слотов
-- **ЛКМ** - атака
-- **ESC** - меню
-
-## Запуск
-Игра запускается через VNC workflow в Replit. Главная сцена: `scenes/ui/main_menu.tscn`
-
-## Технические детали
-- Движок: Godot 4.4.1
-- Рендеринг: OpenGL ES 3.2 (compatibility mode)
-- Мультиплеер: клиент-серверная архитектура
-- Генерация мира: FastNoiseLite, чанковый стриминг
-- Размер мира: 4096x4096 единиц
-
-## Последние изменения (2025-11-29)
-- **Система дебаффов** - Полная система дебаффов с 12+ эффектами:
-  - Голодание, обезвоживание, замерзание, перегрев
-  - Кровотечение, истощение, безумие
-  - Отравление, радиация
-  - Положительные эффекты: сытость, увлажнённость
-- **Цикл дня/ночи** - Динамическая смена времени суток:
-  - Реалистичное освещение (рассвет, день, сумерки, ночь)
-  - Изменение цвета неба и окружения
-  - Отображение времени в HUD
-- **Расширенная система крафта**:
-  - 60+ рецептов в 9 категориях
-  - Инструменты, оружие, строительство, броня, еда, медицина
-  - Верстаки 3 уровней
-- **Расширенная база предметов** - 100+ предметов с русскими названиями
-- **Улучшенная погодная система**:
-  - 8 типов погоды (ясно, облачно, дождь, ливень, снег, метель, гроза, туман)
-  - Влияние на температуру и видимость
-  - Переходы между погодными условиями
-- **Улучшенный визуальный стиль**:
-  - Реалистичное освещение с тремя источниками света
-  - Улучшенный туман и свечение
-  - Тональная коррекция в стиле Rust
-
-## Минимальные требования
-- Процессор: Intel Core i3 или аналог
-- ОЗУ: 2 GB
-- Графика: Совместимая с OpenGL ES 3.2
-
-## Предпочтения пользователя
+## User Preferences
 - Язык: русский
 - Качество графики: сравнимое с Rust
+
+## System Architecture
+The game is built using Godot 4.4.1 and primarily uses GDScript. It features a client-server architecture for multiplayer functionality.
+
+### UI/UX Decisions
+- **HUD:** Displays player stats (health, stamina, hunger, thirst, sanity, blood, temperature), 8-slot hotbar, crosshair, crouch indicator, XP/level notifications, jump indicator, and FPS counter.
+- **Minimap:** Located in the top-right, showing biomes, player marker with direction, and a compass.
+- **Inventory:** Grid-based with item names, quantity, weight display, use buttons, and drag-and-drop functionality for hotbar. Features item icons (emojis) and color-coding by item type.
+- **Settings:** Configurable graphics (quality, resolution, shadows, bloom, fog, anti-aliasing), controls (mouse sensitivity, FOV), and audio (master, music, effects volumes). Supports language selection (Russian/English).
+- **Save/Load UI:** Menu for loading and deleting saves with date and level information.
+
+### Technical Implementations
+- **World Generation:** Procedural generation of heights and biomes using noise (FastNoiseLite) for mountains, plains, oceans, and rivers. Features 12+ biomes.
+- **Chunk-based Terrain:** `ChunkGenerator` creates 3D terrain meshes with collision, vertex colors based on biomes, and automatic tree/rock spawning. `WorldStreamer` handles dynamic loading/unloading of chunks and structures around the player.
+- **Structure Generation:** `StructureGenerator` creates villages, towns, mines, and camps with NPCs and guards.
+- **Mob Spawning:** `MobSpawner` dynamically spawns 19 types of mobs based on biome-specific tables, with pack behavior and despawning logic.
+- **Player Systems:** Includes HP, stamina, hunger, thirst, temperature, sanity, and blood stats with debuffs, XP, leveling, and a PerkSystem with 18 unique perks across 7 categories.
+- **Inventory System:** 40 backpack slots, 8 hotbar slots, 8 equipment slots, item database with Russian names, and item usage logic.
+- **Combat System:** Hitbox-based damage, weapon resources, combo system, armor calculation, and projectile support.
+- **First-Person View:** `FirstPersonArms` and `FirstPersonLegs` provide visible animated arms and legs, item switching animations, attack animations, head bob, and camera sway.
+- **Faction System:** Default factions (player, town, wild, bandits, monsters, neutral) with reputation (from -100 to +100) affecting trading and access to settlements. Features 10 factions and 9 reputation ranks with Russian names.
+- **Settlement System:** Settlements can level up (Camp → Village → Town → City → Capital) with population classes (workers, guards, craftsmen, traders), resources, economy, happiness, and ability to declare wars/alliances.
+- **Crafting System:** Categorized recipes with icons, search functionality, ingredient details, and resource availability checks.
+- **Save/Load System:** `SaveManager` handles saving player position, stats, inventory, progression, and time of day across multiple slots. Includes auto-save and quick save/load.
+- **Audio System (`AudioManager`):** Procedural sound generation for footsteps (various materials), attack/hit sounds, item pickup, and UI sounds.
+- **VFX System (`VFXManager`):** Visual effects for damage numbers, hit particles, item pickup, crafting, level-up, healing, and death.
+- **Notification System:** Pop-up notifications for various events (info, success, warning, error, XP, level-up, item, achievement) with animation and queueing.
+- **Mob AI:** States for idle, patrol, chase, attack, and flee, with integration for VFX and audio.
+- **Environmental Systems:** Dynamic day/night cycle with 4 periods, and a weather system with 8 types of weather effects.
+- **Graphics:** Utilizes OpenGL ES 3.2 (compatibility mode). Terrain materials use Burley diffuse and Schlick-GGX specular, with added sand, snow, and terrain materials, and ambient occlusion. ConcavePolygonShape3D collisions for terrain.
+
+### Feature Specifications
+- **World Size:** 16384x16384 units.
+- **Item Database:** 100+ items with Russian names.
+- **Crafting Recipes:** 60+ recipes in 9 categories.
+- **Debuffs:** 12+ effects (starvation, freezing, bleeding, etc.).
+
+## External Dependencies
+The project primarily utilizes the Godot Engine's built-in functionalities and its scripting language, GDScript.
+- **FastNoiseLite:** Used for procedural world generation.
+- **TranslationServer:** Integrated for language localization.

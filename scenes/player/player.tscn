@@ -1,6 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://player_scene"]
+[gd_scene load_steps=6 format=3 uid="uid://player_scene"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/player/first_person_arms.gd" id="2_arms"]
+[ext_resource type="Script" path="res://scripts/player/first_person_legs.gd" id="3_legs"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -23,6 +25,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 fov = 70.0
 current = true
 
+[node name="FirstPersonArms" type="Node3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+script = ExtResource("2_arms")
+
+[node name="RightArm" type="Node3D" parent="Camera3D/FirstPersonArms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.25, -0.3, -0.4)
+
+[node name="ItemHolder" type="Node3D" parent="Camera3D/FirstPersonArms/RightArm"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.15, -0.1)
+
+[node name="LeftArm" type="Node3D" parent="Camera3D/FirstPersonArms"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, -0.3, -0.4)
+
+[node name="FirstPersonLegs" type="Node3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.6, 0.3)
+script = ExtResource("3_legs")
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+visible = false
 mesh = SubResource("CapsuleMesh_1")

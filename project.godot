@@ -48,6 +48,12 @@ MobSpawner="*res://scripts/world/mob_spawner.gd"
 WorldEvents="*res://scripts/world/world_events.gd"
 DebuffSystem="*res://scripts/systems/debuff_system.gd"
 DayNightCycle="*res://scripts/systems/day_night_cycle.gd"
+PerkSystem="*res://scripts/systems/perk_system.gd"
+AudioManager="*res://scripts/systems/audio_manager.gd"
+VFXManager="*res://scripts/systems/vfx_manager.gd"
+NotificationSystem="*res://scripts/ui/notification_system.gd"
+IconManager="*res://scripts/systems/icon_manager.gd"
+SaveManager="*res://scripts/systems/save_manager.gd"
 
 [input]
 

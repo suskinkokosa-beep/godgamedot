@@ -51,6 +51,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "Start Game"
 
+[node name="LoadButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(300, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Load Game"
+
 [node name="MultiplayerButton" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(300, 50)
 layout_mode = 2
@@ -183,7 +189,48 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 text = "Back"
 
+[node name="SavesPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -200.0
+offset_right = 250.0
+offset_bottom = 200.0
+
+[node name="VBox" type="VBoxContainer" parent="SavesPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="SavesPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Сохранения"
+horizontal_alignment = 1
+
+[node name="SlotContainer" type="VBoxContainer" parent="SavesPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="BackButton" type="Button" parent="SavesPanel/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Назад"
+
 [connection signal="pressed" from="VBoxContainer/StartButton" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="VBoxContainer/LoadButton" to="." method="_on_load_pressed"]
 [connection signal="pressed" from="VBoxContainer/MultiplayerButton" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="VBoxContainer/SettingsButton" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_pressed"]
@@ -191,3 +238,4 @@ text = "Back"
 [connection signal="pressed" from="MultiplayerPanel/VBox/JoinButton" to="." method="_on_join_pressed"]
 [connection signal="pressed" from="MultiplayerPanel/VBox/BackButton" to="." method="_on_mp_back_pressed"]
 [connection signal="pressed" from="SettingsPanel/VBox/BackButton" to="." method="_on_settings_back_pressed"]
+[connection signal="pressed" from="SavesPanel/VBox/BackButton" to="." method="_on_saves_back_pressed"]

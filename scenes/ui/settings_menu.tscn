@@ -277,22 +277,141 @@ layout_mode = 2
 [node name="KeybindsLabel" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Клавиши управления:"
+text = "Назначение клавиш:"
 
-[node name="KeybindsInfo" type="RichTextLabel" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
-custom_minimum_size = Vector2(0, 200)
+[node name="KeybindForward" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-bbcode_enabled = true
-text = "[b]WASD[/b] - Движение
-[b]Пробел[/b] - Прыжок (двойной прыжок)
-[b]Shift[/b] - Бег
-[b]Ctrl[/b] - Присесть
-[b]E[/b] - Взаимодействие
-[b]I[/b] - Инвентарь
-[b]1-8[/b] - Выбор слота быстрого пояса
-[b]Колёсико мыши[/b] - Переключение слотов
-[b]ЛКМ[/b] - Атака
-[b]ESC[/b] - Пауза / Меню"
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindForward"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Вперёд:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindForward"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "W"
+
+[node name="KeybindBack" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindBack"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Назад:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindBack"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "S"
+
+[node name="KeybindLeft" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindLeft"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Влево:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindLeft"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "A"
+
+[node name="KeybindRight" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindRight"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Вправо:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindRight"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "D"
+
+[node name="KeybindJump" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindJump"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Прыжок:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindJump"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Пробел"
+
+[node name="KeybindSprint" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindSprint"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Бег:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindSprint"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Shift"
+
+[node name="KeybindCrouch" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindCrouch"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Присесть:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindCrouch"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Ctrl"
+
+[node name="KeybindInteract" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindInteract"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Взаимодействие:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindInteract"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "E"
+
+[node name="KeybindInventory" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindInventory"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Инвентарь:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindInventory"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "I"
+
+[node name="KeybindAttack" type="HBoxContainer" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindAttack"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Атака:"
+
+[node name="Button" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer/KeybindAttack"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "ЛКМ"
+
+[node name="ResetKeybinds" type="Button" parent="VBoxContainer/TabContainer/Управление/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+text = "Сбросить клавиши"
 
 [node name="Звук" type="Panel" parent="VBoxContainer/TabContainer"]
 visible = false
@@ -368,6 +487,44 @@ custom_minimum_size = Vector2(50, 0)
 layout_mode = 2
 text = "100%"
 horizontal_alignment = 2
+
+[node name="Язык" type="Panel" parent="VBoxContainer/TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/TabContainer/Язык"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TabContainer/Язык/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="LanguageRow" type="HBoxContainer" parent="VBoxContainer/TabContainer/Язык/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TabContainer/Язык/ScrollContainer/VBoxContainer/LanguageRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Язык интерфейса:"
+
+[node name="LanguageDropdown" type="OptionButton" parent="VBoxContainer/TabContainer/Язык/ScrollContainer/VBoxContainer/LanguageRow"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+
+[node name="LanguageInfo" type="Label" parent="VBoxContainer/TabContainer/Язык/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "Изменение языка применится после перезапуска игры."
 
 [node name="ButtonsContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

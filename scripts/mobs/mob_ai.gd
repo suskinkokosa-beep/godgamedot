@@ -12,6 +12,9 @@ extends CharacterBody3D
 @export var faction := "wild"
 @export var mob_type := "mob_basic"
 @export var loot_table := "mob_basic"
+@export var is_pack_animal := false
+@export var pack_call_range := 20.0
+@export var can_migrate := false
 
 var health: float
 var target: Node3D = null
@@ -24,8 +27,16 @@ var wander_target := Vector3.ZERO
 var flee_health_threshold := 0.2
 var is_fleeing := false
 
+var pack_leader: Node3D = null
+var pack_members: Array = []
+var is_pack_leader := false
+var migration_target := Vector3.ZERO
+var is_migrating := false
+var migration_timer := 0.0
+
 signal died(mob, killer)
 signal damaged(mob, amount, source)
+signal pack_alert(position, target)
 
 func _ready():
         health = max_health
@@ -49,6 +60,20 @@ func _physics_process(delta):
         
         attack_timer = max(0, attack_timer - delta)
         
+        if is_migrating:
+                if _process_migration(delta):
+                        move_and_slide()
+                        return
+        
+        if is_pack_animal and pack_leader == null and not is_pack_leader:
+                if randf() < 0.01:
+                        _try_form_pack()
+        
+        if pack_leader != null and state == "idle":
+                _follow_pack_leader(delta)
+                move_and_slide()
+                return
+        
         match state:
                 "idle":
                         _process_idle(delta)
@@ -56,6 +81,8 @@ func _physics_process(delta):
                         _process_patrol(delta)
                 "chase":
                         _process_chase(delta)
+                        if is_pack_animal and target:
+                                alert_pack(target)
                 "attack":
                         _process_attack(delta)
                 "flee":
@@ -218,6 +245,12 @@ func die(killer: Node = null):
                 prog.add_xp(killer_id, xp_reward)
                 prog.add_skill_xp(killer_id, "combat", xp_reward * 0.5)
         
+        var faction_sys = get_node_or_null("/root/FactionSystem")
+        if faction_sys:
+                faction_sys.unregister_entity(self, faction)
+        
+        leave_pack()
+        
         _drop_loot()
         
         emit_signal("died", self, killer)
@@ -243,3 +276,116 @@ func _drop_loot():
 
 func get_health_percent() -> float:
         return float(health) / float(max_health) * 100.0
+
+func _try_form_pack():
+        if not is_pack_animal or is_pack_leader or pack_leader != null:
+                return
+        
+        var nearby_mobs = get_tree().get_nodes_in_group("mobs")
+        var same_type_nearby = []
+        
+        for mob in nearby_mobs:
+                if mob == self:
+                        continue
+                if not is_instance_valid(mob):
+                        continue
+                if mob.get("mob_type") != mob_type:
+                        continue
+                if global_position.distance_to(mob.global_position) > pack_call_range:
+                        continue
+                same_type_nearby.append(mob)
+        
+        if same_type_nearby.size() >= 2:
+                is_pack_leader = true
+                for mob in same_type_nearby:
+                        if pack_members.size() >= 5:
+                                break
+                        if mob.get("pack_leader") == null and not mob.get("is_pack_leader"):
+                                pack_members.append(mob)
+                                mob.set("pack_leader", self)
+
+func _follow_pack_leader(delta: float):
+        if not is_instance_valid(pack_leader):
+                pack_leader = null
+                return
+        
+        var dist = global_position.distance_to(pack_leader.global_position)
+        
+        if dist > pack_call_range * 1.5:
+                pack_leader = null
+                return
+        
+        if dist > 5.0:
+                var dir = (pack_leader.global_position - global_position).normalized()
+                dir.y = 0
+                velocity = dir * speed * 0.9
+        else:
+                velocity = velocity * 0.9
+
+func alert_pack(alert_target: Node3D):
+        if not is_pack_animal:
+                return
+        
+        emit_signal("pack_alert", global_position, alert_target)
+        
+        if is_pack_leader:
+                for member in pack_members:
+                        if is_instance_valid(member) and member.has_method("on_pack_alert"):
+                                member.on_pack_alert(alert_target)
+        elif pack_leader and is_instance_valid(pack_leader) and pack_leader.has_method("alert_pack"):
+                pack_leader.alert_pack(alert_target)
+
+func on_pack_alert(alert_target: Node3D):
+        if is_instance_valid(alert_target):
+                target = alert_target
+                state = "chase"
+
+func start_migration(migration_pos: Vector3):
+        if not can_migrate:
+                return
+        
+        is_migrating = true
+        migration_target = migration_pos
+        migration_timer = 0.0
+        start_pos = migration_pos
+
+func _process_migration(delta: float):
+        if not is_migrating:
+                return false
+        
+        migration_timer += delta
+        
+        if migration_timer > 60.0:
+                is_migrating = false
+                return false
+        
+        var dist = global_position.distance_to(migration_target)
+        if dist < 5.0:
+                is_migrating = false
+                return false
+        
+        var dir = (migration_target - global_position).normalized()
+        dir.y = 0
+        velocity = dir * speed * 0.7
+        return true
+
+func get_pack_size() -> int:
+        if is_pack_leader:
+                return pack_members.size() + 1
+        elif pack_leader:
+                return pack_leader.get("pack_members").size() + 1 if pack_leader.get("pack_members") else 1
+        return 1
+
+func leave_pack():
+        if pack_leader and is_instance_valid(pack_leader):
+                var leader_members = pack_leader.get("pack_members")
+                if leader_members:
+                        leader_members.erase(self)
+                pack_leader = null
+        
+        if is_pack_leader:
+                for member in pack_members:
+                        if is_instance_valid(member):
+                                member.set("pack_leader", null)
+                pack_members.clear()
+                is_pack_leader = false

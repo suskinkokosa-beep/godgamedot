@@ -42,13 +42,32 @@ var jump_buffer_timer := 0.0
 var was_on_floor := true
 var is_jumping := false
 
+var is_crouching := false
+var default_height := 1.8
+var crouch_height := 0.9
+var default_camera_height := 1.6
+var crouch_camera_height := 0.7
+var current_height := 1.8
+var crouch_transition_speed := 8.0
+
+var collision_shape: CollisionShape3D = null
+
 func _ready():
         Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
         camera = get_node_or_null("Camera3D")
+        collision_shape = get_node_or_null("CollisionShape3D")
         inventory = get_node_or_null("/root/Inventory")
         combat = get_node_or_null("Combat")
         progression = get_node_or_null("/root/PlayerProgression")
         add_to_group("players")
+        
+        if collision_shape and collision_shape.shape is CapsuleShape3D:
+                default_height = collision_shape.shape.height
+                crouch_height = default_height * 0.5
+        
+        if camera:
+                default_camera_height = camera.position.y
+                crouch_camera_height = default_camera_height * 0.5
         
         var gm = get_node_or_null("/root/GameManager")
         if gm and gm.get("mouse_sensitivity") != null:
@@ -77,6 +96,23 @@ func _input(event):
         if event.is_action_pressed("jump"):
                 jump_buffer_timer = jump_buffer_time
                 _try_jump()
+        
+        if event is InputEventKey and event.pressed:
+                var key = event.keycode
+                if key >= KEY_1 and key <= KEY_8:
+                        var slot = key - KEY_1
+                        if inventory and inventory.has_method("select_hotbar_slot"):
+                                inventory.select_hotbar_slot(slot)
+        
+        if event is InputEventMouseButton:
+                if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
+                        if inventory and inventory.has_method("get_selected_hotbar_slot"):
+                                var current = inventory.get_selected_hotbar_slot()
+                                inventory.select_hotbar_slot((current - 1 + 8) % 8)
+                elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
+                        if inventory and inventory.has_method("get_selected_hotbar_slot"):
+                                var current = inventory.get_selected_hotbar_slot()
+                                inventory.select_hotbar_slot((current + 1) % 8)
 
 func _physics_process(delta):
         _process_survival(delta)
@@ -100,8 +136,10 @@ func _physics_process(delta):
         if camera:
                 camera.rotation.x = deg_to_rad(camera_pitch)
         
-        var is_sprinting = Input.is_action_pressed("sprint") and not Input.is_action_pressed("crouch") and stamina > 5
-        var is_crouching = Input.is_action_pressed("crouch")
+        var is_sprinting = Input.is_action_pressed("sprint") and not is_crouching and stamina > 5
+        var wants_crouch = Input.is_action_pressed("crouch")
+        
+        _process_crouch(delta, wants_crouch)
         
         var speed_mult = get_speed_modifier()
         if is_sprinting:
@@ -165,6 +203,9 @@ func _try_jump():
         if stamina < 5:
                 return
         
+        if is_crouching:
+                return
+        
         var can_jump = is_on_floor() or coyote_timer > 0 or jumps_remaining < max_jumps
         
         if can_jump:
@@ -177,6 +218,42 @@ func _try_jump():
                 
                 if progression:
                         progression.add_skill_xp(net_id, "athletics", 0.5)
+
+func _process_crouch(delta: float, wants_crouch: bool):
+        if wants_crouch and is_on_floor():
+                is_crouching = true
+        elif not wants_crouch:
+                if is_crouching:
+                        if _can_stand_up():
+                                is_crouching = false
+        
+        var target_height = crouch_height if is_crouching else default_height
+        var target_cam_y = crouch_camera_height if is_crouching else default_camera_height
+        
+        current_height = lerp(current_height, target_height, crouch_transition_speed * delta)
+        
+        if collision_shape and collision_shape.shape is CapsuleShape3D:
+                collision_shape.shape.height = current_height
+                collision_shape.position.y = current_height / 2.0
+        
+        if camera:
+                camera.position.y = lerp(camera.position.y, target_cam_y, crouch_transition_speed * delta)
+
+func _can_stand_up() -> bool:
+        if not collision_shape:
+                return true
+        
+        var space = get_world_3d().direct_space_state
+        var from = global_position + Vector3(0, current_height, 0)
+        var to = global_position + Vector3(0, default_height + 0.1, 0)
+        var query = PhysicsRayQueryParameters3D.create(from, to)
+        query.exclude = [self]
+        var result = space.intersect_ray(query)
+        
+        return result.is_empty()
+
+func get_is_crouching() -> bool:
+        return is_crouching
 
 func _attack():
         if stamina < 10:
@@ -291,8 +368,29 @@ func _sync_stats_from_progression():
         body_temperature = p.stats.temperature
 
 func _process_survival(delta: float):
+        var debuff_sys = get_node_or_null("/root/DebuffSystem")
+        var temp_sys = get_node_or_null("/root/TemperatureSystem")
+        
         hunger -= 0.05 * delta
         thirst -= 0.08 * delta
+        
+        if temp_sys:
+                body_temperature = temp_sys.calculate_body_temp(global_position, body_temperature, delta)
+        
+        if debuff_sys:
+                debuff_sys.check_conditions(net_id, self)
+                
+                var health_drain = debuff_sys.get_effect_drain(net_id, "health_drain")
+                var blood_drain = debuff_sys.get_effect_drain(net_id, "blood_drain")
+                var stamina_drain = debuff_sys.get_effect_drain(net_id, "stamina_drain")
+                var thirst_drain = debuff_sys.get_effect_drain(net_id, "thirst_drain")
+                var health_regen = debuff_sys.get_effect_drain(net_id, "health_regen")
+                
+                health -= health_drain * delta
+                blood -= blood_drain * delta
+                stamina -= stamina_drain * delta
+                thirst -= thirst_drain * delta
+                health += health_regen * delta
         
         if hunger <= 0:
                 health -= 0.5 * delta
@@ -304,32 +402,50 @@ func _process_survival(delta: float):
         if blood < 100:
                 blood += 0.1 * delta
         
+        if sanity < 100 and hunger > 30 and thirst > 30:
+                sanity += 0.02 * delta
+        
         hunger = clamp(hunger, 0, 100)
         thirst = clamp(thirst, 0, 100)
         blood = clamp(blood, 0, 100)
+        sanity = clamp(sanity, 0, 100)
         health = clamp(health, 0, max_health)
+        stamina = clamp(stamina, 0, max_stamina)
         
         if health <= 0:
                 _die()
 
 func get_speed_modifier() -> float:
         var mod := 1.0
+        var debuff_sys = get_node_or_null("/root/DebuffSystem")
+        
+        if debuff_sys:
+                mod *= debuff_sys.get_effect_multiplier(net_id, "speed_mult")
+        
         if progression:
                 mod *= progression.get_debuff_modifier(net_id, "speed_mult")
+        
         if hunger < 20:
                 mod *= 0.8
         if thirst < 20:
                 mod *= 0.85
         if blood < 30:
                 mod *= 0.7
+        
         return mod
 
 func get_damage_modifier() -> float:
         var mod := 1.0
+        var debuff_sys = get_node_or_null("/root/DebuffSystem")
+        
+        if debuff_sys:
+                mod *= debuff_sys.get_effect_multiplier(net_id, "damage_mult")
+        
         if progression:
                 mod *= progression.get_debuff_modifier(net_id, "damage_mult")
                 var strength = progression.get_attribute(net_id, "strength")
                 mod *= 1.0 + (strength - 5) * 0.05
+        
         return mod
 
 func get_luck_bonus() -> float:

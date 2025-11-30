@@ -173,7 +173,11 @@ func _update_ui_language(lang: String):
 
 func _on_start_pressed():
         _save_settings()
-        get_tree().change_scene_to_file("res://scenes/main.tscn")
+        var gm = get_node_or_null("/root/GameManager")
+        if gm and not gm.has_character_created():
+                get_tree().change_scene_to_file("res://scenes/ui/character_creation.tscn")
+        else:
+                get_tree().change_scene_to_file("res://scenes/main.tscn")
 
 func _on_multiplayer_pressed():
         main_buttons.visible = false

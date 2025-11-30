@@ -279,6 +279,18 @@ func _create_procedural_mob(mob_type: String, rng: RandomNumberGenerator) -> Nod
         if ResourceLoader.exists(ai_script_path):
                 var ai_script = load(ai_script_path)
                 mob.set_script(ai_script)
+                
+                mob.set("mob_type", mob_type)
+                mob.set("max_health", stats.get("hp", 30))
+                mob.set("damage", stats.get("damage", 5))
+                mob.set("speed", stats.get("speed", 4.0))
+                mob.set("run_speed", stats.get("speed", 4.0) * 1.5)
+                mob.set("faction", stats.get("faction", "wild"))
+                
+                if stats.get("aggressive", false):
+                        mob.set("behavior_type", "aggressive")
+                else:
+                        mob.set("behavior_type", "neutral")
         
         return mob
 

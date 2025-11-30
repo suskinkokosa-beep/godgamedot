@@ -39,11 +39,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("SphereShape3D_interact")
 
 [node name="NameLabel" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0)
 pixel_size = 0.01
-text = "Citizen"
-font_size = 24
+billboard = 1
+text = "NPC Name"
+font_size = 28
+outline_size = 4
+modulate = Color(0.9, 0.9, 0.9, 1)
+
+[node name="TitleLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.05, 0)
+pixel_size = 0.008
+billboard = 1
+text = "Profession"
+font_size = 20
 outline_size = 3
+modulate = Color(0.7, 0.7, 0.7, 1)
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 path_desired_distance = 0.5

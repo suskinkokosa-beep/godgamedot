@@ -1,14 +1,22 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://lang_selector"]
 
-[ext_resource path="res://scripts/ui/ui_controller.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://scripts/ui/ui_controller.gd" id="1"]
 
 [node name="LangUI" type="Control"]
-rect_min_size = Vector2(200, 80)
+custom_minimum_size = Vector2(200, 80)
+anchors_preset = 0
 
-[node name="BtnEN" type="Button" parent="."]
+[node name="HBox" type="HBoxContainer" parent="."]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 190.0
+offset_bottom = 50.0
+
+[node name="BtnEN" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(80, 0)
 text = "EN"
-rect_position = Vector2(10,10)
 
-[node name="BtnRU" type="Button" parent="."]
+[node name="BtnRU" type="Button" parent="HBox"]
+custom_minimum_size = Vector2(80, 0)
 text = "RU"
-rect_position = Vector2(100,10)
+script = ExtResource("1")

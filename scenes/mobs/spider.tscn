@@ -1,0 +1,97 @@
+[gd_scene load_steps=5 format=3 uid="uid://spider_mob_scene"]
+
+[ext_resource type="Script" path="res://scripts/mobs/mob_ai.gd" id="1_mob"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1"]
+radius = 0.3
+
+[sub_resource type="SphereMesh" id="SphereMesh_1"]
+radius = 0.3
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
+albedo_color = Color(0.15, 0.12, 0.1, 1)
+
+[node name="Spider" type="CharacterBody3D" groups=["mobs", "entities"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_mob")
+patrol_radius = 12.0
+agro_range = 15.0
+attack_range = 2.0
+speed = 5.0
+run_speed = 8.0
+max_health = 35
+damage = 15
+attack_cooldown = 1.2
+xp_reward = 40.0
+faction = "monsters"
+mob_type = "spider"
+loot_table = "spider"
+behavior_type = "aggressive"
+is_nocturnal = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("SphereShape3D_1")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 0.8, 0, 0, 0, 1.0, 0, 0.3, 0)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0.35, -0.35)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Legs" type="Node3D" parent="."]
+
+[node name="Leg1" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, 0.15, 0, -0.15, 0.05, 0, 0, 0, 0.05, -0.4, 0.15, -0.2)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg2" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, 0.15, 0, -0.15, 0.05, 0, 0, 0, 0.05, -0.4, 0.15, 0)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg3" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, 0.15, 0, -0.15, 0.05, 0, 0, 0, 0.05, -0.4, 0.15, 0.2)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg4" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, 0.15, 0, -0.15, 0.05, 0, 0, 0, 0.05, -0.4, 0.15, 0.35)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg5" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, -0.15, 0, 0.15, 0.05, 0, 0, 0, 0.05, 0.4, 0.15, -0.2)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg6" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, -0.15, 0, 0.15, 0.05, 0, 0, 0, 0.05, 0.4, 0.15, 0)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg7" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, -0.15, 0, 0.15, 0.05, 0, 0, 0, 0.05, 0.4, 0.15, 0.2)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Leg8" type="MeshInstance3D" parent="Legs"]
+transform = Transform3D(0.05, -0.15, 0, 0.15, 0.05, 0, 0, 0, 0.05, 0.4, 0.15, 0.35)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+pixel_size = 0.01
+billboard = 1
+text = "Паук"
+font_size = 28
+outline_size = 4
+modulate = Color(1.0, 0.3, 0.3, 1)

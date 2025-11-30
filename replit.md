@@ -4,7 +4,8 @@
 **Epoch Settlements** is a survival settlement-building game developed with Godot 4.4.1. It features 3D survival gameplay with a first-person perspective, comprehensive building and crafting systems, combat mechanics including combo chains, and multiplayer networking. The game incorporates AI-controlled mobs and NPCs, procedurally generated terrain with diverse biomes, dynamic weather and day/night cycles, and intricate faction and quest systems. Localization is supported for English and Russian. The business vision is to deliver a rich, immersive survival experience with deep strategic elements and social interaction potential.
 
 ## User Preferences
-None configured yet.
+- Все ответы должны быть на русском языке
+- Collision layers: Player (layer=2, mask=5), Mobs (layer=4, mask=7), NPCs (layer=4, mask=3)
 
 ## System Architecture
 
@@ -56,3 +57,24 @@ The game is built around 40+ autoloaded singleton systems for managing core mech
 - Using software rendering (Mesa llvmpipe) with OpenGL ES 3.2
 - All 40+ autoload systems are configured in project.godot
 - Main menu scene: `res://scenes/ui/main_menu.tscn`
+
+## Recent Changes (November 30, 2025)
+
+### Character Creation
+- Added 3D character model preview using Superhero_Male/Female.gltf from art_pack2
+- Gender toggle now swaps between male/female models in real-time
+
+### NPC System
+- NPCs now use NameGenerator for proper Russian/English names
+- Added profession titles (Стражник, Торговец, Фермер, Охотник, Ремесленник)
+- Name labels are color-coded by profession
+- Dual-line labels: Name + Profession title
+
+### Mob System
+- Created wolf.tscn, bear.tscn, boar.tscn mob scenes with proper collision layers
+- Mobs have generated names (e.g., "Серый Клык", "Косолапый", "Секач")
+- Name labels color-coded by behavior type (red=aggressive, yellow=neutral, green=passive)
+- Proper collision layers: Player (layer=2, mask=5), Mobs (layer=4, mask=7), NPCs (layer=4, mask=3)
+
+### Fixed UI Scenes (Godot 3.x → 4.x syntax)
+- skills_window.tscn, craft_window.tscn, lang_selector.tscn, stats_window.tscn, trade_window.tscn

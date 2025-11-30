@@ -1,19 +1,31 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://stats_window"]
 
-[ext_resource path="res://scripts/ui/ui_stats.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://scripts/ui/ui_stats.gd" id="1"]
 
-[node name="StatsWindow" type="WindowDialog"]
-rect_min_size = Vector2(300, 220)
+[node name="StatsWindow" type="Window"]
 title = "Stats"
+size = Vector2i(300, 220)
+min_size = Vector2i(300, 220)
+visible = false
 
 [node name="VBox" type="VBoxContainer" parent="."]
-rect_min_size = Vector2(280, 180)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
 
 [node name="LblLevel" type="Label" parent="VBox"]
+layout_mode = 2
 text = "Level: 1"
 
 [node name="StatsGrid" type="GridContainer" parent="VBox"]
+layout_mode = 2
 columns = 2
 
 [node name="BtnClose" type="Button" parent="VBox"]
+layout_mode = 2
 text = "Close"
+script = ExtResource("1")

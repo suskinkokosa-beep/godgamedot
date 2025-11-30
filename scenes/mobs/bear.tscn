@@ -1,0 +1,55 @@
+[gd_scene load_steps=5 format=3 uid="uid://bear_mob_scene"]
+
+[ext_resource type="Script" path="res://scripts/mobs/mob_ai.gd" id="1_mob"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 0.6
+height = 2.0
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
+radius = 0.6
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
+albedo_color = Color(0.35, 0.22, 0.15, 1)
+
+[node name="Bear" type="CharacterBody3D" groups=["mobs", "entities"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_mob")
+patrol_radius = 20.0
+agro_range = 18.0
+attack_range = 3.0
+speed = 3.5
+run_speed = 7.0
+max_health = 200
+damage = 35
+attack_cooldown = 2.0
+xp_reward = 100.0
+mob_type = "bear"
+loot_table = "bear"
+behavior_type = "territorial"
+territorial_radius = 25.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 0)
+mesh = SubResource("CapsuleMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 1.8, -0.5)
+mesh = SubResource("CapsuleMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+pixel_size = 0.01
+billboard = 1
+text = "Медведь"
+font_size = 32
+outline_size = 4
+modulate = Color(1, 0.5, 0.2, 1)

@@ -1,0 +1,62 @@
+[gd_scene load_steps=5 format=3 uid="uid://rabbit_mob_scene"]
+
+[ext_resource type="Script" path="res://scripts/mobs/mob_ai.gd" id="1_mob"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_1"]
+radius = 0.15
+
+[sub_resource type="SphereMesh" id="SphereMesh_1"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
+albedo_color = Color(0.7, 0.65, 0.55, 1)
+
+[node name="Rabbit" type="CharacterBody3D" groups=["mobs", "entities"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_mob")
+patrol_radius = 10.0
+agro_range = 15.0
+attack_range = 1.0
+speed = 7.0
+run_speed = 12.0
+max_health = 15
+damage = 2
+xp_reward = 10.0
+mob_type = "rabbit"
+loot_table = "rabbit"
+behavior_type = "passive"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+shape = SubResource("SphereShape3D_1")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.2, 0, 0, 0, 0.8, 0, 0, 0, 1.5, 0, 0.15, 0)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0.25, -0.15)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="EarLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.3, 0, 0, 0, 0.1, -0.05, 0.4, -0.1)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="EarRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.1, 0, 0, 0, 0.3, 0, 0, 0, 0.1, 0.05, 0.4, -0.1)
+mesh = SubResource("SphereMesh_1")
+material_override = SubResource("StandardMaterial3D_1")
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+pixel_size = 0.008
+billboard = 1
+text = "Кролик"
+font_size = 24
+outline_size = 3
+modulate = Color(0.5, 1.0, 0.5, 1)

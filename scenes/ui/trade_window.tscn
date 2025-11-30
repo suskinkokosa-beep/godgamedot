@@ -1,12 +1,27 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=2 format=3 uid="uid://trade_window"]
 
-[ext_resource path="res://scripts/ui/ui_trade.gd" type="Script" id=1]
+[ext_resource type="Script" path="res://scripts/ui/ui_trade.gd" id="1"]
 
-[node name="TradeWindow" type="WindowDialog"]
-rect_min_size = Vector2(300,250)
+[node name="TradeWindow" type="Window"]
 title = "Trade"
+size = Vector2i(300, 250)
+min_size = Vector2i(300, 250)
+visible = false
 
-[node name="Items" type="VBoxContainer" parent="."]
+[node name="VBox" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = -10.0
+offset_bottom = -10.0
 
-[node name="BtnClose" type="Button" parent="."]
+[node name="Items" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BtnClose" type="Button" parent="VBox"]
+layout_mode = 2
 text = "Close"
+script = ExtResource("1")

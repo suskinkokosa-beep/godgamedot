@@ -13,8 +13,16 @@ height = 1.6
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
 albedo_color = Color(0.6, 0.2, 0.2, 1)
 
-[node name="MobBasic" type="CharacterBody3D"]
+[node name="MobBasic" type="CharacterBody3D" groups=["mobs", "entities"]]
+collision_layer = 4
+collision_mask = 7
 script = ExtResource("1_mob")
+behavior_type = "aggressive"
+agro_range = 20.0
+speed = 4.0
+run_speed = 6.0
+damage = 15
+max_health = 80
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
@@ -24,3 +32,14 @@ shape = SubResource("CapsuleShape3D_1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_1")
 material_override = SubResource("StandardMaterial3D_1")
+
+[node name="HealthBar" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0)
+
+[node name="NameLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0)
+pixel_size = 0.01
+billboard = 1
+text = "Mob"
+font_size = 32
+outline_size = 4

@@ -213,6 +213,13 @@ func get_relation(settlement_a: int, settlement_b: int) -> int:
 func get_settlement_info(id: int) -> Dictionary:
         return settlements.get(id, {})
 
+func get_settlement(id: int) -> Dictionary:
+        return settlements.get(id, {})
+
+func change_faction(settlement_id: int, new_faction: String):
+        if settlements.has(settlement_id):
+                settlements[settlement_id].faction = new_faction
+
 func get_all_settlements() -> Array:
         return settlements.values()
 

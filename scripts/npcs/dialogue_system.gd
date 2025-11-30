@@ -81,6 +81,7 @@ var dialogues := {
                         "text_en": "Good day! How are things in the settlement?",
                         "choices": [
                                 {"id": "info", "text_ru": "Что нового?", "text_en": "What's new?", "next": "news"},
+                                {"id": "rumors", "text_ru": "Слышал какие-нибудь слухи?", "text_en": "Heard any rumors?", "next": "rumors"},
                                 {"id": "bye", "text_ru": "Всего хорошего", "text_en": "Take care", "next": "end"}
                         ]
                 },
@@ -88,6 +89,221 @@ var dialogues := {
                         "speaker": "Житель",
                         "text_ru": "Слышал, на востоке видели волков. Будь осторожен!",
                         "text_en": "I heard wolves were spotted to the east. Be careful!",
+                        "next": "end"
+                },
+                "rumors": {
+                        "speaker": "Житель",
+                        "text_ru": "Говорят, в горах есть заброшенная шахта, полная сокровищ. Но там опасно...",
+                        "text_en": "They say there's an abandoned mine in the mountains, full of treasures. But it's dangerous...",
+                        "action": "reveal_location:abandoned_mine",
+                        "next": "end"
+                }
+        },
+        "hunter_greeting": {
+                "start": {
+                        "speaker": "Охотник",
+                        "text_ru": "Привет! Я только что вернулся с охоты.",
+                        "text_en": "Hello! I just came back from hunting.",
+                        "choices": [
+                                {"id": "buy", "text_ru": "Можешь продать шкуры?", "text_en": "Can you sell furs?", "next": "sell_furs"},
+                                {"id": "hunt", "text_ru": "Где хорошая охота?", "text_en": "Where's good hunting?", "next": "hunting_tips"},
+                                {"id": "quest", "text_ru": "Нужна помощь?", "text_en": "Need any help?", "next": "hunter_quest"},
+                                {"id": "bye", "text_ru": "Удачной охоты!", "text_en": "Good hunting!", "next": "end"}
+                        ]
+                },
+                "sell_furs": {
+                        "speaker": "Охотник",
+                        "text_ru": "Конечно! У меня есть волчьи и лисьи шкуры.",
+                        "text_en": "Sure! I have wolf and fox furs.",
+                        "action": "open_trade",
+                        "next": "end"
+                },
+                "hunting_tips": {
+                        "speaker": "Охотник",
+                        "text_ru": "На севере много оленей. На востоке - волки, опасно, но шкуры дорогие.",
+                        "text_en": "Lots of deer to the north. Wolves to the east - dangerous, but valuable furs.",
+                        "action": "reveal_location:hunting_grounds",
+                        "next": "end"
+                },
+                "hunter_quest": {
+                        "speaker": "Охотник",
+                        "text_ru": "Да! Принеси мне 5 волчьих клыков. Заплачу хорошо.",
+                        "text_en": "Yes! Bring me 5 wolf fangs. I'll pay well.",
+                        "choices": [
+                                {"id": "accept", "text_ru": "Принесу!", "text_en": "I'll bring them!", "action": "start_quest:wolf_fangs", "next": "quest_accepted"},
+                                {"id": "decline", "text_ru": "Может позже", "text_en": "Maybe later", "next": "start"}
+                        ]
+                },
+                "quest_accepted": {
+                        "speaker": "Охотник",
+                        "text_ru": "Удачи! Волки водятся в восточном лесу.",
+                        "text_en": "Good luck! Wolves roam the eastern forest.",
+                        "next": "end"
+                }
+        },
+        "farmer_greeting": {
+                "start": {
+                        "speaker": "Фермер",
+                        "text_ru": "Хорошего дня! Урожай в этом году неплох.",
+                        "text_en": "Good day! The harvest is decent this year.",
+                        "choices": [
+                                {"id": "buy", "text_ru": "Можешь продать еду?", "text_en": "Can you sell food?", "next": "sell_food"},
+                                {"id": "help", "text_ru": "Нужна помощь на ферме?", "text_en": "Need help on the farm?", "next": "farm_work"},
+                                {"id": "info", "text_ru": "Как дела в поселении?", "text_en": "How's the settlement?", "next": "settlement_info"},
+                                {"id": "bye", "text_ru": "До свидания", "text_en": "Goodbye", "next": "end"}
+                        ]
+                },
+                "sell_food": {
+                        "speaker": "Фермер",
+                        "text_ru": "Есть пшеница, морковь и яблоки. Смотри сам.",
+                        "text_en": "Got wheat, carrots and apples. Take a look.",
+                        "action": "open_trade",
+                        "next": "end"
+                },
+                "farm_work": {
+                        "speaker": "Фермер",
+                        "text_ru": "Вообще-то да. Помоги собрать 20 единиц пшеницы, дам тебе еды.",
+                        "text_en": "Actually yes. Help gather 20 wheat, I'll give you food.",
+                        "choices": [
+                                {"id": "accept", "text_ru": "С удовольствием", "text_en": "Gladly", "action": "start_quest:gather_wheat", "next": "farm_quest_accepted"},
+                                {"id": "decline", "text_ru": "Сейчас занят", "text_en": "I'm busy now", "next": "start"}
+                        ]
+                },
+                "farm_quest_accepted": {
+                        "speaker": "Фермер",
+                        "text_ru": "Спасибо! Пшеница растёт на полях к югу от деревни.",
+                        "text_en": "Thanks! Wheat grows in the fields south of the village.",
+                        "next": "end"
+                },
+                "settlement_info": {
+                        "speaker": "Фермер",
+                        "text_ru": "Говорят, скоро будет праздник урожая. Надеюсь, бандиты не испортят всё...",
+                        "text_en": "They say the harvest festival is coming. Hope bandits don't ruin it...",
+                        "next": "end"
+                }
+        },
+        "blacksmith_greeting": {
+                "start": {
+                        "speaker": "Кузнец",
+                        "text_ru": "*стук молота* А, клиент! Чего желаешь?",
+                        "text_en": "*hammer clangs* Ah, a customer! What do you need?",
+                        "choices": [
+                                {"id": "buy", "text_ru": "Покажи оружие", "text_en": "Show me weapons", "next": "show_weapons"},
+                                {"id": "repair", "text_ru": "Можешь починить снаряжение?", "text_en": "Can you repair my gear?", "next": "repair"},
+                                {"id": "craft", "text_ru": "Можешь сковать что-нибудь?", "text_en": "Can you forge something?", "next": "custom_craft"},
+                                {"id": "bye", "text_ru": "Удачи в работе", "text_en": "Good luck with work", "next": "end"}
+                        ]
+                },
+                "show_weapons": {
+                        "speaker": "Кузнец",
+                        "text_ru": "Мечи, топоры, копья - всё лучшего качества!",
+                        "text_en": "Swords, axes, spears - all top quality!",
+                        "action": "open_trade",
+                        "next": "end"
+                },
+                "repair": {
+                        "speaker": "Кузнец",
+                        "text_ru": "Конечно. Давай посмотрю... Это будет стоить 50 золота.",
+                        "text_en": "Sure. Let me see... It'll cost 50 gold.",
+                        "choices": [
+                                {"id": "accept", "text_ru": "Хорошо, чини", "text_en": "Okay, repair it", "action": "repair_all", "next": "repair_done"},
+                                {"id": "decline", "text_ru": "Дороговато...", "text_en": "Too expensive...", "next": "start"}
+                        ]
+                },
+                "repair_done": {
+                        "speaker": "Кузнец",
+                        "text_ru": "Готово! Теперь как новое. Удачи в бою!",
+                        "text_en": "Done! Good as new. Good luck in battle!",
+                        "next": "end"
+                },
+                "custom_craft": {
+                        "speaker": "Кузнец",
+                        "text_ru": "Принеси материалы - 10 железа и 5 угля - скую тебе хороший меч.",
+                        "text_en": "Bring materials - 10 iron and 5 coal - I'll forge you a good sword.",
+                        "action": "start_quest:gather_smithing_materials",
+                        "next": "end"
+                }
+        },
+        "priest_greeting": {
+                "start": {
+                        "speaker": "Жрец",
+                        "text_ru": "Благословение богов на тебя, путник.",
+                        "text_en": "Blessings of the gods upon you, traveler.",
+                        "choices": [
+                                {"id": "heal", "text_ru": "Можешь исцелить меня?", "text_en": "Can you heal me?", "next": "healing"},
+                                {"id": "bless", "text_ru": "Прошу благословения", "text_en": "I seek a blessing", "next": "blessing"},
+                                {"id": "learn", "text_ru": "Расскажи о богах", "text_en": "Tell me about the gods", "next": "lore"},
+                                {"id": "bye", "text_ru": "Благодарю", "text_en": "Thank you", "next": "end"}
+                        ]
+                },
+                "healing": {
+                        "speaker": "Жрец",
+                        "text_ru": "Конечно, дитя. *возлагает руки* Исцеляйся.",
+                        "text_en": "Of course, child. *lays hands* Be healed.",
+                        "action": "heal_player:full",
+                        "next": "end"
+                },
+                "blessing": {
+                        "speaker": "Жрец",
+                        "text_ru": "Да хранят тебя боги. *благословляет*",
+                        "text_en": "May the gods protect you. *blesses*",
+                        "action": "buff:protection:300",
+                        "next": "end"
+                },
+                "lore": {
+                        "speaker": "Жрец",
+                        "text_ru": "Древние боги создали этот мир. Они наблюдают за нами и направляют достойных.",
+                        "text_en": "The ancient gods created this world. They watch over us and guide the worthy.",
+                        "next": "end"
+                }
+        },
+        "innkeeper_greeting": {
+                "start": {
+                        "speaker": "Трактирщик",
+                        "text_ru": "Добро пожаловать в нашу таверну! Чего изволите?",
+                        "text_en": "Welcome to our tavern! What'll it be?",
+                        "choices": [
+                                {"id": "drink", "text_ru": "Налей эля", "text_en": "Pour me an ale", "next": "order_drink"},
+                                {"id": "food", "text_ru": "Что есть поесть?", "text_en": "What's to eat?", "next": "order_food"},
+                                {"id": "room", "text_ru": "Есть свободная комната?", "text_en": "Any rooms available?", "next": "rent_room"},
+                                {"id": "rumors", "text_ru": "Слышал какие-нибудь слухи?", "text_en": "Heard any rumors?", "next": "tavern_rumors"},
+                                {"id": "bye", "text_ru": "Пока ничего", "text_en": "Nothing for now", "next": "end"}
+                        ]
+                },
+                "order_drink": {
+                        "speaker": "Трактирщик",
+                        "text_ru": "Вот, лучший эль в округе! 5 золотых.",
+                        "text_en": "Here, best ale around! 5 gold.",
+                        "action": "buy_item:ale:5",
+                        "next": "end"
+                },
+                "order_food": {
+                        "speaker": "Трактирщик",
+                        "text_ru": "Жаркое из оленины, свежий хлеб. 10 золотых за порцию.",
+                        "text_en": "Venison stew, fresh bread. 10 gold per serving.",
+                        "action": "buy_item:meal:10",
+                        "next": "end"
+                },
+                "rent_room": {
+                        "speaker": "Трактирщик",
+                        "text_ru": "Есть! 20 золотых за ночь. Отдохнёшь и восстановишь силы.",
+                        "text_en": "Yes! 20 gold per night. You'll rest and recover.",
+                        "choices": [
+                                {"id": "accept", "text_ru": "Беру", "text_en": "I'll take it", "action": "rest_at_inn:20", "next": "room_rented"},
+                                {"id": "decline", "text_ru": "Дороговато", "text_en": "Too expensive", "next": "start"}
+                        ]
+                },
+                "room_rented": {
+                        "speaker": "Трактирщик",
+                        "text_ru": "Приятного отдыха! Комната наверху, первая дверь направо.",
+                        "text_en": "Enjoy your rest! Room upstairs, first door on the right.",
+                        "next": "end"
+                },
+                "tavern_rumors": {
+                        "speaker": "Трактирщик",
+                        "text_ru": "Говорят, в подземельях под старым замком прячут древние сокровища. Но там кишит нежитью...",
+                        "text_en": "They say ancient treasures are hidden in the dungeons beneath the old castle. But it's crawling with undead...",
+                        "action": "reveal_location:old_castle_dungeon",
                         "next": "end"
                 }
         }
@@ -289,15 +505,86 @@ func _execute_action(action: String):
                 
                 "reputation":
                         var faction_system = get_node_or_null("/root/FactionSystem")
-                        if faction_system and current_npc and faction_system.has_method("add_reputation"):
-                                var faction = current_npc.get("faction") if current_npc else "neutral"
+                        if faction_system and current_npc:
+                                var faction = "town"
+                                if current_npc.has_method("get") and current_npc.get("faction"):
+                                        faction = current_npc.faction
                                 var amount = int(action_param)
-                                faction_system.add_reputation(faction, amount)
+                                if faction_system.has_method("modify_relation"):
+                                        faction_system.modify_relation("player", faction, amount)
                 
                 "give_item":
                         var inv = get_node_or_null("/root/Inventory")
                         if inv and inv.has_method("add_item"):
                                 inv.add_item(action_param, 1, 1.0)
+                
+                "heal_player":
+                        var players = get_tree().get_nodes_in_group("players")
+                        if players.size() > 0:
+                                var player = players[0]
+                                if player.has_method("heal"):
+                                        if action_param == "full":
+                                                player.heal(player.max_health if player.has("max_health") else 100)
+                                        else:
+                                                player.heal(int(action_param))
+                
+                "buff":
+                        var parts2 = action_param.split(":")
+                        if parts2.size() >= 2:
+                                var buff_type = parts2[0]
+                                var duration = float(parts2[1])
+                                var debuff_sys = get_node_or_null("/root/DebuffSystem")
+                                if debuff_sys and debuff_sys.has_method("apply_buff"):
+                                        var players = get_tree().get_nodes_in_group("players")
+                                        if players.size() > 0:
+                                                debuff_sys.apply_buff(players[0], buff_type, duration)
+                
+                "reveal_location":
+                        var notif = get_node_or_null("/root/NotificationSystem")
+                        if notif:
+                                notif.show_notification("Новая локация открыта: " + action_param, "info")
+                
+                "buy_item":
+                        var item_parts = action_param.split(":")
+                        if item_parts.size() >= 2:
+                                var item_id = item_parts[0]
+                                var cost = int(item_parts[1])
+                                var inv = get_node_or_null("/root/Inventory")
+                                if inv:
+                                        if inv.has_method("get_gold") and inv.get_gold() >= cost:
+                                                inv.remove_gold(cost)
+                                                inv.add_item(item_id, 1, 1.0)
+                                                var notif = get_node_or_null("/root/NotificationSystem")
+                                                if notif:
+                                                        notif.show_notification("Куплено: " + item_id, "success")
+                                        else:
+                                                var notif = get_node_or_null("/root/NotificationSystem")
+                                                if notif:
+                                                        notif.show_notification("Недостаточно золота!", "error")
+                
+                "rest_at_inn":
+                        var cost = int(action_param)
+                        var inv = get_node_or_null("/root/Inventory")
+                        if inv and inv.has_method("get_gold") and inv.get_gold() >= cost:
+                                inv.remove_gold(cost)
+                                var players = get_tree().get_nodes_in_group("players")
+                                if players.size() > 0:
+                                        var player = players[0]
+                                        if player.has_method("heal"):
+                                                player.heal(9999)
+                                        if player.has_method("restore_stamina"):
+                                                player.restore_stamina(9999)
+                                var notif = get_node_or_null("/root/NotificationSystem")
+                                if notif:
+                                        notif.show_notification("Вы отдохнули и восстановили силы", "success")
+                
+                "repair_all":
+                        var inv = get_node_or_null("/root/Inventory")
+                        if inv and inv.has_method("repair_all_items"):
+                                inv.repair_all_items()
+                        var notif = get_node_or_null("/root/NotificationSystem")
+                        if notif:
+                                notif.show_notification("Снаряжение отремонтировано", "success")
 
 func _open_trade_deferred():
         end_dialogue()

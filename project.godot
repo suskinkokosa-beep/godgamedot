@@ -18,6 +18,7 @@ config/features=PackedStringArray("4.5")
 
 Inventory="*res://scripts/systems/inventory.gd"
 Network="*res://scripts/systems/network.gd"
+NameGenerator="*res://scripts/systems/name_generator.gd"
 GameManager="*res://scripts/systems/game_manager.gd"
 LocalizationService="*res://scripts/systems/localization_service.gd"
 StatsSystem="*res://scripts/systems/stats.gd"
@@ -71,6 +72,8 @@ ModelLoader="*res://scripts/systems/model_loader.gd"
 WorldModelSpawner="*res://scripts/systems/world_model_spawner.gd"
 TextureLoader="*res://scripts/systems/texture_loader.gd"
 MaterialFactory="*res://scripts/systems/material_factory.gd"
+BlueprintBook="*res://scripts/systems/blueprint_book.gd"
+RuntimeResourceLoader="*res://scripts/systems/runtime_resource_loader.gd"
 
 [filesystem]
 
@@ -131,6 +134,11 @@ attack={
 jump={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":32,"physical_keycode":32,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
+]
+}
+blueprint_book={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":66,"physical_keycode":66,"key_label":0,"unicode":98,"location":0,"echo":false,"script":null)
 ]
 }
 

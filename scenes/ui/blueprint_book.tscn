@@ -1,0 +1,146 @@
+[gd_scene load_steps=2 format=3 uid="uid://blueprint_book_ui"]
+
+[ext_resource type="Script" path="res://scripts/ui/blueprint_book_ui.gd" id="1_script"]
+
+[node name="BlueprintBook" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.8)
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -300.0
+offset_right = 450.0
+offset_bottom = 300.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TopBar" type="HBoxContainer" parent="MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="MainPanel/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "КНИГА ЧЕРТЕЖЕЙ"
+
+[node name="Spacer" type="Control" parent="MainPanel/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SearchInput" type="LineEdit" parent="MainPanel/TopBar"]
+custom_minimum_size = Vector2(200, 35)
+layout_mode = 2
+placeholder_text = "Поиск..."
+
+[node name="ProgressLabel" type="Label" parent="MainPanel/TopBar"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Чертежи: 0 / 0"
+
+[node name="CloseButton" type="Button" parent="MainPanel/TopBar"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "X"
+
+[node name="HSplitContainer" type="HSplitContainer" parent="MainPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 170
+
+[node name="LeftPanel" type="PanelContainer" parent="MainPanel/HSplitContainer"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+
+[node name="CategoryScroll" type="ScrollContainer" parent="MainPanel/HSplitContainer/LeftPanel"]
+layout_mode = 2
+
+[node name="CategoryList" type="VBoxContainer" parent="MainPanel/HSplitContainer/LeftPanel/CategoryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="RightPanel" type="PanelContainer" parent="MainPanel/HSplitContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScrollContainer" type="ScrollContainer" parent="MainPanel/HSplitContainer/RightPanel"]
+layout_mode = 2
+
+[node name="BlueprintGrid" type="GridContainer" parent="MainPanel/HSplitContainer/RightPanel/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 5
+
+[node name="DetailPanel" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -300.0
+offset_top = 50.0
+offset_right = -20.0
+offset_bottom = 350.0
+grow_horizontal = 0
+
+[node name="VBox" type="VBoxContainer" parent="DetailPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="NameLabel" type="Label" parent="DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Название предмета"
+
+[node name="TierLabel" type="Label" parent="DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Уровень: Базовый"
+
+[node name="DescLabel" type="Label" parent="DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Описание предмета"
+autowrap_mode = 2
+
+[node name="RequirementsLabel" type="Label" parent="DetailPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Требования для разблокировки"
+
+[node name="MaterialsList" type="VBoxContainer" parent="DetailPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CraftButton" type="Button" parent="DetailPanel/VBox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+text = "Создать"
+
+[connection signal="pressed" from="MainPanel/TopBar/CloseButton" to="." method="hide"]

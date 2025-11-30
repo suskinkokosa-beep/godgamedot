@@ -60,6 +60,16 @@ The game is built around 40+ autoloaded singleton systems for managing core mech
 
 ## Recent Changes (November 30, 2025)
 
+### GitHub Import Setup - Replit Environment Configuration
+- Re-installed Godot 4.4.1 and VNC dependencies via Nix packager
+- Created `start_godot_vnc.sh` startup script with VNC configuration
+- Configured "Run Godot Game" workflow with VNC output type
+- Fixed NameGenerator autoload configuration (removed class_name to prevent singleton conflict)
+- Updated GameManager to use NameGenerator as autoload singleton
+- Created .gitignore for Godot-specific files
+- Verified successful game launch with all 40+ autoload systems initialized
+- Status: Game running successfully with ModelLoader (181 models), WorldModelSpawner, TextureLoader (38 texture sets), and MaterialFactory initialized
+
 ### Character Creation
 - Added 3D character model preview using Superhero_Male/Female.gltf from art_pack2
 - Gender toggle now swaps between male/female models in real-time
@@ -78,3 +88,44 @@ The game is built around 40+ autoloaded singleton systems for managing core mech
 
 ### Fixed UI Scenes (Godot 3.x → 4.x syntax)
 - skills_window.tscn, craft_window.tscn, lang_selector.tscn, stats_window.tscn, trade_window.tscn
+
+### Blueprint Book System (Added November 30, 2025)
+- Created `scripts/systems/blueprint_book.gd` - comprehensive blueprint management system
+- 45+ blueprints organized by categories: survival, tools, weapons, building, armor, medical, materials
+- 4 tier system: Базовые (Basic), Улучшенные (Improved), Продвинутые (Advanced), Мастерские (Master)
+- Starter blueprints (tier 0) unlocked from start: stone_axe, stone_pickaxe, wooden_spear, bandage, torch, campfire, sleeping_bag
+- Advanced blueprints unlock at workbenches: workbench_1, workbench_2, workbench_3, furnace
+- Created `scripts/ui/blueprint_book_ui.gd` and `scenes/ui/blueprint_book.tscn` for UI
+- Keyboard shortcut: B key opens blueprint book
+- Bilingual support (Russian/English) for all names and descriptions
+
+### Dynamic Quest System (November 30, 2025)
+- Added dynamic quest generation based on biomes (forest, desert, tundra, swamp, mountains)
+- Added faction-based quests (villagers, traders, guards, hunters)
+- Added event-driven quests triggered by WorldDirector (blood_moon, invasion, rare_spawn, meteor_shower)
+- Quests use unique IDs with timestamps to prevent duplicate registration
+- Deep copy templates to prevent state sharing between players
+- Check for existing active quests before generating new ones
+
+### WorldDirector Integration (November 30, 2025)
+- Added `_generate_event_quest()` - generates quests when global events start
+- Added `generate_biome_quests_for_player()` - generates quests when player enters new biome
+- Added `generate_faction_quest_for_player()` - generates faction reputation quests
+- Added `trigger_random_world_event()` - triggers random events based on world state
+- Added `notify_player_entered_biome()` - 30% chance to generate biome quest on entry
+- Added `_calculate_area_difficulty()` - scales difficulty by distance from spawn and world state
+
+### 3D Character Model Integration (November 30, 2025)
+- First-person arms now use glTF model from art_pack2/Characters/Base Characters/Godot/Superhero_Male.gltf
+- Added GLTFDocument runtime loading with fallback to procedural arms
+- BoneAttachment3D used to attach items to hand bones for realistic item holding
+- NPCs now load 3D character models (random male/female) with profession-based color tinting
+- Fixed dialogue IDs in npc_controller.gd (guard_greeting, trader_greeting, farmer_greeting, hunter_greeting, citizen_greeting)
+
+### Bug Fixes (November 30, 2025)
+- Fixed material files syntax (metal_material.tres, wood_material.tres) for Godot 4 compatibility
+- Fixed main_menu.gd to not create duplicate title labels
+- Fixed WeatherSystem signal type mismatch (int → String) for weather_changed signal
+- Fixed compass_ui.gd - removed @onready, using get_node_or_null with fallback creation
+- Fixed achievement_popup.gd - removed @onready, using get_node_or_null with fallback creation
+- Fixed NPC dialogue ID references (*_dialogue → *_greeting)

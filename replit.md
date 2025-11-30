@@ -1,7 +1,7 @@
 # Epoch Settlements Alpha - Godot Game
 
 ## Overview
-**Epoch Settlements** is a survival settlement-building game developed with Godot 4.5. It features 3D survival gameplay with a first-person perspective, comprehensive building and crafting systems, combat mechanics including combo chains, and multiplayer networking. The game incorporates AI-controlled mobs and NPCs, procedurally generated terrain with diverse biomes, dynamic weather and day/night cycles, and intricate faction and quest systems. Localization is supported for English and Russian. The business vision is to deliver a rich, immersive survival experience with deep strategic elements and social interaction potential.
+**Epoch Settlements** is a survival settlement-building game developed with Godot 4.4.1. It features 3D survival gameplay with a first-person perspective, comprehensive building and crafting systems, combat mechanics including combo chains, and multiplayer networking. The game incorporates AI-controlled mobs and NPCs, procedurally generated terrain with diverse biomes, dynamic weather and day/night cycles, and intricate faction and quest systems. Localization is supported for English and Russian. The business vision is to deliver a rich, immersive survival experience with deep strategic elements and social interaction potential.
 
 ## User Preferences
 None configured yet.
@@ -9,7 +9,7 @@ None configured yet.
 ## System Architecture
 
 ### Engine
-- **Godot Engine**: Version 4.5 (running v4.4.1 in Replit)
+- **Godot Engine**: Version 4.4.1
 - **Rendering**: GL Compatibility mode (OpenGL ES 3.2)
 - **Main Scene**: `res://scenes/ui/main_menu.tscn`
 
@@ -35,5 +35,24 @@ The game is built around 40+ autoloaded singleton systems for managing core mech
 -   **Animation**: `IdleAnimationController` for player animations.
 
 ## External Dependencies
--   **Godot Engine**: Underlying game engine.
--   **VNC**: TigerVNC, xorg.xinit, xorg.xorgserver for running Godot GUI in a browser environment on Replit.
+-   **Godot Engine**: Version 4.4.1 installed via Nix package manager
+-   **VNC**: TigerVNC 1.14.0, xorg.xinit, xorg.xorgserver, xorg.xdpyinfo for running Godot GUI in a browser environment on Replit
+
+## Replit Environment Setup
+
+### Installation (Completed November 30, 2025)
+- Installed Godot 4.4.1 via Nix package manager
+- Configured VNC server for desktop GUI access
+- Created startup script: `start_godot_vnc.sh`
+- Setup workflow: "Run Godot Game" with VNC output
+
+### Running the Project
+1. The workflow "Run Godot Game" starts automatically
+2. Access the Godot editor via Replit's desktop view
+3. VNC server runs on port 5900, display :0
+4. Resolution: 1280x720 (configurable via RESOLUTION env var)
+
+### Technical Notes
+- Using software rendering (Mesa llvmpipe) with OpenGL ES 3.2
+- All 40+ autoload systems are configured in project.godot
+- Main menu scene: `res://scenes/ui/main_menu.tscn`

@@ -60,6 +60,21 @@ TutorialSystem="*res://scripts/ui/tutorial_system.gd"
 GameBalance="*res://scripts/systems/game_balance.gd"
 DialogueSystem="*res://scripts/npcs/dialogue_system.gd"
 LootDropSystem="*res://scripts/systems/loot_drop_system.gd"
+TradeSystem="*res://scripts/systems/trade_system.gd"
+WarSystem="*res://scripts/systems/war_system.gd"
+LawSystem="*res://scripts/systems/law_system.gd"
+SiegeEquipment="*res://scripts/systems/siege_equipment.gd"
+TechTree="*res://scripts/systems/tech_tree.gd"
+WorldDirector="*res://scripts/systems/world_director.gd"
+HuntingSystem="*res://scripts/systems/hunting_system.gd"
+ModelLoader="*res://scripts/systems/model_loader.gd"
+WorldModelSpawner="*res://scripts/systems/world_model_spawner.gd"
+TextureLoader="*res://scripts/systems/texture_loader.gd"
+MaterialFactory="*res://scripts/systems/material_factory.gd"
+
+[filesystem]
+
+import/blender/enabled=false
 
 [input]
 

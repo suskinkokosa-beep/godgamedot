@@ -590,3 +590,103 @@ func get_year() -> int:
 
 func get_day() -> int:
         return day
+
+func _generate_event_quest(event_type: GlobalEvent):
+        var quest_sys = get_node_or_null("/root/QuestSystem")
+        if not quest_sys:
+                return
+        
+        var event_map := {
+                GlobalEvent.BLOOD_MOON: "blood_moon",
+                GlobalEvent.MONSTER_INVASION: "invasion",
+                GlobalEvent.DRAGON_SIGHTING: "rare_spawn",
+                GlobalEvent.ECLIPSE: "meteor_shower"
+        }
+        
+        if event_map.has(event_type):
+                quest_sys.generate_event_quest(event_map[event_type])
+
+func generate_biome_quests_for_player(player_id: int, player_position: Vector3):
+        var quest_sys = get_node_or_null("/root/QuestSystem")
+        var world_gen = get_node_or_null("/root/WorldGenerator")
+        
+        if not quest_sys or not world_gen:
+                return
+        
+        var biome = world_gen.get_biome_at(player_position.x, player_position.z)
+        var difficulty = _calculate_area_difficulty(player_position)
+        
+        quest_sys.generate_biome_quest(player_id, biome, difficulty)
+
+func generate_faction_quest_for_player(player_id: int, faction: String):
+        var quest_sys = get_node_or_null("/root/QuestSystem")
+        var faction_sys = get_node_or_null("/root/FactionSystem")
+        
+        if not quest_sys or not faction_sys:
+                return
+        
+        var reputation = faction_sys.get_player_reputation(player_id, faction)
+        quest_sys.generate_faction_quest(player_id, faction, reputation)
+
+func _calculate_area_difficulty(position: Vector3) -> int:
+        var world_gen = get_node_or_null("/root/WorldGenerator")
+        if not world_gen:
+                return 1
+        
+        var distance_from_spawn = position.length()
+        var base_difficulty = int(distance_from_spawn / 100) + 1
+        
+        if world_state == "war":
+                base_difficulty += 2
+        elif world_state == "conflict":
+                base_difficulty += 1
+        
+        return clamp(base_difficulty, 1, 5)
+
+func trigger_random_world_event():
+        var possible_events := [
+                GlobalEvent.TRADE_BOOM,
+                GlobalEvent.MONSTER_MIGRATION,
+                GlobalEvent.FESTIVAL,
+                GlobalEvent.DIPLOMATIC_CONFLICT
+        ]
+        
+        if world_tension > 30:
+                possible_events.append(GlobalEvent.BANDIT_RAID)
+        if world_tension > 50:
+                possible_events.append(GlobalEvent.MONSTER_INVASION)
+        if world_tension > 70:
+                possible_events.append(GlobalEvent.REBELLION)
+        
+        if season == "winter":
+                possible_events.append(GlobalEvent.HARSH_WINTER)
+        if season == "summer":
+                possible_events.append(GlobalEvent.DROUGHT)
+        
+        if randf() < 0.05:
+                possible_events.append(GlobalEvent.BLOOD_MOON)
+        if randf() < 0.02:
+                possible_events.append(GlobalEvent.DRAGON_SIGHTING)
+        if randf() < 0.03:
+                possible_events.append(GlobalEvent.ECLIPSE)
+        
+        var selected_event = possible_events[randi() % possible_events.size()]
+        start_event(selected_event)
+        
+        _generate_event_quest(selected_event)
+
+func get_active_event_info() -> Array:
+        var result := []
+        for event_type in active_events.keys():
+                var info = event_data.get(event_type, {})
+                result.append({
+                        "type": event_type,
+                        "name": info.get("name_ru", "Событие"),
+                        "danger_level": info.get("danger_level", 1),
+                        "time_remaining": active_events[event_type].get("duration", 0)
+                })
+        return result
+
+func notify_player_entered_biome(player_id: int, biome: String, position: Vector3):
+        if randf() < 0.3:
+                generate_biome_quests_for_player(player_id, position)

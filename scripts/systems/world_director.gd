@@ -1,21 +1,32 @@
 extends Node
-class_name WorldDirector
 
 signal global_event_started(event_type, data)
 signal global_event_ended(event_type)
 signal faction_war_started(faction_a, faction_b)
 signal faction_war_ended(faction_a, faction_b)
+signal npc_spawned(npc, settlement_id)
+signal caravan_spawned(from_id, to_id)
+signal world_state_changed(state_type, data)
 
 @export var spawn_points := [Vector3(5, 0, 5), Vector3(-10, 0, 8), Vector3(20, 0, -15)]
 @export var spawn_interval := 12.0
 @export var event_check_interval := 60.0
 @export var max_mobs_per_area := 10
+@export var npc_spawn_interval := 30.0
+@export var economy_update_interval := 10.0
+@export var world_tension := 0.0
 
 var spawn_timer := 0.0
 var event_timer := 0.0
+var npc_timer := 0.0
+var economy_timer := 0.0
 var mob_count := 0
 var active_events := {}
 var faction_wars := []
+var world_state := "peaceful"
+var season := "spring"
+var year := 1
+var day := 1
 
 enum GlobalEvent {
         NONE,
@@ -25,50 +36,127 @@ enum GlobalEvent {
         HARSH_WINTER,
         DROUGHT,
         DIPLOMATIC_CONFLICT,
-        MONSTER_MIGRATION
+        MONSTER_MIGRATION,
+        TRADE_BOOM,
+        FAMINE,
+        REBELLION,
+        FESTIVAL,
+        ECLIPSE,
+        BLOOD_MOON,
+        DRAGON_SIGHTING
 }
 
 var event_data := {
         GlobalEvent.MONSTER_INVASION: {
                 "name": "Нашествие монстров",
+                "name_ru": "Нашествие монстров",
                 "duration": 300.0,
                 "spawn_mult": 3.0,
-                "danger_level": 3
+                "danger_level": 3,
+                "tension_add": 30
         },
         GlobalEvent.BANDIT_RAID: {
                 "name": "Рейд бандитов",
+                "name_ru": "Рейд бандитов",
                 "duration": 180.0,
                 "faction": "bandits",
-                "danger_level": 2
+                "danger_level": 2,
+                "tension_add": 20
         },
         GlobalEvent.EPIDEMIC: {
                 "name": "Эпидемия",
+                "name_ru": "Эпидемия",
                 "duration": 600.0,
                 "health_drain": 0.1,
-                "danger_level": 2
+                "danger_level": 2,
+                "tension_add": 15
         },
         GlobalEvent.HARSH_WINTER: {
                 "name": "Суровая зима",
+                "name_ru": "Суровая зима",
                 "duration": 400.0,
                 "temp_modifier": -20.0,
-                "danger_level": 2
+                "danger_level": 2,
+                "tension_add": 10
         },
         GlobalEvent.DROUGHT: {
                 "name": "Засуха",
+                "name_ru": "Засуха",
                 "duration": 500.0,
                 "thirst_mult": 2.0,
-                "danger_level": 1
+                "danger_level": 1,
+                "tension_add": 10
         },
         GlobalEvent.DIPLOMATIC_CONFLICT: {
                 "name": "Дипломатический конфликт",
+                "name_ru": "Дипломатический конфликт",
                 "duration": 240.0,
-                "danger_level": 1
+                "danger_level": 1,
+                "tension_add": 15
         },
         GlobalEvent.MONSTER_MIGRATION: {
                 "name": "Миграция монстров",
+                "name_ru": "Миграция монстров",
                 "duration": 200.0,
                 "spawn_mult": 2.0,
-                "danger_level": 2
+                "danger_level": 2,
+                "tension_add": 15
+        },
+        GlobalEvent.TRADE_BOOM: {
+                "name": "Торговый бум",
+                "name_ru": "Торговый бум",
+                "duration": 400.0,
+                "trade_mult": 2.0,
+                "danger_level": 0,
+                "tension_add": -10
+        },
+        GlobalEvent.FAMINE: {
+                "name": "Голод",
+                "name_ru": "Голод",
+                "duration": 500.0,
+                "hunger_mult": 2.5,
+                "food_production": 0.3,
+                "danger_level": 2,
+                "tension_add": 25
+        },
+        GlobalEvent.REBELLION: {
+                "name": "Восстание",
+                "name_ru": "Восстание",
+                "duration": 300.0,
+                "danger_level": 3,
+                "tension_add": 40
+        },
+        GlobalEvent.FESTIVAL: {
+                "name": "Праздник",
+                "name_ru": "Праздник",
+                "duration": 120.0,
+                "happiness_bonus": 20,
+                "danger_level": 0,
+                "tension_add": -20
+        },
+        GlobalEvent.ECLIPSE: {
+                "name": "Затмение",
+                "name_ru": "Затмение",
+                "duration": 60.0,
+                "magic_mult": 2.0,
+                "danger_level": 1,
+                "tension_add": 5
+        },
+        GlobalEvent.BLOOD_MOON: {
+                "name": "Кровавая луна",
+                "name_ru": "Кровавая луна",
+                "duration": 180.0,
+                "spawn_mult": 4.0,
+                "mob_strength": 1.5,
+                "danger_level": 4,
+                "tension_add": 50
+        },
+        GlobalEvent.DRAGON_SIGHTING: {
+                "name": "Появление дракона",
+                "name_ru": "Появление дракона",
+                "duration": 600.0,
+                "danger_level": 5,
+                "tension_add": 60
         }
 }
 
@@ -86,6 +174,8 @@ func _process(delta):
         
         spawn_timer += delta
         event_timer += delta
+        npc_timer += delta
+        economy_timer += delta
         
         if spawn_timer >= spawn_interval:
                 spawn_timer = 0.0
@@ -95,8 +185,18 @@ func _process(delta):
                 event_timer = 0.0
                 _check_global_events()
         
+        if npc_timer >= npc_spawn_interval:
+                npc_timer = 0.0
+                _manage_npc_population()
+        
+        if economy_timer >= economy_update_interval:
+                economy_timer = 0.0
+                _update_economy()
+        
         _update_active_events(delta)
         _process_faction_relations(delta)
+        _update_world_tension(delta)
+        _process_seasons(delta)
 
 func _process_spawns():
         for p in spawn_points:
@@ -301,3 +401,192 @@ func get_danger_level() -> int:
         for event in active_events.values():
                 max_danger = max(max_danger, event.get("danger_level", 0))
         return max_danger
+
+func _manage_npc_population():
+        var ss = get_node_or_null("/root/SettlementSystem")
+        if not ss:
+                return
+        
+        var settlements = ss.get_all_settlements()
+        
+        for settlement in settlements:
+                var current_npcs = _count_npcs_in_settlement(settlement.id)
+                var target_npcs = settlement.population
+                
+                if current_npcs < target_npcs:
+                        _spawn_npc_for_settlement(settlement)
+                
+                _assign_npc_jobs(settlement)
+
+func _count_npcs_in_settlement(settlement_id: int) -> int:
+        var count = 0
+        var npcs = get_tree().get_nodes_in_group("npcs")
+        for npc in npcs:
+                if npc.has_node("NPCAIBrain"):
+                        var brain = npc.get_node("NPCAIBrain")
+                        if brain.home_settlement_id == settlement_id:
+                                count += 1
+        return count
+
+func _spawn_npc_for_settlement(settlement: Dictionary):
+        var npc_scene = load("res://scenes/npcs/npc_citizen.tscn")
+        if not npc_scene:
+                return
+        
+        var npc = npc_scene.instantiate()
+        var spawn_pos = settlement.position + Vector3(randf_range(-10, 10), 0, randf_range(-10, 10))
+        
+        add_child(npc)
+        npc.global_position = spawn_pos
+        
+        if npc.has_node("NPCAIBrain"):
+                var brain = npc.get_node("NPCAIBrain")
+                brain.home_settlement_id = settlement.id
+                brain.faction = settlement.faction
+                brain.profession = _choose_profession_for_settlement(settlement)
+        
+        emit_signal("npc_spawned", npc, settlement.id)
+
+func _choose_profession_for_settlement(settlement: Dictionary) -> int:
+        var breakdown = settlement.get("population_breakdown", {})
+        var guards = breakdown.get("guard", 0)
+        var workers = breakdown.get("worker", 0)
+        var traders = breakdown.get("trader", 0)
+        
+        var total = guards + workers + traders
+        if total == 0:
+                return 7
+        
+        var guard_ratio = float(guards) / total
+        var trader_ratio = float(traders) / total
+        
+        if guard_ratio < 0.2:
+                return 1
+        elif trader_ratio < 0.1:
+                return 2
+        else:
+                return 7
+
+func _assign_npc_jobs(settlement: Dictionary):
+        var npcs = get_tree().get_nodes_in_group("npcs")
+        
+        for npc in npcs:
+                if not npc.has_node("NPCAIBrain"):
+                        continue
+                
+                var brain = npc.get_node("NPCAIBrain")
+                if brain.home_settlement_id != settlement.id:
+                        continue
+                
+                if brain.work_position == Vector3.ZERO:
+                        brain.work_position = settlement.position + Vector3(randf_range(-15, 15), 0, randf_range(-15, 15))
+
+func _update_economy():
+        var trade_sys = get_node_or_null("/root/TradeSystem")
+        var ss = get_node_or_null("/root/SettlementSystem")
+        
+        if not trade_sys or not ss:
+                return
+        
+        var routes = trade_sys.get_all_routes()
+        for route in routes:
+                if route.active:
+                        var time_since_trade = Time.get_unix_time_from_system() - route.last_trade_time
+                        if time_since_trade > route.trade_interval:
+                                trade_sys.dispatch_caravan(route.id)
+        
+        var settlements = ss.get_all_settlements()
+        for s in settlements:
+                _update_settlement_economy(s)
+
+func _update_settlement_economy(settlement: Dictionary):
+        var law_sys = get_node_or_null("/root/LawSystem")
+        if not law_sys:
+                return
+        
+        var effects = law_sys.get_total_law_effects(settlement.id)
+        
+        var income = settlement.population * 2 * effects.get("income_mult", 1.0)
+        if not settlement.resources.has("gold"):
+                settlement.resources.gold = 0
+        settlement.resources.gold += int(income)
+        
+        var production_mult = effects.get("production_mult", 1.0)
+        settlement.production_rate = production_mult
+
+func _update_world_tension(delta):
+        world_tension = max(0, world_tension - delta * 0.1)
+        
+        if world_tension > 75:
+                world_state = "war"
+        elif world_tension > 50:
+                world_state = "conflict"
+        elif world_tension > 25:
+                world_state = "unrest"
+        else:
+                world_state = "peaceful"
+        
+        if world_tension > 80 and randf() < 0.001:
+                start_event(GlobalEvent.REBELLION)
+
+func _process_seasons(delta):
+        var dnc = get_node_or_null("/root/DayNightCycle")
+        if not dnc:
+                return
+        
+        var days_passed = 0
+        if "days_passed" in dnc:
+                days_passed = dnc.days_passed
+        day = (days_passed % 30) + 1
+        var season_num = (days_passed / 30) % 4
+        
+        match season_num:
+                0: season = "spring"
+                1: season = "summer"
+                2: season = "autumn"
+                3: season = "winter"
+        
+        year = (days_passed / 120) + 1
+        
+        if season == "winter" and randf() < 0.01:
+                if not is_event_active(GlobalEvent.HARSH_WINTER):
+                        start_event(GlobalEvent.HARSH_WINTER)
+
+func spawn_trade_caravan(from_settlement_id: int, to_settlement_id: int):
+        var ss = get_node_or_null("/root/SettlementSystem")
+        if not ss:
+                return
+        
+        var from_s = ss.get_settlement(from_settlement_id)
+        var to_s = ss.get_settlement(to_settlement_id)
+        
+        if not from_s or not to_s:
+                return
+        
+        emit_signal("caravan_spawned", from_settlement_id, to_settlement_id)
+
+func trigger_war_between(faction_a: String, faction_b: String, reason: String = "territory"):
+        var war_sys = get_node_or_null("/root/WarSystem")
+        if war_sys:
+                war_sys.declare_war(faction_a, faction_b, reason)
+                world_tension += 30
+
+func get_world_state() -> Dictionary:
+        return {
+                "state": world_state,
+                "tension": world_tension,
+                "season": season,
+                "year": year,
+                "day": day,
+                "active_events": active_events.size(),
+                "faction_wars": faction_wars.size()
+        }
+
+func get_season() -> String:
+        return season
+
+func get_year() -> int:
+        return year
+
+func get_day() -> int:
+        return day

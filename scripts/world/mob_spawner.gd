@@ -255,6 +255,10 @@ func _create_mob(mob_type: String, pos: Vector3, rng: RandomNumberGenerator) -> 
 func _create_procedural_mob(mob_type: String, rng: RandomNumberGenerator) -> Node3D:
         var mob = CharacterBody3D.new()
         mob.name = mob_type.capitalize()
+        mob.collision_layer = 4
+        mob.collision_mask = 7
+        mob.add_to_group("mobs")
+        mob.add_to_group("entities")
         
         var stats = mob_stats.get(mob_type, {"hp": 30, "damage": 5, "speed": 4.0})
         
@@ -262,7 +266,16 @@ func _create_procedural_mob(mob_type: String, rng: RandomNumberGenerator) -> Nod
         if model:
                 mob.add_child(model)
         
+        var name_label = Label3D.new()
+        name_label.name = "NameLabel"
+        name_label.pixel_size = 0.01
+        name_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+        name_label.font_size = 28
+        name_label.outline_size = 4
+        name_label.text = mob_type.capitalize()
         var size = _get_mob_collision_size(mob_type)
+        name_label.position.y = size.y + 0.5
+        mob.add_child(name_label)
         
         var col = CollisionShape3D.new()
         var col_capsule = CapsuleShape3D.new()

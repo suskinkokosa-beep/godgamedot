@@ -13,6 +13,7 @@ class_name MobAI
 @export var xp_reward := 25.0
 @export var faction := "wild"
 @export var mob_type := "mob_basic"
+@export var mob_name := ""
 @export var loot_table := "mob_basic"
 @export var is_pack_animal := false
 @export var pack_call_range := 20.0
@@ -75,6 +76,8 @@ func _ready():
         
         _setup_behavior_modifiers()
         _generate_patrol_points()
+        _generate_mob_name()
+        _update_name_label()
         
         var net = get_node_or_null("/root/Network")
         if net and net.is_server:
@@ -83,6 +86,62 @@ func _ready():
         var faction_sys = get_node_or_null("/root/FactionSystem")
         if faction_sys:
                 faction_sys.register_entity(self, faction)
+
+func _generate_mob_name():
+        if mob_name != "":
+                return
+        
+        var gm = get_node_or_null("/root/GameManager")
+        var lang = "ru"
+        if gm:
+                lang = gm.get_language()
+        
+        var names_ru := {
+                "wolf": ["Серый Клык", "Лютый", "Вожак", "Тень", "Хищник", "Волчара", "Бродяга", "Одинокий"],
+                "bear": ["Бурый", "Косолапый", "Гризли", "Топтыгин", "Михаил", "Шатун", "Берлог", "Медведко"],
+                "boar": ["Клык", "Секач", "Дикарь", "Рыжий", "Клыкастый", "Хряк", "Вепрь", "Пятак"],
+                "deer": ["Рогач", "Быстроног", "Лесной", "Олень", "Благородный", "Пугливый", "Златорог", "Бегун"],
+                "rabbit": ["Ушастик", "Пушок", "Зайка", "Шустрик", "Серенький", "Косой", "Попрыгун", "Трусишка"],
+                "spider": ["Паучок", "Восьминог", "Ткач", "Ядовитый", "Тень", "Хищник", "Охотник", "Чёрный"],
+                "snake": ["Шипящий", "Ползун", "Гадюка", "Клык", "Ядовитый", "Скользкий", "Хитрый"],
+                "scorpion": ["Жало", "Клешня", "Пустынник", "Ядовитый", "Охотник", "Ночной"],
+                "mob_basic": ["Тварь", "Существо", "Зверь", "Монстр", "Создание", "Порождение"]
+        }
+        
+        var names_en := {
+                "wolf": ["Gray Fang", "Fierce", "Alpha", "Shadow", "Hunter", "Lone Wolf", "Wanderer", "Stalker"],
+                "bear": ["Brown", "Grizzly", "Big Paw", "Thunderclaw", "Bruiser", "Forest King", "Ursus", "Kodiak"],
+                "boar": ["Tusker", "Razorback", "Wild One", "Bristle", "Charger", "Gore", "Savage", "Snout"],
+                "deer": ["Antler", "Swiftfoot", "Forest", "Stag", "Noble", "Fleet", "Golden Horn", "Runner"],
+                "rabbit": ["Flopsy", "Fluffy", "Cotton", "Speedy", "Lucky", "Thumper", "Hopper", "Nibbles"],
+                "spider": ["Spinner", "Eight-legs", "Weaver", "Venomous", "Shadow", "Hunter", "Stalker", "Black"],
+                "snake": ["Hisser", "Slither", "Viper", "Fang", "Venom", "Slinky", "Cunning"],
+                "scorpion": ["Stinger", "Pincher", "Desert", "Venomous", "Hunter", "Nightcrawler"],
+                "mob_basic": ["Creature", "Beast", "Monster", "Spawn", "Fiend", "Abomination"]
+        }
+        
+        var type_key = mob_type if mob_type in names_ru else "mob_basic"
+        var name_pool = names_ru[type_key] if lang == "ru" else names_en.get(type_key, names_en["mob_basic"])
+        
+        mob_name = name_pool[randi() % name_pool.size()]
+
+func _update_name_label():
+        var label = get_node_or_null("NameLabel")
+        if label and label is Label3D:
+                label.text = mob_name
+                
+                match behavior_type:
+                        "aggressive", "predator":
+                                label.modulate = Color(1.0, 0.3, 0.3)
+                        "neutral":
+                                label.modulate = Color(1.0, 0.8, 0.3)
+                        "passive":
+                                label.modulate = Color(0.5, 1.0, 0.5)
+                        _:
+                                label.modulate = Color(1.0, 1.0, 1.0)
+
+func get_display_name() -> String:
+        return mob_name if mob_name != "" else mob_type
 
 func _setup_behavior_modifiers():
         match behavior_type:

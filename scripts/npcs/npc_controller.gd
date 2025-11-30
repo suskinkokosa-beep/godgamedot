@@ -30,8 +30,10 @@ func _ready():
         name_label = get_node_or_null("NameLabel")
         interaction_area = get_node_or_null("InteractionArea")
         
+        _generate_proper_name()
+        
         if name_label:
-                name_label.text = npc_name
+                _update_name_label()
         
         if ai_brain:
                 ai_brain.parent_npc = self
@@ -40,6 +42,59 @@ func _ready():
         
         if interaction_area:
                 interaction_area.body_entered.connect(_on_body_entered)
+
+func _generate_proper_name():
+        if npc_name != "Гражданин" and npc_name != "Citizen":
+                return
+        
+        var gm = get_node_or_null("/root/GameManager")
+        if gm:
+                var role = "citizen"
+                if ai_brain:
+                        match ai_brain.profession:
+                                1: role = "guard"
+                                2: role = "trader"
+                                3: role = "farmer"
+                                4: role = "hunter"
+                                5: role = "builder"
+                npc_name = gm.generate_npc_name(role)
+
+func _update_name_label():
+        if not name_label:
+                return
+        
+        var profession_title := ""
+        var gm = get_node_or_null("/root/GameManager")
+        var lang = "ru"
+        if gm:
+                lang = gm.get_language()
+        
+        if ai_brain:
+                match ai_brain.profession:
+                        1: profession_title = "Стражник" if lang == "ru" else "Guard"
+                        2: profession_title = "Торговец" if lang == "ru" else "Trader"
+                        3: profession_title = "Фермер" if lang == "ru" else "Farmer"
+                        4: profession_title = "Охотник" if lang == "ru" else "Hunter"
+                        5: profession_title = "Ремесленник" if lang == "ru" else "Craftsman"
+                        _: profession_title = "Житель" if lang == "ru" else "Citizen"
+        else:
+                profession_title = "Житель" if lang == "ru" else "Citizen"
+        
+        name_label.text = npc_name
+        
+        var title_label = get_node_or_null("TitleLabel")
+        if title_label and title_label is Label3D:
+                title_label.text = profession_title
+        
+        match ai_brain.profession if ai_brain else 0:
+                1:
+                        name_label.modulate = Color(0.7, 0.7, 1.0)
+                2:
+                        name_label.modulate = Color(1.0, 0.85, 0.4)
+                3:
+                        name_label.modulate = Color(0.5, 0.9, 0.5)
+                _:
+                        name_label.modulate = Color(0.9, 0.9, 0.9)
 
 func _physics_process(delta):
         if is_dead:
@@ -180,23 +235,31 @@ func _update_appearance():
                 return
         
         var mesh = get_node_or_null("MeshInstance3D")
-        if mesh and mesh.mesh is CapsuleMesh:
-                match ai_brain.profession:
-                        1:
-                                npc_name = "Стражник"
-                        2:
-                                npc_name = "Торговец"
-                        3:
-                                npc_name = "Фермер"
-                        4:
-                                npc_name = "Охотник"
-                        5:
-                                npc_name = "Ремесленник"
-                        _:
-                                npc_name = "Гражданин"
+        var mat: StandardMaterial3D = null
         
-        if name_label:
-                name_label.text = npc_name
+        if mesh:
+                if mesh.material_override:
+                        mat = mesh.material_override
+                else:
+                        mat = StandardMaterial3D.new()
+                        mesh.material_override = mat
+        
+        match ai_brain.profession:
+                1:
+                        if mat: mat.albedo_color = Color(0.3, 0.3, 0.5)
+                2:
+                        if mat: mat.albedo_color = Color(0.6, 0.5, 0.3)
+                3:
+                        if mat: mat.albedo_color = Color(0.4, 0.5, 0.3)
+                4:
+                        if mat: mat.albedo_color = Color(0.5, 0.4, 0.3)
+                5:
+                        if mat: mat.albedo_color = Color(0.45, 0.35, 0.3)
+                _:
+                        if mat: mat.albedo_color = Color(0.5, 0.45, 0.4)
+        
+        _generate_proper_name()
+        _update_name_label()
 
 func get_display_name() -> String:
         return npc_name

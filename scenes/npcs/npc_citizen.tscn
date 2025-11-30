@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://npc_citizen_scene"]
+[gd_scene load_steps=5 format=3 uid="uid://npc_citizen_scene"]
 
-[ext_resource type="Script" path="res://scripts/npcs/npc_citizen.gd" id="1_npc"]
+[ext_resource type="Script" path="res://scripts/npcs/npc_controller.gd" id="1_npc"]
+[ext_resource type="Script" path="res://scripts/npcs/npc_ai_brain.gd" id="2_brain"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.3
@@ -10,7 +11,12 @@ height = 1.8
 radius = 0.3
 height = 1.8
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_interact"]
+radius = 3.0
+
 [node name="NPCCitizen" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 3
 script = ExtResource("1_npc")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -21,7 +27,24 @@ shape = SubResource("CapsuleShape3D_1")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 mesh = SubResource("CapsuleMesh_1")
 
+[node name="NPCAIBrain" type="Node" parent="."]
+script = ExtResource("2_brain")
+
+[node name="InteractionArea" type="Area3D" parent="."]
+collision_layer = 8
+collision_mask = 1
+
+[node name="InteractionShape" type="CollisionShape3D" parent="InteractionArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("SphereShape3D_interact")
+
 [node name="NameLabel" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+pixel_size = 0.01
 text = "Citizen"
 font_size = 24
+outline_size = 3
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 1.0

@@ -1,10 +1,11 @@
 extends CharacterBody3D
 
 @export var role := "citizen"
-@export var npc_name := "Житель"
+@export var npc_name := ""
 @export var speed := 2.5
 @export var max_health := 100
 @export var faction := "town"
+@export var gender := "male"
 
 var health: float
 var home_pos := Vector3.ZERO
@@ -16,6 +17,7 @@ var net_id := -1
 var dialogue_options := []
 var inventory := {}
 var mood := 75.0
+var profession_title := ""
 
 signal interacted(npc, player)
 signal task_completed(npc, task)
@@ -28,32 +30,148 @@ func _ready():
         add_to_group("entities")
         add_to_group("interactable")
         
+        gender = "female" if randf() < 0.5 else "male"
+        _generate_name()
         _setup_role()
         
         var faction_sys = get_node_or_null("/root/FactionSystem")
         if faction_sys:
                 faction_sys.register_entity(self, faction)
 
+func _generate_name():
+        var gm = get_node_or_null("/root/GameManager")
+        if gm:
+                npc_name = gm.generate_npc_name(role)
+        else:
+                var gen = NameGenerator.new()
+                npc_name = gen.generate_npc_name(role, "ru")
+                gen.queue_free()
+
 func _setup_role():
+        var gm = get_node_or_null("/root/GameManager")
+        var lang = "ru"
+        if gm:
+                lang = gm.get_language()
+        
         match role:
                 "farmer":
-                        npc_name = "Фермер"
-                        dialogue_options = ["Урожай в этом году хороший.", "Нужен дождь..."]
+                        profession_title = "Фермер" if lang == "ru" else "Farmer"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Урожай в этом году хороший.",
+                                        "Нужен дождь для посевов.",
+                                        "Работа в поле тяжёлая, но честная.",
+                                        "Зерно почти созрело."
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "The harvest is good this year.",
+                                        "We need rain for the crops.",
+                                        "Farm work is hard but honest.",
+                                        "The grain is almost ripe."
+                                ]
                         inventory = {"wheat": 10, "carrot": 5}
                 "guard":
-                        npc_name = "Стражник"
-                        dialogue_options = ["Стою на страже.", "В лесу видели волков."]
+                        profession_title = "Стражник" if lang == "ru" else "Guard"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Стою на страже поселения.",
+                                        "В лесу видели волков, будьте осторожны.",
+                                        "Ночью опасно выходить одному.",
+                                        "Бандиты не пройдут."
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "I guard this settlement.",
+                                        "Wolves were spotted in the forest, be careful.",
+                                        "It's dangerous to go out alone at night.",
+                                        "No bandits shall pass."
+                                ]
                         inventory = {"iron_sword": 1}
                 "trader":
-                        npc_name = "Торговец"
-                        dialogue_options = ["Лучшие товары в округе!", "Что желаете купить?"]
+                        profession_title = "Торговец" if lang == "ru" else "Trader"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Лучшие товары в округе!",
+                                        "Что желаете купить?",
+                                        "У меня есть редкие вещи.",
+                                        "Цены справедливые, поверьте."
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "Best goods in the area!",
+                                        "What would you like to buy?",
+                                        "I have rare items.",
+                                        "Fair prices, I assure you."
+                                ]
                         inventory = {"bread": 5, "bandage": 3, "torch": 10}
                 "builder":
-                        npc_name = "Строитель"
-                        dialogue_options = ["Строим новый дом.", "Нужно больше дерева."]
+                        profession_title = "Строитель" if lang == "ru" else "Builder"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Строим новый дом.",
+                                        "Нужно больше дерева и камня.",
+                                        "Работа спорится!",
+                                        "Скоро закончим постройку."
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "Building a new house.",
+                                        "We need more wood and stone.",
+                                        "Work is going well!",
+                                        "We'll finish construction soon."
+                                ]
                         inventory = {"wood": 20, "stone": 10}
+                "blacksmith":
+                        profession_title = "Кузнец" if lang == "ru" else "Blacksmith"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Моя сталь - лучшая в округе.",
+                                        "Нужен меч или топор?",
+                                        "Огонь кузни горит ярко.",
+                                        "Принеси руду - сделаю оружие."
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "My steel is the best around.",
+                                        "Need a sword or an axe?",
+                                        "The forge fire burns bright.",
+                                        "Bring ore - I'll make weapons."
+                                ]
+                        inventory = {"iron_sword": 2, "iron_axe": 1, "iron_ingot": 5}
+                "healer":
+                        profession_title = "Лекарь" if lang == "ru" else "Healer"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Я могу излечить любую рану.",
+                                        "Травы помогают от всех болезней.",
+                                        "Береги здоровье, путник.",
+                                        "Приходи, если понадобится помощь."
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "I can heal any wound.",
+                                        "Herbs help with all ailments.",
+                                        "Take care of your health, traveler.",
+                                        "Come if you need help."
+                                ]
+                        inventory = {"bandage": 10, "healing_potion": 3, "antidote": 2}
                 _:
-                        dialogue_options = ["Добрый день!", "Хорошая погода."]
+                        profession_title = "Житель" if lang == "ru" else "Citizen"
+                        if lang == "ru":
+                                dialogue_options = [
+                                        "Добрый день, путник!",
+                                        "Хорошая сегодня погода.",
+                                        "Жизнь в поселении спокойная.",
+                                        "Слышали новости с севера?"
+                                ]
+                        else:
+                                dialogue_options = [
+                                        "Good day, traveler!",
+                                        "Nice weather today.",
+                                        "Life in the settlement is peaceful.",
+                                        "Have you heard news from the north?"
+                                ]
 
 func _physics_process(delta):
         var net = get_node_or_null("/root/Network")
@@ -221,11 +339,15 @@ func interact(player):
         var dialogue = dialogue_options[randi() % dialogue_options.size()]
         return {
                 "name": npc_name,
+                "title": profession_title,
                 "role": role,
                 "dialogue": dialogue,
-                "can_trade": role == "trader",
-                "inventory": inventory if role == "trader" else {}
+                "can_trade": role in ["trader", "blacksmith", "healer"],
+                "inventory": inventory if role in ["trader", "blacksmith", "healer"] else {}
         }
+
+func get_display_name() -> String:
+        return npc_name + " (" + profession_title + ")"
 
 func apply_damage(amount: float, source: Node = null):
         health -= amount

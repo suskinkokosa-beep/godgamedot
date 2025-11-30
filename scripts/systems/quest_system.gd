@@ -574,3 +574,249 @@ func get_quests_by_category(category: String) -> Array:
                 if quests[quest_id].get("category", "") == category:
                         result.append(quests[quest_id])
         return result
+
+var dynamic_quests := {}
+var generated_quest_counter := 0
+
+var biome_quest_templates := {
+        "forest": [
+                {"name_ru": "Лесозаготовка", "name_en": "Logging", "type": "gather", "target": "wood", "base_amount": 30},
+                {"name_ru": "Охота в лесу", "name_en": "Forest Hunt", "type": "kill", "target": "wolf", "base_amount": 3},
+                {"name_ru": "Сбор грибов", "name_en": "Mushroom Gathering", "type": "gather", "target": "mushroom", "base_amount": 10}
+        ],
+        "desert": [
+                {"name_ru": "Поиск оазиса", "name_en": "Oasis Search", "type": "explore", "target": "water_source", "base_amount": 1},
+                {"name_ru": "Охота на скорпионов", "name_en": "Scorpion Hunt", "type": "kill", "target": "scorpion", "base_amount": 5},
+                {"name_ru": "Добыча песчаника", "name_en": "Sandstone Mining", "type": "gather", "target": "stone", "base_amount": 20}
+        ],
+        "tundra": [
+                {"name_ru": "Выживание в холоде", "name_en": "Cold Survival", "type": "survive", "target": "cold", "base_amount": 300},
+                {"name_ru": "Охота на медведей", "name_en": "Bear Hunt", "type": "kill", "target": "bear", "base_amount": 2},
+                {"name_ru": "Заготовка топлива", "name_en": "Fuel Gathering", "type": "gather", "target": "coal", "base_amount": 15}
+        ],
+        "mountains": [
+                {"name_ru": "Добыча руды", "name_en": "Ore Mining", "type": "gather", "target": "iron_ore", "base_amount": 20},
+                {"name_ru": "Восхождение", "name_en": "Mountain Climb", "type": "reach_height", "target": "height", "base_amount": 50},
+                {"name_ru": "Истребление горных львов", "name_en": "Mountain Lion Hunt", "type": "kill", "target": "lion", "base_amount": 3}
+        ],
+        "swamp": [
+                {"name_ru": "Болотная охота", "name_en": "Swamp Hunt", "type": "kill", "target": "boar", "base_amount": 4},
+                {"name_ru": "Сбор лекарственных трав", "name_en": "Herb Gathering", "type": "gather", "target": "herbs", "base_amount": 15},
+                {"name_ru": "Очистка болота", "name_en": "Swamp Cleansing", "type": "clear_area", "target": "swamp", "base_amount": 1}
+        ]
+}
+
+var faction_quest_templates := {
+        "traders": [
+                {"name_ru": "Торговая поставка", "name_en": "Trade Delivery", "type": "deliver", "base_amount": 1},
+                {"name_ru": "Охрана каравана", "name_en": "Caravan Guard", "type": "escort", "base_amount": 1},
+                {"name_ru": "Рыночные закупки", "name_en": "Market Purchase", "type": "trade", "base_amount": 5}
+        ],
+        "bandits": [
+                {"name_ru": "Рейд на склад", "name_en": "Warehouse Raid", "type": "raid", "base_amount": 1},
+                {"name_ru": "Ограбление", "name_en": "Robbery", "type": "steal", "base_amount": 100},
+                {"name_ru": "Засада", "name_en": "Ambush", "type": "kill", "base_amount": 5}
+        ],
+        "settlers": [
+                {"name_ru": "Строительство укреплений", "name_en": "Fortification", "type": "build", "base_amount": 5},
+                {"name_ru": "Обеспечение продовольствием", "name_en": "Food Supply", "type": "deliver", "base_amount": 1},
+                {"name_ru": "Набор поселенцев", "name_en": "Settler Recruitment", "type": "recruit", "base_amount": 3}
+        ],
+        "military": [
+                {"name_ru": "Патрулирование", "name_en": "Patrol", "type": "patrol", "base_amount": 1},
+                {"name_ru": "Истребление угрозы", "name_en": "Threat Elimination", "type": "kill", "base_amount": 10},
+                {"name_ru": "Оборона позиции", "name_en": "Position Defense", "type": "defend", "base_amount": 1}
+        ]
+}
+
+var event_quest_templates := [
+        {"id": "blood_moon", "name_ru": "Кровавая луна", "name_en": "Blood Moon", "type": "survive_event", "difficulty": 3},
+        {"id": "invasion", "name_ru": "Вторжение", "name_en": "Invasion", "type": "defend_settlement", "difficulty": 4},
+        {"id": "treasure_hunt", "name_ru": "Охота за сокровищами", "name_en": "Treasure Hunt", "type": "find_treasure", "difficulty": 2},
+        {"id": "rare_spawn", "name_ru": "Редкий зверь", "name_en": "Rare Beast", "type": "hunt_rare", "difficulty": 3},
+        {"id": "meteor_shower", "name_ru": "Метеоритный дождь", "name_en": "Meteor Shower", "type": "collect_meteors", "difficulty": 2}
+]
+
+func generate_biome_quest(player_id: int, biome: String, difficulty: int = 1) -> String:
+        if not biome_quest_templates.has(biome):
+                biome = "forest"
+        
+        if _has_active_biome_quest(player_id, biome):
+                return ""
+        
+        var templates = biome_quest_templates[biome]
+        var template = templates[randi() % templates.size()]
+        
+        generated_quest_counter += 1
+        var timestamp = int(Time.get_unix_time_from_system())
+        var quest_id = "dynamic_biome_%d_%d_%d" % [player_id, generated_quest_counter, timestamp]
+        
+        var amount = int(template["base_amount"] * (1.0 + difficulty * 0.5))
+        var xp_reward = 50 * difficulty + randi() % 50
+        
+        var quest_data = {
+                "id": quest_id,
+                "name": template["name_ru"],
+                "name_en": template["name_en"],
+                "description": "Динамический квест в биоме: " + biome,
+                "description_en": "Dynamic quest in biome: " + biome,
+                "category": "exploration",
+                "is_dynamic": true,
+                "difficulty": difficulty,
+                "biome": biome,
+                "objectives": [
+                        {"id": "main_obj", "type": template["type"], "target": template["target"], "amount": amount, "current": 0}
+                ],
+                "rewards": {"xp": xp_reward},
+                "expires_in": 3600,
+                "created_at": timestamp
+        }
+        
+        dynamic_quests[quest_id] = quest_data.duplicate(true)
+        _register_dynamic_quest(quest_id, quest_data.duplicate(true))
+        start_quest(player_id, quest_id)
+        
+        return quest_id
+
+func _has_active_biome_quest(player_id: int, biome: String) -> bool:
+        if not active_quests.has(player_id):
+                return false
+        for quest_id in active_quests[player_id].keys():
+                var quest = active_quests[player_id][quest_id]
+                if quest.get("is_dynamic", false) and quest.get("biome", "") == biome:
+                        return true
+        return false
+
+func _register_dynamic_quest(quest_id: String, data: Dictionary):
+        if quests.has(quest_id):
+                return
+        quests[quest_id] = data.duplicate(true)
+
+func generate_faction_quest(player_id: int, faction: String, reputation: int = 0) -> String:
+        if not faction_quest_templates.has(faction):
+                return ""
+        
+        if _has_active_faction_quest(player_id, faction):
+                return ""
+        
+        var templates = faction_quest_templates[faction]
+        var template = templates[randi() % templates.size()]
+        
+        generated_quest_counter += 1
+        var timestamp = int(Time.get_unix_time_from_system())
+        var quest_id = "dynamic_faction_%d_%d_%d" % [player_id, generated_quest_counter, timestamp]
+        
+        var difficulty = 1 + int(abs(reputation) / 25)
+        var amount = int(template["base_amount"] * (1.0 + difficulty * 0.3))
+        var xp_reward = 75 * difficulty
+        var rep_reward = 10 + difficulty * 5
+        
+        var quest_data = {
+                "id": quest_id,
+                "name": template["name_ru"],
+                "name_en": template["name_en"],
+                "description": "Задание от фракции: " + faction,
+                "description_en": "Quest from faction: " + faction,
+                "category": "side",
+                "is_dynamic": true,
+                "faction": faction,
+                "difficulty": difficulty,
+                "objectives": [
+                        {"id": "faction_obj", "type": template["type"], "target": "any", "amount": amount, "current": 0}
+                ],
+                "rewards": {"xp": xp_reward, "reputation": {faction: rep_reward}},
+                "expires_in": 7200,
+                "created_at": timestamp
+        }
+        
+        dynamic_quests[quest_id] = quest_data.duplicate(true)
+        _register_dynamic_quest(quest_id, quest_data.duplicate(true))
+        
+        return quest_id
+
+func _has_active_faction_quest(player_id: int, faction: String) -> bool:
+        if not active_quests.has(player_id):
+                return false
+        for quest_id in active_quests[player_id].keys():
+                var quest = active_quests[player_id][quest_id]
+                if quest.get("is_dynamic", false) and quest.get("faction", "") == faction:
+                        return true
+        return false
+
+func generate_event_quest(event_type: String) -> String:
+        if _has_active_event_quest(event_type):
+                return ""
+        
+        var template = null
+        for t in event_quest_templates:
+                if t["id"] == event_type:
+                        template = t
+                        break
+        
+        if template == null:
+                template = event_quest_templates[randi() % event_quest_templates.size()]
+        
+        generated_quest_counter += 1
+        var timestamp = int(Time.get_unix_time_from_system())
+        var quest_id = "event_%s_%d_%d" % [event_type, generated_quest_counter, timestamp]
+        
+        var difficulty = template["difficulty"]
+        var xp_reward = 100 * difficulty
+        
+        var quest_data = {
+                "id": quest_id,
+                "name": template["name_ru"],
+                "name_en": template["name_en"],
+                "description": "Особое мировое событие!",
+                "description_en": "Special world event!",
+                "category": "challenge",
+                "is_dynamic": true,
+                "is_event": true,
+                "event_type": event_type,
+                "difficulty": difficulty,
+                "objectives": [
+                        {"id": "event_obj", "type": template["type"], "target": event_type, "amount": 1, "current": 0}
+                ],
+                "rewards": {"xp": xp_reward, "items": {"gold_ingot": difficulty}},
+                "expires_in": 1800,
+                "created_at": timestamp
+        }
+        
+        dynamic_quests[quest_id] = quest_data.duplicate(true)
+        _register_dynamic_quest(quest_id, quest_data.duplicate(true))
+        
+        for player_id in active_quests.keys():
+                start_quest(player_id, quest_id)
+        
+        return quest_id
+
+func _has_active_event_quest(event_type: String) -> bool:
+        for quest_id in dynamic_quests.keys():
+                var quest = dynamic_quests[quest_id]
+                if quest.get("is_event", false) and quest.get("event_type", "") == event_type:
+                        return true
+        return false
+
+func get_dynamic_quests_for_player(player_id: int) -> Array:
+        var result := []
+        for quest_id in dynamic_quests.keys():
+                if active_quests.has(player_id) and active_quests[player_id].has(quest_id):
+                        result.append(dynamic_quests[quest_id])
+        return result
+
+func cleanup_expired_quests():
+        var current_time = Time.get_unix_time_from_system()
+        var to_remove := []
+        
+        for quest_id in dynamic_quests.keys():
+                var quest = dynamic_quests[quest_id]
+                if quest.has("created_at") and quest.has("expires_in"):
+                        if current_time - quest["created_at"] > quest["expires_in"]:
+                                to_remove.append(quest_id)
+        
+        for quest_id in to_remove:
+                for player_id in active_quests.keys():
+                        if active_quests[player_id].has(quest_id):
+                                fail_quest(player_id, quest_id)
+                dynamic_quests.erase(quest_id)
+                quests.erase(quest_id)

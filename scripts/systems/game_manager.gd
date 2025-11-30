@@ -17,12 +17,7 @@ var player_character := {
         "eye_color": Color(0.4, 0.3, 0.2)
 }
 
-var name_generator: NameGenerator = null
-
 func _ready():
-        name_generator = NameGenerator.new()
-        add_child(name_generator)
-        
         var lang_path = "user://selected_lang.txt"
         if FileAccess.file_exists(lang_path):
                 var txt = FileAccess.open(lang_path, FileAccess.READ)
@@ -120,9 +115,7 @@ func _load_character():
                         file.close()
 
 func generate_npc_name(role: String = "citizen") -> String:
-        if name_generator:
-                return name_generator.generate_npc_name(role, language)
-        return "Unknown"
+        return NameGenerator.generate_npc_name(role, language)
 
 func has_character_created() -> bool:
         return player_character.get("nickname", "") != "" and player_character.get("nickname", "") != "Survivor"

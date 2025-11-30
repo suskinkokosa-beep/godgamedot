@@ -216,9 +216,9 @@ var nature_models := {
 }
 
 var creature_models := {
-        "bear": {"path": ART_PACK_PATH + "models/animals/bear.obj", "type": "creature", "category": "predator", "scale": Vector3(1.0, 1.0, 1.0)},
-        "boar": {"path": ART_PACK_PATH + "models/animals/boar.obj", "type": "creature", "category": "prey", "scale": Vector3(1.0, 1.0, 1.0)},
-        "wolf": {"path": ART_PACK_PATH + "models/animals/wolf.obj", "type": "creature", "category": "predator", "scale": Vector3(1.0, 1.0, 1.0)}
+        "bear": {"path": "", "type": "creature", "category": "predator", "scale": Vector3(1.5, 1.5, 1.5), "use_placeholder": true, "color": Color(0.4, 0.25, 0.15)},
+        "boar": {"path": "", "type": "creature", "category": "prey", "scale": Vector3(1.0, 1.0, 1.0), "use_placeholder": true, "color": Color(0.5, 0.35, 0.25)},
+        "wolf": {"path": "", "type": "creature", "category": "predator", "scale": Vector3(1.0, 1.0, 1.0), "use_placeholder": true, "color": Color(0.5, 0.5, 0.55)}
 }
 
 var weapon_models := {
@@ -247,11 +247,33 @@ func load_model(model_id: String, model_type: String = "character") -> Node3D:
         var model_dict := _get_model_dict(model_type)
         
         if not model_dict.has(model_id):
+                if RuntimeResourceLoader and RuntimeResourceLoader.has_model(model_id):
+                        var instance = RuntimeResourceLoader.load_model_runtime(model_id)
+                        if instance:
+                                emit_signal("model_loaded", model_id, instance)
+                                return instance
                 emit_signal("model_load_failed", model_id, "Model not found: " + model_id)
-                return null
+                return _create_fallback_model(model_id)
         
         var model_data = model_dict[model_id]
-        var path = model_data.path
+        
+        if model_data.get("use_placeholder", false):
+                var color = model_data.get("color", Color(0.5, 0.5, 0.5))
+                var instance = _create_colored_placeholder(model_id, color)
+                _apply_model_settings(instance, model_data)
+                emit_signal("model_loaded", model_id, instance)
+                return instance
+        
+        var path = model_data.get("path", "")
+        
+        if path.is_empty() or not FileAccess.file_exists(path):
+                if RuntimeResourceLoader and RuntimeResourceLoader.has_model(model_id):
+                        var instance = RuntimeResourceLoader.load_model_runtime(model_id)
+                        if instance:
+                                _apply_model_settings(instance, model_data)
+                                emit_signal("model_loaded", model_id, instance)
+                                return instance
+                return _create_fallback_model(model_id)
         
         if model_cache.has(path):
                 var cached = model_cache[path]
@@ -264,8 +286,13 @@ func load_model(model_id: String, model_type: String = "character") -> Node3D:
         
         var resource = load(path)
         if not resource:
+                if RuntimeResourceLoader and RuntimeResourceLoader.has_model(model_id):
+                        var instance = RuntimeResourceLoader.load_model_runtime(model_id)
+                        if instance:
+                                emit_signal("model_loaded", model_id, instance)
+                                return instance
                 emit_signal("model_load_failed", model_id, "Failed to load: " + path)
-                return null
+                return _create_fallback_model(model_id)
         
         model_cache[path] = resource
         
@@ -273,11 +300,45 @@ func load_model(model_id: String, model_type: String = "character") -> Node3D:
         
         if not instance:
                 emit_signal("model_load_failed", model_id, "Failed to instantiate: " + path)
-                return null
+                return _create_fallback_model(model_id)
         
         _apply_model_settings(instance, model_data)
         emit_signal("model_loaded", model_id, instance)
         return instance
+
+func _create_colored_placeholder(model_id: String, color: Color) -> Node3D:
+        var node = Node3D.new()
+        node.name = model_id
+        
+        var mesh_instance = MeshInstance3D.new()
+        var capsule = CapsuleMesh.new()
+        capsule.radius = 0.4
+        capsule.height = 1.0
+        mesh_instance.mesh = capsule
+        
+        var material = StandardMaterial3D.new()
+        material.albedo_color = color
+        mesh_instance.material_override = material
+        
+        node.add_child(mesh_instance)
+        return node
+
+func _create_fallback_model(model_id: String) -> Node3D:
+        var node = Node3D.new()
+        node.name = model_id + "_fallback"
+        
+        var mesh_instance = MeshInstance3D.new()
+        var box = BoxMesh.new()
+        box.size = Vector3(0.5, 0.5, 0.5)
+        mesh_instance.mesh = box
+        
+        var material = StandardMaterial3D.new()
+        material.albedo_color = Color(0.8, 0.4, 0.1, 0.8)
+        material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+        mesh_instance.material_override = material
+        
+        node.add_child(mesh_instance)
+        return node
 
 func _create_instance_from_resource(resource) -> Node3D:
         if resource is PackedScene:

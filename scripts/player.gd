@@ -140,6 +140,7 @@ func _physics_process(delta):
                 spawn_grace_timer -= delta
         
         _process_survival(delta)
+        _update_interact_prompt()
         
         var input_dir = Vector3.ZERO
         
@@ -429,8 +430,76 @@ func interact():
                 var obj = result.collider
                 if obj and obj.has_method("gather"):
                         obj.gather(self)
+                elif obj and obj.has_method("interact"):
+                        obj.interact(self)
                 elif obj and obj.has_method("on_interact"):
                         obj.on_interact(self)
+        else:
+                _check_nearby_npcs()
+
+func _check_nearby_npcs():
+        var npcs = get_tree().get_nodes_in_group("npcs")
+        var closest_npc = null
+        var closest_dist = 4.0
+        
+        for npc in npcs:
+                if npc is Node3D:
+                        var dist = global_position.distance_to(npc.global_position)
+                        if dist < closest_dist:
+                                closest_dist = dist
+                                closest_npc = npc
+        
+        if closest_npc and closest_npc.has_method("interact"):
+                closest_npc.interact(self)
+
+func _update_interact_prompt():
+        var hud = get_node_or_null("/root/GameWorld/CanvasLayer/HUD")
+        if not hud:
+                return
+        
+        var interactable = _get_interactable_target()
+        
+        if interactable:
+                var prompt_text = "[E] Взаимодействовать"
+                
+                if interactable.is_in_group("npcs"):
+                        var npc_name = ""
+                        if interactable.has_method("get") and interactable.get("npc_name"):
+                                npc_name = interactable.npc_name
+                        prompt_text = "[E] Поговорить" + (" с " + npc_name if not npc_name.is_empty() else "")
+                elif interactable.has_method("gather"):
+                        prompt_text = "[E] Собрать"
+                
+                if hud.has_method("show_interact_prompt"):
+                        hud.show_interact_prompt(prompt_text)
+        else:
+                if hud.has_method("hide_interact_prompt"):
+                        hud.hide_interact_prompt()
+
+func _get_interactable_target() -> Node:
+        if not camera:
+                return null
+        
+        var from = camera.global_position
+        var to = from - camera.global_basis.z * 4.0
+        var space = get_world_3d().direct_space_state
+        var query = PhysicsRayQueryParameters3D.create(from, to)
+        query.exclude = [self]
+        var result = space.intersect_ray(query)
+        
+        if result:
+                var obj = result.collider
+                if obj and (obj.has_method("interact") or obj.has_method("gather") or obj.has_method("on_interact")):
+                        return obj
+        
+        var npcs = get_tree().get_nodes_in_group("npcs")
+        for npc in npcs:
+                if npc is Node3D:
+                        var dist = global_position.distance_to(npc.global_position)
+                        if dist < 3.5:
+                                return npc
+        
+        return null
 
 func apply_damage(amount: float, source):
         health -= amount

@@ -20,6 +20,9 @@ var nav_agent: NavigationAgent3D
 var name_label: Label3D
 var interaction_area: Area3D
 
+var npc_model: Node3D = null
+var use_3d_model := true
+
 func _ready():
         health = max_health
         add_to_group("npcs")
@@ -32,6 +35,9 @@ func _ready():
         
         _generate_proper_name()
         
+        if use_3d_model:
+                call_deferred("_load_3d_model")
+        
         if name_label:
                 _update_name_label()
         
@@ -42,6 +48,38 @@ func _ready():
         
         if interaction_area:
                 interaction_area.body_entered.connect(_on_body_entered)
+
+func _load_3d_model():
+        var model_paths := [
+                "res://assets/art_pack2/Characters/Base Characters/Godot/Superhero_Male.gltf",
+                "res://assets/art_pack2/Characters/Base Characters/Godot/Superhero_Female.gltf"
+        ]
+        
+        var model_path = model_paths[randi() % 2]
+        
+        if not ResourceLoader.exists(model_path):
+                return
+        
+        var gltf_doc = GLTFDocument.new()
+        var gltf_state = GLTFState.new()
+        
+        var err = gltf_doc.append_from_file(model_path, gltf_state)
+        if err != OK:
+                return
+        
+        npc_model = gltf_doc.generate_scene(gltf_state)
+        if not npc_model:
+                return
+        
+        var old_mesh = get_node_or_null("MeshInstance3D")
+        if old_mesh:
+                old_mesh.visible = false
+        
+        add_child(npc_model)
+        npc_model.scale = Vector3(0.9, 0.9, 0.9)
+        npc_model.position = Vector3(0, 0, 0)
+        
+        _apply_profession_colors()
 
 func _generate_proper_name():
         if npc_name != "Гражданин" and npc_name != "Citizen":
@@ -154,7 +192,7 @@ func _start_dialogue(player):
         
         if dialogue_sys:
                 var dialogue_id = _get_dialogue_id()
-                dialogue_sys.start_dialogue(dialogue_id, self, player)
+                dialogue_sys.start_dialogue(self, dialogue_id)
         else:
                 _say_random_greeting()
 
@@ -162,14 +200,14 @@ func _get_dialogue_id() -> String:
         if ai_brain:
                 match ai_brain.profession:
                         1:
-                                return "guard_dialogue"
+                                return "guard_greeting"
                         2:
-                                return "trader_dialogue"
+                                return "trader_greeting"
                         3:
-                                return "farmer_dialogue"
+                                return "farmer_greeting"
                         4:
-                                return "hunter_dialogue"
-        return "citizen_dialogue"
+                                return "hunter_greeting"
+        return "citizen_greeting"
 
 func _say_random_greeting():
         var greetings = [
@@ -230,33 +268,82 @@ func set_profession(profession: int):
                 ai_brain.profession = profession
                 _update_appearance()
 
+func _apply_profession_colors():
+        if not npc_model or not ai_brain:
+                return
+        
+        var clothing_color := Color(0.5, 0.45, 0.4)
+        
+        match ai_brain.profession:
+                1:
+                        clothing_color = Color(0.4, 0.5, 0.8)
+                2:
+                        clothing_color = Color(0.8, 0.7, 0.4)
+                3:
+                        clothing_color = Color(0.5, 0.7, 0.4)
+                4:
+                        clothing_color = Color(0.6, 0.5, 0.4)
+                5:
+                        clothing_color = Color(0.6, 0.45, 0.35)
+        
+        _tint_clothing_meshes(npc_model, clothing_color)
+
+func _tint_clothing_meshes(node: Node, tint_color: Color):
+        if node is MeshInstance3D:
+                var mesh_name = node.name.to_lower()
+                var is_skin = "skin" in mesh_name or "head" in mesh_name or "face" in mesh_name or "hand" in mesh_name
+                
+                if not is_skin:
+                        var surface_count = node.get_surface_override_material_count()
+                        if surface_count > 0:
+                                for i in range(surface_count):
+                                        var existing_mat = node.get_surface_override_material(i)
+                                        if existing_mat == null:
+                                                existing_mat = node.mesh.surface_get_material(i) if node.mesh else null
+                                        
+                                        if existing_mat and existing_mat is StandardMaterial3D:
+                                                var new_mat = existing_mat.duplicate()
+                                                new_mat.albedo_color = new_mat.albedo_color.lerp(tint_color, 0.4)
+                                                node.set_surface_override_material(i, new_mat)
+                                        else:
+                                                var tint_mat = StandardMaterial3D.new()
+                                                tint_mat.albedo_color = tint_color
+                                                tint_mat.roughness = 0.7
+                                                node.set_surface_override_material(i, tint_mat)
+        
+        for child in node.get_children():
+                _tint_clothing_meshes(child, tint_color)
+
 func _update_appearance():
         if not ai_brain:
                 return
         
-        var mesh = get_node_or_null("MeshInstance3D")
-        var mat: StandardMaterial3D = null
-        
-        if mesh:
-                if mesh.material_override:
-                        mat = mesh.material_override
-                else:
-                        mat = StandardMaterial3D.new()
-                        mesh.material_override = mat
-        
-        match ai_brain.profession:
-                1:
-                        if mat: mat.albedo_color = Color(0.3, 0.3, 0.5)
-                2:
-                        if mat: mat.albedo_color = Color(0.6, 0.5, 0.3)
-                3:
-                        if mat: mat.albedo_color = Color(0.4, 0.5, 0.3)
-                4:
-                        if mat: mat.albedo_color = Color(0.5, 0.4, 0.3)
-                5:
-                        if mat: mat.albedo_color = Color(0.45, 0.35, 0.3)
-                _:
-                        if mat: mat.albedo_color = Color(0.5, 0.45, 0.4)
+        if npc_model:
+                _apply_profession_colors()
+        else:
+                var mesh = get_node_or_null("MeshInstance3D")
+                var mat: StandardMaterial3D = null
+                
+                if mesh:
+                        if mesh.material_override:
+                                mat = mesh.material_override
+                        else:
+                                mat = StandardMaterial3D.new()
+                                mesh.material_override = mat
+                
+                match ai_brain.profession:
+                        1:
+                                if mat: mat.albedo_color = Color(0.3, 0.3, 0.5)
+                        2:
+                                if mat: mat.albedo_color = Color(0.6, 0.5, 0.3)
+                        3:
+                                if mat: mat.albedo_color = Color(0.4, 0.5, 0.3)
+                        4:
+                                if mat: mat.albedo_color = Color(0.5, 0.4, 0.3)
+                        5:
+                                if mat: mat.albedo_color = Color(0.45, 0.35, 0.3)
+                        _:
+                                if mat: mat.albedo_color = Color(0.5, 0.45, 0.4)
         
         _generate_proper_name()
         _update_name_label()

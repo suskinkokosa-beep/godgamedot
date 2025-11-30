@@ -304,6 +304,11 @@ func _connect_checkboxes():
 
 func _load_current_settings():
         if not settings_manager:
+                _load_default_settings()
+                return
+        
+        if not settings_manager.settings.has("graphics") or not settings_manager.settings.has("controls") or not settings_manager.settings.has("audio"):
+                _load_default_settings()
                 return
         
         var gfx = settings_manager.settings["graphics"]
@@ -514,3 +519,62 @@ func _on_back_pressed():
                         main_buttons.visible = true
         
         queue_free()
+
+func _load_default_settings():
+        if quality_dropdown:
+                quality_dropdown.select(1)
+        
+        if resolution_slider:
+                resolution_slider.value = 1.0
+                _update_resolution_label(1.0)
+        
+        if vsync_check:
+                vsync_check.button_pressed = true
+        
+        if fps_dropdown:
+                fps_dropdown.select(1)
+        
+        if shadows_check:
+                shadows_check.button_pressed = true
+        
+        if shadow_quality_dropdown:
+                shadow_quality_dropdown.select(1)
+        
+        if bloom_check:
+                bloom_check.button_pressed = true
+        
+        if fog_check:
+                fog_check.button_pressed = true
+        
+        if aa_dropdown:
+                aa_dropdown.select(1)
+        
+        if view_distance_slider:
+                view_distance_slider.value = 100
+                _update_view_distance_label(100)
+        
+        if sensitivity_slider:
+                sensitivity_slider.value = 0.06
+                _update_sensitivity_label(0.06)
+        
+        if fov_slider:
+                fov_slider.value = 70
+                _update_fov_label(70)
+        
+        if invert_y_check:
+                invert_y_check.button_pressed = false
+        
+        if master_slider:
+                master_slider.value = 1.0
+                _update_master_label(1.0)
+        
+        if music_slider:
+                music_slider.value = 0.7
+                _update_music_label(0.7)
+        
+        if sfx_slider:
+                sfx_slider.value = 1.0
+                _update_sfx_label(1.0)
+        
+        if performance_label:
+                performance_label.text = "Хорошо для средних ПК"

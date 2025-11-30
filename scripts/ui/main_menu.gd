@@ -23,75 +23,165 @@ func _ready():
         _animate_menu_entrance()
 
 func _apply_rust_theme():
-        var bg = ColorRect.new()
-        bg.name = "BackgroundOverlay"
-        bg.color = Color(0.08, 0.06, 0.05, 0.95)
-        bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-        bg.z_index = -10
-        add_child(bg)
-        move_child(bg, 0)
+        _create_animated_background()
+        _create_decorative_elements()
         
-        var title_label = get_node_or_null("VBoxContainer/TitleLabel")
-        if not title_label:
-                title_label = Label.new()
-                title_label.name = "TitleLabel"
+        var title_label = get_node_or_null("VBoxContainer/Title")
+        if title_label:
                 title_label.text = "EPOCH SETTLEMENTS"
-                title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-                title_label.add_theme_font_size_override("font_size", 48)
-                title_label.add_theme_color_override("font_color", Color(0.9, 0.7, 0.4))
-                title_label.add_theme_color_override("font_shadow_color", Color(0.2, 0.1, 0.05, 0.8))
-                title_label.add_theme_constant_override("shadow_offset_x", 3)
-                title_label.add_theme_constant_override("shadow_offset_y", 3)
-                main_buttons.add_child(title_label)
-                main_buttons.move_child(title_label, 0)
+                title_label.add_theme_font_size_override("font_size", 64)
+                title_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.5))
+                title_label.add_theme_color_override("font_shadow_color", Color(0.3, 0.15, 0.05, 0.9))
+                title_label.add_theme_constant_override("shadow_offset_x", 4)
+                title_label.add_theme_constant_override("shadow_offset_y", 4)
         
-        var subtitle = Label.new()
-        subtitle.name = "SubtitleLabel"
-        subtitle.text = "Alpha v0.1"
-        subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-        subtitle.add_theme_font_size_override("font_size", 16)
-        subtitle.add_theme_color_override("font_color", Color(0.6, 0.5, 0.4))
-        main_buttons.add_child(subtitle)
-        main_buttons.move_child(subtitle, 1)
-        
-        var spacer = Control.new()
-        spacer.custom_minimum_size = Vector2(0, 40)
-        main_buttons.add_child(spacer)
-        main_buttons.move_child(spacer, 2)
+        var subtitle = get_node_or_null("VBoxContainer/Subtitle")
+        if subtitle:
+                subtitle.text = "Survival Settlement Builder"
+                subtitle.add_theme_font_size_override("font_size", 20)
+                subtitle.add_theme_color_override("font_color", Color(0.7, 0.6, 0.5))
         
         _style_buttons()
+        _add_version_label()
+
+func _create_animated_background():
+        var bg = get_node_or_null("Background")
+        if bg:
+                bg.color = Color(0.02, 0.015, 0.01, 1.0)
+        
+        var gradient_overlay = ColorRect.new()
+        gradient_overlay.name = "GradientOverlay"
+        gradient_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+        gradient_overlay.color = Color(0.1, 0.06, 0.03, 0.6)
+        gradient_overlay.z_index = -9
+        add_child(gradient_overlay)
+        move_child(gradient_overlay, 1)
+        
+        var vignette = ColorRect.new()
+        vignette.name = "Vignette"
+        vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+        vignette.z_index = -8
+        
+        var shader_code = """
+shader_type canvas_item;
+void fragment() {
+        vec2 uv = UV - 0.5;
+        float dist = length(uv);
+        float vignette = 1.0 - smoothstep(0.3, 0.8, dist);
+        COLOR = vec4(0.0, 0.0, 0.0, 1.0 - vignette * 0.7);
+}
+"""
+        var shader = Shader.new()
+        shader.code = shader_code
+        var shader_mat = ShaderMaterial.new()
+        shader_mat.shader = shader
+        vignette.material = shader_mat
+        add_child(vignette)
+        move_child(vignette, 2)
+
+func _create_decorative_elements():
+        var particles_container = Control.new()
+        particles_container.name = "ParticlesContainer"
+        particles_container.set_anchors_preset(Control.PRESET_FULL_RECT)
+        particles_container.z_index = -7
+        particles_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        add_child(particles_container)
+        move_child(particles_container, 3)
+        
+        for i in range(30):
+                var particle = ColorRect.new()
+                particle.size = Vector2(randf_range(2, 6), randf_range(2, 6))
+                particle.position = Vector2(randf_range(0, 1280), randf_range(0, 720))
+                particle.color = Color(1.0, 0.7, 0.3, randf_range(0.1, 0.4))
+                particle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+                particles_container.add_child(particle)
+                
+                var tween = create_tween().set_loops()
+                tween.tween_property(particle, "position:y", particle.position.y - randf_range(50, 150), randf_range(3, 8))
+                tween.tween_property(particle, "modulate:a", 0.0, 1.0)
+                tween.tween_callback(func(): 
+                        particle.position.y = randf_range(720, 800)
+                        particle.modulate.a = 1.0
+                )
+        
+        var border_left = ColorRect.new()
+        border_left.name = "BorderLeft"
+        border_left.size = Vector2(4, 720)
+        border_left.position = Vector2(50, 0)
+        border_left.color = Color(0.6, 0.4, 0.2, 0.3)
+        border_left.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        add_child(border_left)
+        
+        var border_right = ColorRect.new()
+        border_right.name = "BorderRight"
+        border_right.size = Vector2(4, 720)
+        border_right.position = Vector2(1230, 0)
+        border_right.color = Color(0.6, 0.4, 0.2, 0.3)
+        border_right.mouse_filter = Control.MOUSE_FILTER_IGNORE
+        add_child(border_right)
+
+func _add_version_label():
+        var existing = get_node_or_null("VersionLabel")
+        if existing:
+                return
+        
+        var version = Label.new()
+        version.name = "VersionLabel"
+        version.text = "v0.1.0 Alpha"
+        version.add_theme_font_size_override("font_size", 14)
+        version.add_theme_color_override("font_color", Color(0.5, 0.4, 0.3, 0.7))
+        version.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+        version.position = Vector2(-120, -30)
+        add_child(version)
 
 func _style_buttons():
         var button_style = StyleBoxFlat.new()
-        button_style.bg_color = Color(0.2, 0.15, 0.1, 0.9)
-        button_style.border_color = Color(0.5, 0.35, 0.2)
-        button_style.set_border_width_all(2)
-        button_style.set_corner_radius_all(4)
-        button_style.set_content_margin_all(12)
+        button_style.bg_color = Color(0.12, 0.08, 0.05, 0.95)
+        button_style.border_color = Color(0.6, 0.45, 0.25)
+        button_style.set_border_width_all(3)
+        button_style.set_corner_radius_all(8)
+        button_style.set_content_margin_all(16)
+        button_style.shadow_color = Color(0, 0, 0, 0.5)
+        button_style.shadow_size = 4
+        button_style.shadow_offset = Vector2(2, 2)
         
         var hover_style = StyleBoxFlat.new()
-        hover_style.bg_color = Color(0.3, 0.2, 0.15, 0.95)
-        hover_style.border_color = Color(0.7, 0.5, 0.3)
-        hover_style.set_border_width_all(2)
-        hover_style.set_corner_radius_all(4)
-        hover_style.set_content_margin_all(12)
+        hover_style.bg_color = Color(0.2, 0.14, 0.08, 0.98)
+        hover_style.border_color = Color(1.0, 0.75, 0.4)
+        hover_style.set_border_width_all(3)
+        hover_style.set_corner_radius_all(8)
+        hover_style.set_content_margin_all(16)
+        hover_style.shadow_color = Color(1.0, 0.6, 0.2, 0.3)
+        hover_style.shadow_size = 8
+        hover_style.shadow_offset = Vector2(0, 0)
         
         var pressed_style = StyleBoxFlat.new()
-        pressed_style.bg_color = Color(0.15, 0.1, 0.08, 0.95)
-        pressed_style.border_color = Color(0.4, 0.3, 0.2)
-        pressed_style.set_border_width_all(2)
-        pressed_style.set_corner_radius_all(4)
-        pressed_style.set_content_margin_all(12)
+        pressed_style.bg_color = Color(0.08, 0.05, 0.03, 0.98)
+        pressed_style.border_color = Color(0.5, 0.35, 0.2)
+        pressed_style.set_border_width_all(3)
+        pressed_style.set_corner_radius_all(8)
+        pressed_style.set_content_margin_all(16)
         
         for button in main_buttons.get_children():
                 if button is Button:
-                        button.add_theme_stylebox_override("normal", button_style)
-                        button.add_theme_stylebox_override("hover", hover_style)
-                        button.add_theme_stylebox_override("pressed", pressed_style)
-                        button.add_theme_color_override("font_color", Color(0.9, 0.85, 0.75))
-                        button.add_theme_color_override("font_hover_color", Color(1.0, 0.9, 0.7))
-                        button.add_theme_font_size_override("font_size", 20)
-                        button.custom_minimum_size = Vector2(250, 50)
+                        button.add_theme_stylebox_override("normal", button_style.duplicate())
+                        button.add_theme_stylebox_override("hover", hover_style.duplicate())
+                        button.add_theme_stylebox_override("pressed", pressed_style.duplicate())
+                        button.add_theme_color_override("font_color", Color(0.95, 0.88, 0.75))
+                        button.add_theme_color_override("font_hover_color", Color(1.0, 0.95, 0.8))
+                        button.add_theme_font_size_override("font_size", 22)
+                        button.custom_minimum_size = Vector2(280, 55)
+                        
+                        button.mouse_entered.connect(_on_button_hover.bind(button))
+                        button.mouse_exited.connect(_on_button_unhover.bind(button))
+
+func _on_button_hover(button: Button):
+        var tween = create_tween()
+        tween.tween_property(button, "scale", Vector2(1.05, 1.05), 0.15).set_ease(Tween.EASE_OUT)
+
+func _on_button_unhover(button: Button):
+        var tween = create_tween()
+        tween.tween_property(button, "scale", Vector2(1.0, 1.0), 0.15).set_ease(Tween.EASE_OUT)
 
 var original_positions := {}
 

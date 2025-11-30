@@ -1,369 +1,137 @@
 extends Node
 class_name TreeGenerator
 
-static var tree_materials := {}
-static var bark_material: StandardMaterial3D = null
-static var leaves_material: StandardMaterial3D = null
+const NATURE_PATH := "res://assets/art_pack2/Stylized Nature MEGAKIT/glTF/"
 
-static func create_tree(tree_type: String, lod_level: int = 0) -> Node3D:
+static var loaded_models := {}
+static var gltf_document: GLTFDocument = null
+static var gltf_state: GLTFState = null
+
+static var tree_mappings := {
+	"oak": ["CommonTree_1.gltf", "CommonTree_2.gltf", "CommonTree_3.gltf"],
+	"birch": ["CommonTree_4.gltf", "CommonTree_5.gltf"],
+	"pine": ["Pine_1.gltf", "Pine_2.gltf", "Pine_3.gltf", "Pine_4.gltf", "Pine_5.gltf"],
+	"spruce": ["Pine_1.gltf", "Pine_3.gltf", "Pine_5.gltf"],
+	"willow": ["TwistedTree_1.gltf", "TwistedTree_2.gltf", "TwistedTree_3.gltf"],
+	"maple": ["CommonTree_1.gltf", "CommonTree_3.gltf", "CommonTree_5.gltf"],
+	"acacia": ["TwistedTree_4.gltf", "TwistedTree_5.gltf"],
+	"palm": ["TwistedTree_1.gltf", "TwistedTree_3.gltf"],
+	"dead": ["DeadTree_1.gltf", "DeadTree_2.gltf", "DeadTree_3.gltf", "DeadTree_4.gltf", "DeadTree_5.gltf"]
+}
+
+static var tree_scales := {
+	"oak": Vector3(1.5, 1.5, 1.5),
+	"birch": Vector3(1.2, 1.4, 1.2),
+	"pine": Vector3(1.0, 1.3, 1.0),
+	"spruce": Vector3(1.0, 1.5, 1.0),
+	"willow": Vector3(1.3, 1.2, 1.3),
+	"maple": Vector3(1.4, 1.4, 1.4),
+	"acacia": Vector3(1.5, 1.0, 1.5),
+	"palm": Vector3(1.0, 1.2, 1.0),
+	"dead": Vector3(1.0, 1.0, 1.0)
+}
+
+static func create_tree(tree_type: String, _lod_level: int = 0) -> Node3D:
+	var model_files = tree_mappings.get(tree_type, tree_mappings["oak"])
+	var selected_file = model_files[randi() % model_files.size()]
+	var full_path = NATURE_PATH + selected_file
+	
+	var model = _load_gltf_model(full_path)
+	if model:
+		model.name = tree_type.capitalize() + "Tree"
+		var base_scale = tree_scales.get(tree_type, Vector3.ONE)
+		model.scale = base_scale
+		return model
+	
+	return _create_fallback_tree(tree_type)
+
+static func _load_gltf_model(path: String) -> Node3D:
+	if loaded_models.has(path):
+		var cached = loaded_models[path]
+		if cached and is_instance_valid(cached):
+			return cached.duplicate()
+	
+	if not FileAccess.file_exists(path):
+		push_warning("[TreeGenerator] glTF file not found: " + path)
+		return null
+	
+	if gltf_document == null:
+		gltf_document = GLTFDocument.new()
+	
+	var state = GLTFState.new()
+	var file = FileAccess.open(path, FileAccess.READ)
+	if not file:
+		push_warning("[TreeGenerator] Cannot open file: " + path)
+		return null
+	
+	var error = gltf_document.append_from_file(path, state)
+	if error != OK:
+		push_warning("[TreeGenerator] Failed to parse glTF: " + path + " (error: " + str(error) + ")")
+		return null
+	
+	var scene = gltf_document.generate_scene(state)
+	if scene:
+		loaded_models[path] = scene
+		return scene.duplicate()
+	
+	return null
+
+static func _create_fallback_tree(tree_type: String) -> Node3D:
 	var root = Node3D.new()
-	root.name = tree_type.capitalize() + "Tree"
+	root.name = tree_type.capitalize() + "Tree_Fallback"
 	
 	var config = _get_tree_config(tree_type)
 	
-	var trunk = _create_trunk(config, lod_level)
+	var trunk = MeshInstance3D.new()
+	trunk.name = "Trunk"
+	var cylinder = CylinderMesh.new()
+	cylinder.top_radius = config.trunk_radius * 0.7
+	cylinder.bottom_radius = config.trunk_radius
+	cylinder.height = config.trunk_height
+	cylinder.radial_segments = 8
+	trunk.mesh = cylinder
+	trunk.position.y = config.trunk_height * 0.5
+	
+	var trunk_mat = StandardMaterial3D.new()
+	trunk_mat.albedo_color = config.trunk_color
+	trunk_mat.roughness = 0.95
+	trunk.material_override = trunk_mat
 	root.add_child(trunk)
 	
-	var foliage = _create_foliage(config, tree_type, lod_level)
-	root.add_child(foliage)
-	
-	if config.get("has_roots", false) and lod_level == 0:
-		var roots = _create_roots(config)
-		root.add_child(roots)
+	if config.crown_type != "none":
+		var crown = MeshInstance3D.new()
+		crown.name = "Crown"
+		var sphere = SphereMesh.new()
+		sphere.radius = config.crown_radius
+		sphere.height = config.crown_height
+		sphere.radial_segments = 12
+		sphere.rings = 6
+		crown.mesh = sphere
+		crown.position.y = config.trunk_height + config.crown_height * 0.4
+		
+		var crown_mat = StandardMaterial3D.new()
+		crown_mat.albedo_color = config.crown_color
+		crown_mat.roughness = 0.9
+		crown_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		crown.material_override = crown_mat
+		root.add_child(crown)
 	
 	return root
 
 static func _get_tree_config(tree_type: String) -> Dictionary:
 	match tree_type:
 		"oak":
-			return {
-				"trunk_height": 4.0,
-				"trunk_radius": 0.4,
-				"trunk_color": Color(0.35, 0.25, 0.18),
-				"crown_radius": 4.0,
-				"crown_height": 5.0,
-				"crown_color": Color(0.25, 0.45, 0.2),
-				"crown_type": "sphere",
-				"branch_count": 5,
-				"has_roots": true
-			}
+			return {"trunk_height": 4.0, "trunk_radius": 0.4, "trunk_color": Color(0.35, 0.25, 0.18), "crown_radius": 4.0, "crown_height": 5.0, "crown_color": Color(0.25, 0.45, 0.2), "crown_type": "sphere"}
 		"birch":
-			return {
-				"trunk_height": 6.0,
-				"trunk_radius": 0.25,
-				"trunk_color": Color(0.9, 0.88, 0.85),
-				"crown_radius": 2.5,
-				"crown_height": 4.0,
-				"crown_color": Color(0.35, 0.55, 0.25),
-				"crown_type": "oval",
-				"branch_count": 4,
-				"has_roots": false
-			}
-		"pine":
-			return {
-				"trunk_height": 8.0,
-				"trunk_radius": 0.35,
-				"trunk_color": Color(0.4, 0.28, 0.2),
-				"crown_radius": 2.5,
-				"crown_height": 7.0,
-				"crown_color": Color(0.15, 0.35, 0.15),
-				"crown_type": "cone",
-				"branch_count": 0,
-				"has_roots": true
-			}
-		"spruce":
-			return {
-				"trunk_height": 10.0,
-				"trunk_radius": 0.4,
-				"trunk_color": Color(0.38, 0.26, 0.18),
-				"crown_radius": 3.0,
-				"crown_height": 9.0,
-				"crown_color": Color(0.12, 0.3, 0.12),
-				"crown_type": "cone",
-				"branch_count": 0,
-				"has_roots": true
-			}
+			return {"trunk_height": 6.0, "trunk_radius": 0.25, "trunk_color": Color(0.9, 0.88, 0.85), "crown_radius": 2.5, "crown_height": 4.0, "crown_color": Color(0.35, 0.55, 0.25), "crown_type": "oval"}
+		"pine", "spruce":
+			return {"trunk_height": 8.0, "trunk_radius": 0.35, "trunk_color": Color(0.4, 0.28, 0.2), "crown_radius": 2.5, "crown_height": 7.0, "crown_color": Color(0.15, 0.35, 0.15), "crown_type": "cone"}
 		"willow":
-			return {
-				"trunk_height": 4.5,
-				"trunk_radius": 0.5,
-				"trunk_color": Color(0.4, 0.32, 0.22),
-				"crown_radius": 5.0,
-				"crown_height": 4.0,
-				"crown_color": Color(0.35, 0.5, 0.25),
-				"crown_type": "drooping",
-				"branch_count": 8,
-				"has_roots": true
-			}
-		"acacia":
-			return {
-				"trunk_height": 3.0,
-				"trunk_radius": 0.35,
-				"trunk_color": Color(0.45, 0.3, 0.2),
-				"crown_radius": 5.0,
-				"crown_height": 2.0,
-				"crown_color": Color(0.4, 0.5, 0.25),
-				"crown_type": "flat",
-				"branch_count": 3,
-				"has_roots": false
-			}
-		"maple":
-			return {
-				"trunk_height": 5.0,
-				"trunk_radius": 0.45,
-				"trunk_color": Color(0.38, 0.28, 0.2),
-				"crown_radius": 4.5,
-				"crown_height": 5.5,
-				"crown_color": Color(0.7, 0.35, 0.15),
-				"crown_type": "sphere",
-				"branch_count": 6,
-				"has_roots": true
-			}
-		"palm":
-			return {
-				"trunk_height": 7.0,
-				"trunk_radius": 0.3,
-				"trunk_color": Color(0.5, 0.4, 0.3),
-				"crown_radius": 3.0,
-				"crown_height": 2.0,
-				"crown_color": Color(0.3, 0.5, 0.2),
-				"crown_type": "palm",
-				"branch_count": 8,
-				"has_roots": false
-			}
+			return {"trunk_height": 4.5, "trunk_radius": 0.5, "trunk_color": Color(0.4, 0.32, 0.22), "crown_radius": 5.0, "crown_height": 4.0, "crown_color": Color(0.35, 0.5, 0.25), "crown_type": "drooping"}
 		"dead":
-			return {
-				"trunk_height": 4.0,
-				"trunk_radius": 0.3,
-				"trunk_color": Color(0.3, 0.25, 0.2),
-				"crown_radius": 0.0,
-				"crown_height": 0.0,
-				"crown_color": Color(0.3, 0.25, 0.2),
-				"crown_type": "none",
-				"branch_count": 4,
-				"has_roots": false
-			}
+			return {"trunk_height": 4.0, "trunk_radius": 0.3, "trunk_color": Color(0.3, 0.25, 0.2), "crown_radius": 0.0, "crown_height": 0.0, "crown_color": Color(0.3, 0.25, 0.2), "crown_type": "none"}
 		_:
-			return {
-				"trunk_height": 5.0,
-				"trunk_radius": 0.35,
-				"trunk_color": Color(0.4, 0.3, 0.2),
-				"crown_radius": 3.0,
-				"crown_height": 4.0,
-				"crown_color": Color(0.25, 0.45, 0.2),
-				"crown_type": "sphere",
-				"branch_count": 4,
-				"has_roots": false
-			}
-
-static func _create_trunk(config: Dictionary, lod_level: int) -> MeshInstance3D:
-	var mesh_inst = MeshInstance3D.new()
-	mesh_inst.name = "Trunk"
-	
-	var segments = 12 if lod_level == 0 else (6 if lod_level == 1 else 4)
-	
-	var cylinder = CylinderMesh.new()
-	cylinder.top_radius = config.trunk_radius * 0.7
-	cylinder.bottom_radius = config.trunk_radius
-	cylinder.height = config.trunk_height
-	cylinder.radial_segments = segments
-	mesh_inst.mesh = cylinder
-	
-	mesh_inst.position.y = config.trunk_height * 0.5
-	
-	var mat = StandardMaterial3D.new()
-	mat.albedo_color = config.trunk_color
-	mat.roughness = 0.95
-	mat.metallic = 0.0
-	mat.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
-	
-	var wood_tex_path = "res://assets/art_pack/textures/albedo_wood.png"
-	if ResourceLoader.exists(wood_tex_path):
-		mat.albedo_texture = load(wood_tex_path)
-		mat.albedo_color = Color(1, 1, 1)
-		mat.uv1_scale = Vector3(2, 4, 1)
-	
-	mesh_inst.material_override = mat
-	
-	return mesh_inst
-
-static func _create_foliage(config: Dictionary, tree_type: String, lod_level: int) -> Node3D:
-	var foliage = Node3D.new()
-	foliage.name = "Foliage"
-	
-	if config.crown_type == "none":
-		return foliage
-	
-	var crown_y = config.trunk_height
-	
-	match config.crown_type:
-		"sphere":
-			var mesh_inst = _create_sphere_crown(config, lod_level)
-			mesh_inst.position.y = crown_y + config.crown_height * 0.4
-			foliage.add_child(mesh_inst)
-		"oval":
-			var mesh_inst = _create_oval_crown(config, lod_level)
-			mesh_inst.position.y = crown_y + config.crown_height * 0.4
-			foliage.add_child(mesh_inst)
-		"cone":
-			var layers = 4 if lod_level == 0 else 2
-			for i in range(layers):
-				var mesh_inst = _create_cone_layer(config, i, layers, lod_level)
-				mesh_inst.position.y = crown_y + i * (config.crown_height / layers)
-				foliage.add_child(mesh_inst)
-		"flat":
-			var mesh_inst = _create_flat_crown(config, lod_level)
-			mesh_inst.position.y = crown_y + config.crown_height * 0.5
-			foliage.add_child(mesh_inst)
-		"drooping":
-			var mesh_inst = _create_drooping_crown(config, lod_level)
-			mesh_inst.position.y = crown_y + config.crown_height * 0.3
-			foliage.add_child(mesh_inst)
-		"palm":
-			var fronds = _create_palm_fronds(config, lod_level)
-			for frond in fronds:
-				frond.position.y = crown_y
-				foliage.add_child(frond)
-	
-	return foliage
-
-static func _create_sphere_crown(config: Dictionary, lod_level: int) -> MeshInstance3D:
-	var mesh_inst = MeshInstance3D.new()
-	mesh_inst.name = "Crown"
-	
-	var segments = 16 if lod_level == 0 else (8 if lod_level == 1 else 4)
-	
-	var sphere = SphereMesh.new()
-	sphere.radius = config.crown_radius
-	sphere.height = config.crown_height
-	sphere.radial_segments = segments
-	sphere.rings = segments / 2
-	mesh_inst.mesh = sphere
-	
-	mesh_inst.material_override = _create_leaves_material(config.crown_color)
-	
-	return mesh_inst
-
-static func _create_oval_crown(config: Dictionary, lod_level: int) -> MeshInstance3D:
-	var mesh_inst = MeshInstance3D.new()
-	mesh_inst.name = "Crown"
-	
-	var segments = 12 if lod_level == 0 else 6
-	
-	var sphere = SphereMesh.new()
-	sphere.radius = config.crown_radius
-	sphere.height = config.crown_height * 1.5
-	sphere.radial_segments = segments
-	sphere.rings = segments / 2
-	mesh_inst.mesh = sphere
-	
-	mesh_inst.material_override = _create_leaves_material(config.crown_color)
-	
-	return mesh_inst
-
-static func _create_cone_layer(config: Dictionary, layer: int, total_layers: int, lod_level: int) -> MeshInstance3D:
-	var mesh_inst = MeshInstance3D.new()
-	mesh_inst.name = "ConeLayer%d" % layer
-	
-	var segments = 12 if lod_level == 0 else 6
-	
-	var t = float(layer) / float(total_layers)
-	var radius = config.crown_radius * (1.0 - t * 0.7)
-	var height = config.crown_height / total_layers * 1.2
-	
-	var cone = CylinderMesh.new()
-	cone.top_radius = radius * 0.3
-	cone.bottom_radius = radius
-	cone.height = height
-	cone.radial_segments = segments
-	mesh_inst.mesh = cone
-	
-	mesh_inst.material_override = _create_leaves_material(config.crown_color)
-	
-	return mesh_inst
-
-static func _create_flat_crown(config: Dictionary, lod_level: int) -> MeshInstance3D:
-	var mesh_inst = MeshInstance3D.new()
-	mesh_inst.name = "Crown"
-	
-	var segments = 16 if lod_level == 0 else 8
-	
-	var cylinder = CylinderMesh.new()
-	cylinder.top_radius = config.crown_radius
-	cylinder.bottom_radius = config.crown_radius * 0.8
-	cylinder.height = config.crown_height
-	cylinder.radial_segments = segments
-	mesh_inst.mesh = cylinder
-	
-	mesh_inst.material_override = _create_leaves_material(config.crown_color)
-	
-	return mesh_inst
-
-static func _create_drooping_crown(config: Dictionary, lod_level: int) -> MeshInstance3D:
-	var mesh_inst = MeshInstance3D.new()
-	mesh_inst.name = "Crown"
-	
-	var segments = 16 if lod_level == 0 else 8
-	
-	var sphere = SphereMesh.new()
-	sphere.radius = config.crown_radius
-	sphere.height = config.crown_height * 2
-	sphere.radial_segments = segments
-	sphere.rings = segments / 2
-	mesh_inst.mesh = sphere
-	
-	mesh_inst.material_override = _create_leaves_material(config.crown_color)
-	
-	return mesh_inst
-
-static func _create_palm_fronds(config: Dictionary, lod_level: int) -> Array:
-	var fronds := []
-	var num_fronds = 8 if lod_level == 0 else 4
-	
-	for i in range(num_fronds):
-		var frond = MeshInstance3D.new()
-		frond.name = "Frond%d" % i
-		
-		var box = BoxMesh.new()
-		box.size = Vector3(0.3, 0.1, 2.5)
-		frond.mesh = box
-		
-		var angle = (float(i) / num_fronds) * TAU
-		frond.rotation.y = angle
-		frond.rotation.x = -0.5
-		
-		frond.material_override = _create_leaves_material(config.crown_color)
-		fronds.append(frond)
-	
-	return fronds
-
-static func _create_roots(config: Dictionary) -> Node3D:
-	var roots = Node3D.new()
-	roots.name = "Roots"
-	
-	for i in range(4):
-		var root = MeshInstance3D.new()
-		root.name = "Root%d" % i
-		
-		var cylinder = CylinderMesh.new()
-		cylinder.top_radius = config.trunk_radius * 0.15
-		cylinder.bottom_radius = config.trunk_radius * 0.4
-		cylinder.height = 1.0
-		cylinder.radial_segments = 6
-		root.mesh = cylinder
-		
-		var angle = (float(i) / 4.0) * TAU + randf() * 0.3
-		root.rotation.y = angle
-		root.rotation.z = 0.6
-		root.position = Vector3(cos(angle) * config.trunk_radius * 0.5, 0.3, sin(angle) * config.trunk_radius * 0.5)
-		
-		var mat = StandardMaterial3D.new()
-		mat.albedo_color = config.trunk_color * 0.9
-		mat.roughness = 0.95
-		root.material_override = mat
-		
-		roots.add_child(root)
-	
-	return roots
-
-static func _create_leaves_material(color: Color) -> StandardMaterial3D:
-	var mat = StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.roughness = 0.9
-	mat.metallic = 0.0
-	mat.diffuse_mode = BaseMaterial3D.DIFFUSE_BURLEY
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	return mat
+			return {"trunk_height": 5.0, "trunk_radius": 0.35, "trunk_color": Color(0.4, 0.3, 0.2), "crown_radius": 3.0, "crown_height": 4.0, "crown_color": Color(0.25, 0.45, 0.2), "crown_type": "sphere"}
 
 static func get_biome_tree_types(biome: String) -> Array:
 	match biome:

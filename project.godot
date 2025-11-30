@@ -74,6 +74,8 @@ TextureLoader="*res://scripts/systems/texture_loader.gd"
 MaterialFactory="*res://scripts/systems/material_factory.gd"
 BlueprintBook="*res://scripts/systems/blueprint_book.gd"
 RuntimeResourceLoader="*res://scripts/systems/runtime_resource_loader.gd"
+SettlementBuilder="*res://scripts/world/settlement_builder.gd"
+SettlementNPCSpawner="*res://scripts/npcs/settlement_npc_spawner.gd"
 
 [filesystem]
 

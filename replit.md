@@ -60,15 +60,43 @@ The game is built around 40+ autoloaded singleton systems for managing core mech
 
 ## Recent Changes (November 30, 2025)
 
-### GitHub Import Setup - Replit Environment Configuration
-- Re-installed Godot 4.4.1 and VNC dependencies via Nix packager
-- Created `start_godot_vnc.sh` startup script with VNC configuration
-- Configured "Run Godot Game" workflow with VNC output type
+### Settlement Builder System (Latest - November 30, 2025)
+- **SettlementBuilder**: Created `scripts/world/settlement_builder.gd` - comprehensive settlement generation using Medieval Village MegaKit models
+  - 9 building templates: small_house, medium_house, large_house, tavern, blacksmith, shop, guard_tower, well, market_stall
+  - Uses glTF models from Medieval Village MegaKit (walls, roofs, floors, doors)
+  - Modular building construction with walls, floors, and roofs
+  - Village and city generation with walls, gates, market areas
+  - Path generation between buildings
+  - Interior props from Fantasy Props MegaKit (anvils, barrels, benches, workbenches)
+  - Integration with SettlementSystem for NPC management
+- **SettlementNPCSpawner**: Created `scripts/npcs/settlement_npc_spawner.gd` - NPC spawning system tied to settlements
+  - Profession-based distribution (guards, traders, farmers, hunters, craftsmen, citizens)
+  - 3D character models from art_pack2 with profession-based coloring
+  - Name labels with profession titles (Russian/English)
+  - Integration with NPCAIBrain for AI behavior
+  - Connection to SettlementBuilder via signals
+- Added autoloads: SettlementBuilder, SettlementNPCSpawner
+
+### Fresh GitHub Import - Replit Environment Setup
+- **Fresh Clone Setup**: Reconfigured project from fresh GitHub clone
+- Installed Godot 4.4.1 and VNC dependencies (TigerVNC 1.14.0, xorg packages, mesa) via Nix packager
+- Created `start_godot_vnc.sh` startup script using direct Xvnc launch (bypasses vncserver wrapper issues)
+- Created VNC xstartup configuration in `~/.vnc/xstartup`
+- Configured "Run Godot Game" workflow with VNC output type on port 5900
+- Created comprehensive `.gitignore` for Godot 4.x projects
+- **Verification**: Game running successfully with:
+  - ModelLoader: 181 models loaded
+  - WorldModelSpawner: Active and ready
+  - TextureLoader: 38 texture sets loaded
+  - MaterialFactory: Initialized
+  - RuntimeResourceLoader: 356 models and 61 textures found
+  - OpenGL rendering: Mesa llvmpipe with OpenGL 4.5 Core Profile
+- All 40+ autoload singleton systems initialized successfully
+- Main menu loads at `res://scenes/ui/main_menu.tscn`
+
+### Previous GitHub Import Setup (Earlier November 30, 2025)
 - Fixed NameGenerator autoload configuration (removed class_name to prevent singleton conflict)
 - Updated GameManager to use NameGenerator as autoload singleton
-- Created .gitignore for Godot-specific files
-- Verified successful game launch with all 40+ autoload systems initialized
-- Status: Game running successfully with ModelLoader (181 models), WorldModelSpawner, TextureLoader (38 texture sets), and MaterialFactory initialized
 
 ### Character Creation
 - Added 3D character model preview using Superhero_Male/Female.gltf from art_pack2
